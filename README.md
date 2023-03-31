@@ -1,5 +1,7 @@
 # public_portfolio
 
+![CI Status](https://github.com/RodolfoBonis/portfolio/actions/workflows/ci.yml/badge.svg)
+
 ## Build Setup
 
 ```bash
