@@ -7,6 +7,10 @@ import {
   faGithub,
 } from '@fortawesome/free-brands-svg-icons'
 
+import {
+  faEnvelope
+} from '@fortawesome/free-solid-svg-icons'
+
 // This line add brands icons into application
 /*
   for use:
@@ -14,7 +18,7 @@ import {
   <font-awesome-icon :icon="['fa-brands', 'twitter']" />
   <font-awesome-icon :icon="['fa-brands', 'linkedin']" />
  */
-library.add(faLinkedin, faTwitter, faGithub)
+library.add(faLinkedin, faTwitter, faGithub, faEnvelope)
 
 // This is important, we are going to let Nuxt worry about the CSS
 config.autoAddCss = false

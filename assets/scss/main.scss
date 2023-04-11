@@ -1,3 +1,24 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import 'colors';
+
+body {
+  display: flex;
+  background-color: $primary-color;
+  color: $accent-color;
+  padding-top: 80px;
+  max-width: max-content;
+  margin: auto;
+}
+
+header {
+  background: $primary-color;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 999;
+  box-shadow: 0 0 6px 0 rgba(28, 34, 54, 1);
+}
