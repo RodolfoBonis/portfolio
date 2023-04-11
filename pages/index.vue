@@ -11,13 +11,11 @@
 </template>
 
 <script>
-
 export default {
   data: function () {
     return {
-      age: new Date().getFullYear() - 1996
-    };
-  }
+      age: new Date().getFullYear() - 1996,
+    }
+  },
 }
-
 </script>

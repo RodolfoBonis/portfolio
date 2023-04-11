@@ -93,10 +93,10 @@
 </template>
 
 <script>
-import SocialMedia from "~/components/SocialMedia.vue";
+import SocialMedia from '~/components/SocialMedia.vue'
 
 export default {
   name: 'MainHeader',
-  components: {SocialMedia},
+  components: { SocialMedia },
 }
 </script>

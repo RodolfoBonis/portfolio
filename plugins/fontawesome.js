@@ -7,9 +7,7 @@ import {
   faGithub,
 } from '@fortawesome/free-brands-svg-icons'
 
-import {
-  faEnvelope
-} from '@fortawesome/free-solid-svg-icons'
+import { faEnvelope } from '@fortawesome/free-solid-svg-icons'
 
 // This line add brands icons into application
 /*
