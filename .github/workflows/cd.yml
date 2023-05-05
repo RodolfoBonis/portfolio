@@ -72,6 +72,8 @@ jobs:
             Build Status: ${{ job.status }}
             See New Build on: https://${{ secrets.SSH_HOST }}
 
+            Good job!
+
       - if: ${{ job.status != 'success'}}
         name: Send Message via Telegram
         uses: appleboy/telegram-action@master
