@@ -7,29 +7,18 @@
       <div class="flex lg:flex-1">
         <a href="/" class="-m-1.5 p-1.5">
           <span class="sr-only">Rodolfo De Bonis</span>
-          <img class="h-8 w-auto" src="@/static/logo_named.png" alt="" />
+          <img class="h-8 w-auto" src="@/static/logo-light.png" alt="" />
         </a>
       </div>
+
       <div class="flex lg:hidden">
         <button
           type="button"
           class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
+          @click="mobileMenuOpen = true"
         >
           <span class="sr-only">Open main menu</span>
-          <svg
-            class="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-            />
-          </svg>
+          <Bars3Icon class="h-6 w-6" aria-hidden="true" />
         </button>
       </div>
       <div class="hidden lg:flex lg:gap-x-12">
@@ -41,62 +30,81 @@
         <SocialMedia />
       </div>
     </nav>
-    <!-- Mobile menu, show/hide based on menu open state. -->
-    <div class="hidden" role="dialog" aria-modal="true">
-      <!-- Background backdrop, show/hide based on slide-over state. -->
-      <div class="fixed inset-0 z-10"></div>
-      <div
-        class="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto background-dark px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10"
+
+    <Dialog
+      is="div"
+      class="lg:hidden"
+      :open="mobileMenuOpen"
+      @close="mobileMenuOpen = false"
+    >
+      <div class="fixed inset-0 z-10" />
+      <DialogPanel
+        class="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto dialog px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10"
       >
         <div class="flex items-center justify-between">
-          <a href="#" class="-m-1.5 p-1.5">
+          <a href="#" class="-m-1.5 p-1.5" @click="mobileMenuOpen = false">
             <span class="sr-only">Rodolfo De Bonis</span>
             <img class="h-8 w-auto" src="@/static/logo-light.png" alt="" />
           </a>
-          <button type="button" class="-m-2.5 rounded-md p-2.5">
+          <button
+            type="button"
+            class="-m-2.5 rounded-md p-2.5 text-gray-700"
+            @click="mobileMenuOpen = false"
+          >
             <span class="sr-only">Close menu</span>
-            <svg
-              class="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <XMarkIcon class="h-6 w-6" aria-hidden="true" />
           </button>
         </div>
-        <div class="mt-6 flow-root">
-          <div class="-my-6 divide-y divide-gray-500/10">
-            <div class="space-y-2 py-6">
-              <a
-                href="#about-me"
-                class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 hover:bg-gray-900"
-                >About me</a
-              >
-              <a
-                href="#works"
-                class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 hover:bg-gray-900"
-                >Works</a
-              >
+        <div class="flex-col">
+          <div class="mt-6 flow-root">
+            <div class="-my-6 divide-y divide-gray-500/10">
+              <div class="space-y-2 py-6">
+                <a
+                  href="#about-me"
+                  class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 hover:bg-gray-900"
+                  @click="mobileMenuOpen = false"
+                  >About me</a
+                >
+                <a
+                  href="#stacks"
+                  class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 hover:bg-gray-900"
+                  @click="mobileMenuOpen = false"
+                  >Stacks</a
+                >
+                <a
+                  href="#works"
+                  class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 hover:bg-gray-900"
+                  @click="mobileMenuOpen = false"
+                  >Works</a
+                >
+              </div>
             </div>
           </div>
+
+          <div class="absolute bottom-5 left-2">
+            <SocialMedia />
+          </div>
         </div>
-      </div>
-    </div>
+      </DialogPanel>
+    </Dialog>
   </header>
 </template>
 
 <script>
+import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline'
+import { DialogPanel, Dialog } from '@headlessui/vue'
 import SocialMedia from '~/components/SocialMedia.vue'
+
+const mobileMenuOpen = ref(false)
 
 export default {
   name: 'MainHeader',
-  components: { SocialMedia },
+  // eslint-disable-next-line vue/no-reserved-component-names
+  components: { DialogPanel, Dialog, Bars3Icon, XMarkIcon, SocialMedia },
+  data: function () {
+    return {
+      mobileMenuOpen,
+    }
+  },
 }
 </script>
