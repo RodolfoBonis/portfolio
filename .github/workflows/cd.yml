@@ -1,0 +1,90 @@
+name: cd
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  ci:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node: [14]
+
+    steps:
+      - name: Checkout 🛎
+        uses: actions/checkout@master
+
+      - name: Setup node env 🏗
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: ${{ matrix.node }}
+          check-latest: true
+
+      - name: Get yarn cache directory path 🛠
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - name: Cache node_modules 📦
+        uses: actions/cache@v2.1.4
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Install dependencies 👨🏻‍💻
+        run: yarn
+
+      - name: Build project 🛠
+        run: yarn build
+
+      - name: Generate project ⚙️
+        run: yarn generate
+
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: unnecessary
+
+      - name: Adding Known Hosts
+        run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy project
+        run: rsync -avz ./.output/public/* ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_PROJECT_PATH }}
+
+      - if: ${{ job.status == 'success'}}
+        name: Send Message via Telegram
+        uses: appleboy/telegram-action@master
+        with:
+          token: ${{ secrets.BOTTOKEN }}
+          to: ${{ secrets.CHAT_ID }}
+          message: |
+            ✅ ${{ github.actor }} created commit:
+            Commit message: ${{ github.event.commits[0].message }}
+            Repository: ${{ github.repository }}
+            See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+            Build Status: ${{ job.status }}
+            See New Build on: https://${{ secrets.SSH_HOST }}
+      - if: ${{ job.status != 'success'}}
+        name: Send Message via Telegram
+        uses: appleboy/telegram-action@master
+        with:
+          token: ${{ secrets.BOTTOKEN }}
+          to: ${{ secrets.CHAT_ID }}
+          message: |
+            ⛔️ There was an error when build project
+            ${{ github.actor }} created commit:
+            Commit message: ${{ github.event.commits[0].message }}
+            Repository: ${{ github.repository }}
+            See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+            Build Status: ${{ job.status }}

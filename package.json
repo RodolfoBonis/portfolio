@@ -26,6 +26,7 @@
     "@fortawesome/vue-fontawesome": "^3.0.3",
     "@headlessui/vue": "^1.7.12",
     "@heroicons/vue": "^2.0.17",
+    "@vue-hero-icons/outline": "^1.7.2",
     "axios": "^1.3.4",
     "core-js": "^3.25.3",
     "node-sass": "^8.0.0",
