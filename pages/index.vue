@@ -1,12 +1,21 @@
 <template>
   <div>
-    <div id="about-me" class="flex flex-col text-center justify-center items-center py-24">
+    <div
+      id="about-me"
+      class="flex flex-col text-center justify-center items-center py-24"
+    >
       <div class="flex flex-row justify-center items-center">
-        <h3 class="text-4xl sm:text-4xl md:text-5xl lg:text-6xl">Rodolfo De Bonis</h3>
+        <h3 class="text-4xl sm:text-4xl md:text-5xl lg:text-6xl">
+          Rodolfo De Bonis
+        </h3>
       </div>
 
       <div class="pt-16">
-        <img class="w-32 h-32 rounded-full object-cover" src="@/static/me.jpeg" alt=""/>
+        <img
+          class="w-32 h-32 rounded-full object-cover"
+          src="@/static/me.jpeg"
+          alt=""
+        />
       </div>
 
       <div class="pt-16">
