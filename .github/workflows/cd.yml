@@ -71,6 +71,7 @@ jobs:
             See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
             Build Status: ${{ job.status }}
             See New Build on: https://${{ secrets.SSH_HOST }}
+
       - if: ${{ job.status != 'success'}}
         name: Send Message via Telegram
         uses: appleboy/telegram-action@master
