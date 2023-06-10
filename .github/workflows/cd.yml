@@ -1,5 +1,8 @@
 name: cd
 
+env:
+  DOCKER_REGISTRY: ghcr.io
+
 on:
   push:
     branches:
@@ -13,50 +16,39 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node: [14]
 
     steps:
       - name: Checkout 🛎
         uses: actions/checkout@master
 
-      - name: Setup node env 🏗
-        uses: actions/setup-node@v2.1.5
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Preset Image Name
+        run: echo "IMAGE_URL=$(echo ${{ env.DOCKER_REGISTRY }}/${{ github.repository_owner }}/${{ github.event.repository.name }}:$(echo ${{ github.sha }} | cut -c1-7) | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Log into Container registry ${{ env.DOCKER_REGISTRY }}
+        uses: docker/login-action@v2
         with:
-          node-version: ${{ matrix.node }}
-          check-latest: true
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_TOKEN }}
 
-      - name: Get yarn cache directory path 🛠
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      - name: Cache node_modules 📦
-        uses: actions/cache@v2.1.4
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+      - name: Build and push Docker Image
+        uses: docker/build-push-action@v4
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: Install dependencies 👨🏻‍💻
-        run: yarn
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_URL }}
 
-      - name: Build project 🛠
-        run: yarn build
-
-      - name: Generate project ⚙️
-        run: yarn generate
-
-      - name: Install SSH Key
-        uses: shimataro/ssh-key-action@v2
+      - name: Deploy Image to CapRrover
+        uses: caprover/deploy-from-github@v1.1.2
         with:
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          known_hosts: unnecessary
-
-      - name: Adding Known Hosts
-        run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Deploy project
-        run: rsync -avz ./.output/public/* ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_PROJECT_PATH }}
+          server: "${{ secrets.CAPROVER_SERVER }}"
+          app: "${{ secrets.APP_NAME }}"
+          token: "${{ secrets.APP_TOKEN }}"
+          image: ${{ env.IMAGE_URL }}
 
       - if: ${{ job.status == 'success'}}
         name: Send Message via Telegram
