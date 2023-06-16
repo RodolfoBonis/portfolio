@@ -1,39 +1,31 @@
 <template>
   <div>
     <client-only>
-      <a href="https://github.com/RodolfoBonis" target="_blank">
-        <font-awesome-icon
-          class="text-white fa-lg px-3"
-          :icon="['fab', 'github']"
-        />
-      </a>
-      <a href="https://www.linkedin.com/in/rodolfo-de-bonis/" target="_blank">
-        <font-awesome-icon
-          class="text-white fa-lg px-3"
-          :icon="['fab', 'linkedin']"
-        />
-      </a>
-      <a href="https://twitter.com/RodolfoBonis" target="_blank">
-        <font-awesome-icon
-          class="text-white fa-lg px-3"
-          :icon="['fab', 'twitter']"
-        />
-      </a>
-      <a href="mailto:dev@rodolfodebonis.com.br" target="_blank">
-        <font-awesome-icon
-          class="text-white fa-lg px-3"
-          :icon="['fas', 'envelope']"
-        />
-      </a>
+      <SocialMediaButton
+        :icon="['fab', 'github']"
+        link="https://github.com/RodolfoBonis"
+      />
+      <SocialMediaButton
+        :icon="['fab', 'linkedin']"
+        link="https://www.linkedin.com/in/rodolfo-de-bonis/"
+      />
+      <SocialMediaButton
+        :icon="['fab', 'twitter']"
+        link="https://twitter.com/RodolfoBonis"
+      />
+      <SocialMediaButton
+        :icon="['fas', 'envelope']"
+        link="mailto:dev@rodolfodebonis.com.br"
+      />
     </client-only>
   </div>
 </template>
 
 <script>
-// eslint-disable-next-line import/named
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { defineComponent } from 'vue'
+import SocialMediaButton from '~/components/SocialMediaButton.vue'
 
-export default {
-  components: { FontAwesomeIcon },
-}
+export default defineComponent({
+  components: { SocialMediaButton },
+})
 </script>
