@@ -19,7 +19,7 @@
       </div>
 
       <div class="pt-16">
-        <p>I'm a mobile software engineer at Brazil.</p>
+        <p>I'm a software engineer at Brazil.</p>
         <p>Currently I have {{ age }} years old</p>
         <p>I have a degree in systems analysis and development.</p>
       </div>
