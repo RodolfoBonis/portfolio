@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@master
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Preset Image Name
         run: echo "IMAGE_URL=$(echo ${{ env.DOCKER_REGISTRY }}/${{ github.repository_owner }}/${{ github.event.repository.name }}:$(echo ${{ github.sha }} | cut -c1-7) | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
