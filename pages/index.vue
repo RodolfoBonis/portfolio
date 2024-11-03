@@ -28,11 +28,13 @@
 </template>
 
 <script>
+import { CDN_API_KEY } from '~/src/constants/cdn.const'
+
 export default {
   data: function () {
     return {
       age: new Date().getFullYear() - 1996,
-      logoUrl: `https://rb-cdn.rodolfodebonis.com.br/v1/cdn/portfolio/me.jpeg?X-Api-Key=${process.env.CDN_API_KEY}`,
+      logoUrl: `https://rb-cdn.rodolfodebonis.com.br/v1/cdn/portfolio/me.jpeg?X-Api-Key=${CDN_API_KEY}`,
     }
   },
 }
