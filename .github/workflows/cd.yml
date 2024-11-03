@@ -1,17 +1,46 @@
 name: cd
 
-env:
-  DOCKER_REGISTRY: ghcr.io
-
 on:
-  push:
-    branches:
-      - main
-      - master
+  workflow_run:
+    workflows: ['ci']
+    types:
+      - completed
 
 jobs:
-  ci:
+  get_commit_messages:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          fetch-depth: 0
+
+      - name: Get last release tag
+        id: lasttag
+        run: echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
+
+      - name: Get commit messages
+        id: log
+        run: |
+          messages=$(git log --pretty=format:'%s' --no-merges ${{ steps.lasttag.outputs.tag }}..HEAD)
+          messages="${messages//'%'/'%25'}"
+          messages="${messages//$'\n'/'\n- '}"
+          messages="${messages//$'\r'/'%0D'}"
+          echo "- $messages" > commit_messages.txt
+        shell: bash
+
+      - name: Upload commit messages
+        uses: actions/upload-artifact@v4
+        with:
+          name: commit-messages
+          path: commit_messages.txt
+
+  deploy:
     runs-on: ${{ matrix.os }}
+    needs: get_commit_messages
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
 
     strategy:
       matrix:
@@ -22,25 +51,48 @@ jobs:
         uses: actions/checkout@master
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
+
+      - name: Increment version
+        run: |
+          chmod +x ./.config/scripts/increment_version.sh
+          ./.config/scripts/increment_version.sh
+          echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
+
+      - name: Add, commit and push version increment
+        uses: EndBug/add-and-commit@v9
+        with:
+          author_name: 'GitHub Actions'
+          author_email: 'actions@github.com'
+          message: 'Increment version'
+          add: 'version.txt'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Preset Image Name
-        run: echo "IMAGE_URL=$(echo ${{ env.DOCKER_REGISTRY }}/${{ github.repository_owner }}/${{ github.event.repository.name }}:$(echo ${{ github.sha }} | cut -c1-7) | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-
-      - name: Log into Container registry ${{ env.DOCKER_REGISTRY }}
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ env.DOCKER_REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GH_TOKEN }}
+        run: echo "IMAGE_URL=$(echo ${{ steps.login-ecr.outputs.registry }}/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ env.VERSION }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Build and push Docker Image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
           push: true
           tags: ${{ env.IMAGE_URL }}
+          build-args: |
+            "GITHUB_TOKEN=${{ secrets.GH_TOKEN }}"
+            "VERSION=${{ env.VERSION }}"
 
       - name: Deploy Image to CapRrover
         uses: caprover/deploy-from-github@v1.1.2
@@ -49,6 +101,32 @@ jobs:
           app: '${{ secrets.APP_NAME }}'
           token: '${{ secrets.APP_TOKEN }}'
           image: ${{ env.IMAGE_URL }}
+
+      - name: Download commit messages
+        uses: actions/download-artifact@v4
+        with:
+          name: commit-messages
+          path: .
+
+      - name: Read commit messages from file
+        run: |
+          export MESSAGES=$(cat commit_messages.txt)
+          echo "MESSAGES='$MESSAGES'" >> $GITHUB_ENV
+
+      - name: Create Release
+        id: create_release
+        if: ${{ job.status == 'success' }}
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          tag_name: ${{ steps.create_tag.outputs.tag }}
+          release_name: Release ${{ env.VERSION }}
+          body: |
+            Changes in this Release:
+            ${{ env.MESSAGES }}
+          draft: false
+          prerelease: false
 
       - if: ${{ job.status == 'success'}}
         name: Send Message via Telegram
