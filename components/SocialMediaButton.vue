@@ -1,5 +1,4 @@
 <script lang="ts">
-// eslint-disable-next-line import/named
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 export default {

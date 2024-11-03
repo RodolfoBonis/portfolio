@@ -13,7 +13,7 @@
       <div class="pt-16">
         <img
           class="w-32 h-32 rounded-full object-cover"
-          src="@/static/me.jpeg"
+          :src="logoUrl"
           alt=""
         />
       </div>
@@ -32,6 +32,7 @@ export default {
   data: function () {
     return {
       age: new Date().getFullYear() - 1996,
+      logoUrl: `https://rb-cdn.rodolfodebonis.com.br/v1/cdn/portfolio/me.jpeg?X-Api-Key=${process.env.CDN_API_KEY}`,
     }
   },
 }
