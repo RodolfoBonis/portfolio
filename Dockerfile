@@ -1,17 +1,33 @@
-FROM node:18.16.0
-LABEL authors="rodolfodebonis"
+# Use the official Node.js LTS (Long Term Support) image as the base image
+FROM node:18.16.0-alpine AS builder
 
-RUN mkdir -p /usr/src/nuxt-app
-WORKDIR /usr/src/nuxt-app
+# Set the working directory in the container
+WORKDIR /app
 
-COPY . /usr/src/nuxt-app/
+RUN apk add --update python3 make g++
 
-RUN rm -rf node_modules
+# Copy the package.json and yarn.lock files to the container
+COPY package.json yarn.lock ./
 
+# Install project dependencies
 RUN yarn install
 
-RUN yarn build
+# Build the Nuxt 3 application for production
+# Copy the rest of the application code to the container
+COPY . .
 
-EXPOSE 3000
+RUN yarn generate
 
-CMD [ "yarn", "start" ]
+
+
+# Use a smaller production image
+FROM nginx:stable-alpine AS production
+
+COPY --from=builder /app/.output/public /usr/share/nginx/html
+
+
+COPY ./.config/nginx/nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
