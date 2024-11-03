@@ -52,12 +52,14 @@ export default defineNuxtConfig({
     '@nuxt/typescript-build',
     // https://go.nuxtjs.dev/stylelint
     '@nuxtjs/stylelint-module',
+    // https://go.nuxtjs.dev/dotenv
+    ['@nuxtjs/dotenv', { systemvars: true }],
     // https://go.nuxtjs.dev/tailwindcss
     '@nuxt/postcss8',
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
-  modules: ['@nuxtjs/dotenv'],
+  modules: [],
 
   styleResources: {
     scss: ['./assets/scss/*.scss'],
