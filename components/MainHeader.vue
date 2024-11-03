@@ -7,7 +7,7 @@
       <div class="flex lg:flex-1">
         <a href="/" class="-m-1.5 p-1.5">
           <span class="sr-only">Rodolfo De Bonis</span>
-          <img class="h-8 w-auto" src="@/static/logo-light.png" alt="" />
+          <img class="h-8 w-auto" :src="logoUrl" alt="" />
         </a>
       </div>
 
@@ -44,7 +44,7 @@
         <div class="flex items-center justify-between">
           <a href="#" class="-m-1.5 p-1.5" @click="mobileMenuOpen = false">
             <span class="sr-only">Rodolfo De Bonis</span>
-            <img class="h-8 w-auto" src="@/static/logo-light.png" alt="" />
+            <img class="h-8 w-auto" :src="logoUrl" alt="" />
           </a>
           <button
             type="button"
@@ -104,6 +104,7 @@ export default {
   data: function () {
     return {
       mobileMenuOpen,
+      logoUrl: `https://rb-cdn.rodolfodebonis.com.br/v1/cdn/portfolio/logo-light.png?X-Api-Key=${process.env.CDN_API_KEY}`,
     }
   },
 }
