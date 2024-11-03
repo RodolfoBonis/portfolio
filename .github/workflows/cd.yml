@@ -104,6 +104,11 @@ jobs:
           token: '${{ secrets.APP_TOKEN }}'
           image: ${{ env.IMAGE_URL }}
 
+      - name: Create Tag for Release
+        id: create_tag
+        if: ${{ job.status == 'success' }}
+        run: echo "::set-output name=tag::v${{ env.VERSION }}"
+
       - name: Download commit messages
         uses: actions/download-artifact@v4
         with:
