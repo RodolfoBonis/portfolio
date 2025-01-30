@@ -100,6 +100,7 @@ jobs:
         uses: actions/checkout@master
         with:
           repository: RodolfoBonis/k3s-apps.git
+          ref: main
           path: k3s-manifest
           token: ${{ secrets.GH_TOKEN }}
 
