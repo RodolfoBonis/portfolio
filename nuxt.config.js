@@ -1,5 +1,6 @@
 export default defineNuxtConfig({
   target: 'static',
+
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     title: 'Rodolfo De Bonis',
@@ -74,10 +75,11 @@ export default defineNuxtConfig({
   },
 
   build: {},
-
   devServerHandlers: [],
 
   server: {
     host: '0.0.0.0',
   },
+
+  compatibilityDate: '2025-01-30',
 })
