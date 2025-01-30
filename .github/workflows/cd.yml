@@ -115,7 +115,7 @@ jobs:
 
       - name: Sync ArgoCD Application
         run: |
-          argocd app sync your-argocd-app-name --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
+          argocd app sync portfolio --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
 
       - name: Create Tag for Release
         id: create_tag
