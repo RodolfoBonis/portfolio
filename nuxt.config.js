@@ -1,3 +1,5 @@
+import tailwindcss from "@tailwindcss/vite";
+
 export default defineNuxtConfig({
   target: 'static',
 
@@ -36,8 +38,8 @@ export default defineNuxtConfig({
 
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [
-    '@/assets/scss/colors.scss',
-    '@/assets/scss/main.scss',
+    '@/assets/css/colors.css',
+    '@/assets/css/main.css',
     '@fortawesome/fontawesome-svg-core/styles.css',
   ],
 
@@ -63,15 +65,7 @@ export default defineNuxtConfig({
   modules: [],
 
   styleResources: {
-    scss: ['./assets/scss/*.scss'],
-  },
-
-  // Build Configuration: https://go.nuxtjs.dev/config-build
-  postcss: {
-    plugins: {
-      tailwindcss: {},
-      autoprefixer: {},
-    },
+    scss: ['./assets/css/*.css'],
   },
 
   build: {},
@@ -82,4 +76,10 @@ export default defineNuxtConfig({
   },
 
   compatibilityDate: '2025-01-30',
+  devtools: { enabled: false },
+  vite: {
+    plugins: [
+      tailwindcss(),
+    ],
+  },
 })

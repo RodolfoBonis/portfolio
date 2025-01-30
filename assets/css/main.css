@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+*,
+::after,
+::before,
+::backdrop,
+::file-selector-button {
+  border-color: var(--color-gray-200, currentColor);
+}
+
+body {
+  display: flex;
+  background-color: var(--primary-color);
+  color: var(--accent-color);
+  padding-top: 80px;
+  max-width: max-content;
+  margin: auto;
+}
+
+header {
+  background: var(--primary-color);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 999;
+  box-shadow: 0 0 6px 0 rgba(28, 34, 54, 1);
+}
+
+.dialog {
+  background: var(--primary-color);
+}

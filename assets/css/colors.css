@@ -1,0 +1,9 @@
+:root {
+  --primary-color: #12181f;
+  --accent-color: #dbdcde;
+}
+
+.background-dark {
+  background-color: var(--primary-color);
+  color: var(--accent-color);
+}
