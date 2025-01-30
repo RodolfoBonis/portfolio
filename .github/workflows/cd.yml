@@ -96,13 +96,26 @@ jobs:
             "GITHUB_TOKEN=${{ secrets.GH_TOKEN }}"
             "VERSION=${{ env.VERSION }}"
 
-      - name: Deploy Image to CapRrover
-        uses: caprover/deploy-from-github@v1.1.2
+      - name: Checkout k3s manifest repository
+        uses: actions/checkout@master
         with:
-          server: '${{ secrets.CAPROVER_SERVER }}'
-          app: '${{ secrets.APP_NAME }}'
-          token: '${{ secrets.APP_TOKEN }}'
-          image: ${{ env.IMAGE_URL }}
+          repository: https://github.com/RodolfoBonis/k3s-apps
+          path: k3s-manifest
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Update k3s manifest with new image version
+        run: |
+          cd k3s-manifest
+          yq e -i ".spec.template.spec.containers[0].image = \"${{ env.IMAGE_URL }}\" ./applications/portfolio/portfolio-deployment.yaml
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add ./applications/portfolio/portfolio-deployment.yaml
+          git commit -m "Update image to ${{ env.IMAGE_URL }}"
+          git push
+
+      - name: Sync ArgoCD Application
+        run: |
+          argocd app sync portfolio --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
 
       - name: Create Tag for Release
         id: create_tag
