@@ -1,4 +1,4 @@
-import tailwindcss from "@tailwindcss/vite";
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineNuxtConfig({
   target: 'static',
@@ -78,8 +78,6 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-01-30',
   devtools: { enabled: false },
   vite: {
-    plugins: [
-      tailwindcss(),
-    ],
+    plugins: [tailwindcss()],
   },
 })
