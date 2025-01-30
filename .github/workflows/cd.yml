@@ -99,7 +99,7 @@ jobs:
       - name: Checkout k3s manifest repository
         uses: actions/checkout@master
         with:
-          repository: RodolfoBonis/k3s-apps.git
+          repository: RodolfoBonis/k3s-apps
           ref: main
           path: k3s-manifest
           token: ${{ secrets.GH_TOKEN }}
