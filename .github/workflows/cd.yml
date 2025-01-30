@@ -55,6 +55,9 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Setup ArgoCD CLI
+        uses: imajeetyadav/argocd-cli@v1
+
       - name: Increment version
         run: |
           chmod +x ./.config/scripts/increment_version.sh
