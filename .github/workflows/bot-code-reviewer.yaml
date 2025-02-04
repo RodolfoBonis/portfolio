@@ -24,4 +24,4 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          python .config/scripts/generate_pr_reviewer.py
+          python .config/scripts/generate_pr_review.py
