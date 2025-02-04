@@ -2,7 +2,7 @@ name: bot-code-reviewer
 
 on:
   pull_request:
-    types: [ opened, synchronize, reopened, ready_for_review ]
+    types: [opened, synchronize]
 
 jobs:
   code-review:

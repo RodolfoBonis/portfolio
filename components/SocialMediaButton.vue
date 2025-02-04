@@ -10,7 +10,7 @@ export default {
       default: '',
     },
     icon: {
-      type: Array<String>,
+      type: Array<string>,
       required: true,
       default: ['fab', 'github'],
     },
