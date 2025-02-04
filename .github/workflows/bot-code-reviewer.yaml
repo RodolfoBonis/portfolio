@@ -1,0 +1,17 @@
+name: bot-code-reviewer
+
+on: [pull_request]
+
+jobs:
+  code-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: sshnaidm/gpt-code-review-action@v2.0
+        with:
+          openai-key: ${{ secrets.OPENAI_TOKEN }}
+          model: 'gpt-4o-mini'
+          post-if-error: 'true'
