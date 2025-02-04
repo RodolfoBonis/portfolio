@@ -57,15 +57,14 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
           fetch-depth: 0
 
-      - name: Restore node_modules and yarn cache 📦
-        uses: actions/cache@v4
+      - name: Setup Node.js 🏗
+        uses: actions/setup-node@v4
         with:
-          path: |
-            ${{ needs.setup.outputs.yarn-cache-dir-path }}
-            node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+          node-version: ${{ needs.setup.outputs.node_version }}
+          check-latest: true
+
+      - name: Install dependencies 👨🏻‍💻
+        run: yarn --frozen-lockfile
 
       - name: Run linter 👀
         run: yarn lint
@@ -80,15 +79,14 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
           fetch-depth: 0
 
-      - name: Restore node_modules and yarn cache 📦
-        uses: actions/cache@v4
+      - name: Setup Node.js 🏗
+        uses: actions/setup-node@v4
         with:
-          path: |
-            ${{ needs.setup.outputs.yarn-cache-dir-path }}
-            node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+          node-version: ${{ needs.setup.outputs.node_version }}
+          check-latest: true
+
+      - name: Install dependencies 👨🏻‍💻
+        run: yarn --frozen-lockfile
 
       - name: Run Prettier 🖌
         run: yarn lint:prettier
@@ -103,15 +101,14 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
           fetch-depth: 0
 
-      - name: Restore node_modules and yarn cache 📦
-        uses: actions/cache@v4
+      - name: Setup Node.js 🏗
+        uses: actions/setup-node@v4
         with:
-          path: |
-            ${{ needs.setup.outputs.yarn-cache-dir-path }}
-            node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+          node-version: ${{ needs.setup.outputs.node_version }}
+          check-latest: true
+
+      - name: Install dependencies 👨🏻‍💻
+        run: yarn --frozen-lockfile
 
       - name: SonarQube Scan 🔍
         uses: sonarsource/sonarqube-scan-action@v2
