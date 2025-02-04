@@ -1,6 +1,6 @@
 import os
 import requests
-import openai
+from openai import OpenAI
 
 # Configurações
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
@@ -11,8 +11,9 @@ PR_NUMBER = os.getenv("PR_NUMBER")
 # URLs das APIs
 GITHUB_API_URL = f"https://api.github.com/repos/{REPO}/pulls/{PR_NUMBER}/files"
 
-# Configuração da OpenAI
-openai.api_key = OPENAI_API_KEY
+client = OpenAI(
+    api_key=OPENAI_API_KEY,
+)
 
 # Função para obter as alterações do PR
 def get_pr_changes():
@@ -27,8 +28,15 @@ def get_pr_changes():
 
 # Função para enviar as alterações para o GPT-4
 def get_gpt4_review(changes):
-    # Formata as alterações para enviar ao GPT-4
-    changes_text = "\n".join([f"Arquivo: {file['filename']}\nAlterações:\n{file['patch']}" for file in changes])
+    changes_text = ""
+    for file in changes:
+        if "patch" in file:  # Verifica se a chave 'patch' existe
+            changes_text += f"Arquivo: {file['filename']}\nAlterações:\n{file['patch']}\n\n"
+        else:
+            changes_text += f"Arquivo: {file['filename']}\n(Tipo de arquivo não suportado para diff)\n\n"
+
+    if not changes_text.strip():
+        return "Nenhuma alteração de código válida para revisão."
 
     # Prompt para o GPT-4
     prompt = (
@@ -40,15 +48,15 @@ def get_gpt4_review(changes):
     )
 
     # Chamada à API da OpenAI (GPT-4)
-    response = openai.ChatCompletion.create(
-        model="gpt-4o-mini",
+    response = client.chat.completions.create(
+        model="gpt-4",  # Use "gpt-4" ou "gpt-4-turbo" se disponível
         messages=[
             {"role": "system", "content": "Você é um revisor de código experiente."},
             {"role": "user", "content": prompt},
         ],
         max_tokens=1000,  # Ajuste conforme necessário
     )
-    return response["choices"][0]["message"]["content"]
+    return response.choices[0].message.content  # Acesso correto à resposta
 
 # Função para postar o comentário no PR
 def post_comment_to_pr(comment):
