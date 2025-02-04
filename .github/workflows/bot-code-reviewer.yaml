@@ -23,5 +23,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-        PR_NUMBER: |
+        run: |
           python .config/scripts/generate_pr_reviewer.py
