@@ -110,6 +110,9 @@ jobs:
       - name: Install dependencies 👨🏻‍💻
         run: yarn --frozen-lockfile
 
+      - name: Install Python dependencies
+        run: pip install -r .config/scripts/requirements.txt
+
       - name: SonarQube Scan 🔍
         uses: sonarsource/sonarqube-scan-action@master
         env:

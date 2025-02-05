@@ -15,9 +15,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Python dependencies
-        run: |
-          pip install -r .config/scripts/requirements.txt && \
-          pip install PyGithub
+        run: pip install -r .config/scripts/requirements.txt
 
       - name: Run script
         env:
