@@ -4,7 +4,7 @@ from github import Github
 
 # Configurações
 SONARQUBE_URL = os.environ.get("SONARQUBE_URL")
-SONARQUBE_TOKEN = os.environ.get("SONARQUBE_TOKEN")
+SONARQUBE_TOKEN = "squ_412fec0300c296ebbc5080301ba58725150c7f05"
 
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 GITHUB_REPO_NAME = os.environ.get("GITHUB_REPO_NAME")

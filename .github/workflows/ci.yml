@@ -140,7 +140,6 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_TOKEN }}
           SONARQUBE_URL: ${{ secrets.SONAR_HOST_URL }}
-          SONARQUBE_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONARQUBE_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           GITHUB_REPO_NAME: ${{ github.repository }}
