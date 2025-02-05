@@ -110,11 +110,6 @@ jobs:
       - name: Install dependencies 👨🏻‍💻
         run: yarn --frozen-lockfile
 
-      - name: Setup Python 🐍
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.13'
-
       - name: Install Python dependencies
         run: pip install -r .config/scripts/requirements.txt
 
@@ -140,6 +135,7 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_TOKEN }}
           SONARQUBE_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONARQUBE_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONARQUBE_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           GITHUB_REPO_NAME: ${{ github.repository }}
