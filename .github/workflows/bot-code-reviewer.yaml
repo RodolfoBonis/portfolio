@@ -1,0 +1,27 @@
+name: bot-code-reviewer
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  code-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Python dependencies
+        run: pip install -r .config/scripts/requirements.txt
+
+      - name: Run script
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          python .config/scripts/generate_pr_review.py

@@ -1,0 +1,24 @@
+name: Generate PR Description
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  generate_description:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Python dependencies
+        run: pip install -r .config/scripts/requirements.txt
+
+      - name: Run script
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          REPO_NAME: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          python .config/scripts/generate_pr_description.py

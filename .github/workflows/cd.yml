@@ -160,7 +160,6 @@ jobs:
           to: ${{ secrets.CHAT_ID }}
           message: |
             ✅ ${{ github.actor }} create a new release (${{ env.VERSION }}):
-            Commit message: ${{ github.event.commits[0].message }}
             Repository: ${{ github.repository }}
             See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
             Build Status: ${{ job.status }}
