@@ -1,182 +1,166 @@
-name: cd
+name: CI
 
 on:
-  workflow_run:
-    workflows: ['ci']
-    types:
-      - completed
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'version.txt'
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  get_commit_messages:
+  setup:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
+    outputs:
+      node_version: ${{ steps.setup-node.outputs.node-version }}
     steps:
-      - name: Check out repository
+      - name: Checkout 🛎
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GH_TOKEN }}
           fetch-depth: 0
 
-      - name: Get last release tag
-        id: lasttag
-        run: echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
-
-      - name: Get commit messages
-        id: log
-        run: |
-          messages=$(git log --pretty=format:'%s' --no-merges ${{ steps.lasttag.outputs.tag }}..HEAD)
-          messages="${messages//'%'/'%25'}"
-          messages="${messages//$'\n'/'\n- '}"
-          messages="${messages//$'\r'/'%0D'}"
-          echo "- $messages" > commit_messages.txt
-        shell: bash
-
-      - name: Upload commit messages
-        uses: actions/upload-artifact@v4
+      - name: Setup Node.js 🏗
+        id: setup-node
+        uses: actions/setup-node@v4
         with:
-          name: commit-messages
-          path: commit_messages.txt
+          node-version: lts/*
+          check-latest: true
 
-  deploy:
-    runs-on: ${{ matrix.os }}
-    needs: get_commit_messages
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
+      - name: Get yarn cache directory path 🛠
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
+      - name: Cache node_modules and yarn cache 📦
+        uses: actions/cache@v4
+        id: yarn-cache
+        with:
+          path: |
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
 
+      - name: Install dependencies 👨🏻‍💻
+        run: yarn --frozen-lockfile
+
+  lint:
+    runs-on: ubuntu-latest
+    needs: [setup]
     steps:
       - name: Checkout 🛎
-        uses: actions/checkout@master
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GH_TOKEN }}
+          fetch-depth: 0
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Setup ArgoCD CLI
-        uses: imajeetyadav/argocd-cli@v1
-
-      - name: Increment version
-        run: |
-          chmod +x ./.config/scripts/increment_version.sh
-          ./.config/scripts/increment_version.sh
-          echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
-
-      - name: Add, commit and push version increment
-        uses: EndBug/add-and-commit@v9
+      - name: Setup Node.js 🏗
+        uses: actions/setup-node@v4
         with:
-          author_name: 'GitHub Actions'
-          author_email: 'actions@github.com'
-          message: 'Increment version'
-          add: 'version.txt'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          node-version: ${{ needs.setup.outputs.node_version }}
+          check-latest: true
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Install dependencies 👨🏻‍💻
+        run: yarn --frozen-lockfile
+
+      - name: Run linter 👀
+        run: yarn lint
+
+  prettier:
+    runs-on: ubuntu-latest
+    needs: [setup]
+    steps:
+      - name: Checkout 🛎
+        uses: actions/checkout@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Preset Image Name
-        run: echo "IMAGE_URL=$(echo ${{ steps.login-ecr.outputs.registry }}/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ env.VERSION }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-
-      - name: Build and push Docker Image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ${{ env.IMAGE_URL }}
-          build-args: |
-            "GITHUB_TOKEN=${{ secrets.GH_TOKEN }}"
-            "VERSION=${{ env.VERSION }}"
-
-      - name: Checkout k3s manifest repository
-        uses: actions/checkout@master
-        with:
-          repository: RodolfoBonis/k3s-apps
-          ref: main
-          path: k3s-manifest
           token: ${{ secrets.GH_TOKEN }}
+          fetch-depth: 0
 
-      - name: Update k3s manifest with new image version
-        run: |
-          cd k3s-manifest
-          yq e -i ".spec.template.spec.containers[0].image = \"${{ env.IMAGE_URL }}\"" ./applications/portfolio/portfolio-deployment.yaml
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git add ./applications/portfolio/portfolio-deployment.yaml
-          git commit -m "Update image to ${{ env.IMAGE_URL }}"
-          git push
-
-      - name: Sync ArgoCD Application
-        run: |
-          argocd app sync portfolio --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
-
-      - name: Create Tag for Release
-        id: create_tag
-        if: ${{ job.status == 'success' }}
-        run: echo "::set-output name=tag::v${{ env.VERSION }}"
-
-      - name: Download commit messages
-        uses: actions/download-artifact@v4
+      - name: Setup Node.js 🏗
+        uses: actions/setup-node@v4
         with:
-          name: commit-messages
-          path: .
+          node-version: ${{ needs.setup.outputs.node_version }}
+          check-latest: true
 
-      - name: Read commit messages from file
+      - name: Install dependencies 👨🏻‍💻
+        run: yarn --frozen-lockfile
+
+      - name: Run Prettier 🖌
+        run: yarn lint:prettier
+
+  sonar:
+    runs-on: ubuntu-latest
+    needs: [setup]
+    steps:
+      - name: Checkout 🛎
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Node.js 🏗
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ needs.setup.outputs.node_version }}
+          check-latest: true
+
+      - name: Install dependencies 👨🏻‍💻
+        run: yarn --frozen-lockfile
+
+      - name: Setup Python 🐍
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Create and activate virtual environment
         run: |
-          export MESSAGES=$(cat commit_messages.txt)
-          echo "MESSAGES='$MESSAGES'" >> $GITHUB_ENV
+          python -m venv venv
+          source venv/bin/activate
 
-      - name: Create Release
-        id: create_release
-        if: ${{ job.status == 'success' }}
-        uses: actions/create-release@v1
+      - name: Install Python dependencies
+        run: |
+          source venv/bin/activate
+          pip install -r .config/scripts/requirements.txt
+
+      - name: Verify Python dependencies
+        run: |
+          source venv/bin/activate
+          pip list
+
+      - name: SonarQube Scan 🔍
+        uses: sonarsource/sonarqube-scan-action@master
         env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+            -Dsonar.sources=.
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+
+      - name: SonarQube Quality Gate 🚪
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Run script for Sonar metrics 📊
+        if: ${{ github.event_name == 'pull_request' && always() }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_TOKEN }}
+          SONARQUBE_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONARQUBE_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONARQUBE_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        with:
-          tag_name: ${{ steps.create_tag.outputs.tag }}
-          release_name: Release ${{ env.VERSION }}
-          body: |
-            Changes in this Release:
-            ${{ env.MESSAGES }}
-          draft: false
-          prerelease: false
+          GITHUB_REPO_NAME: ${{ github.repository }}
+          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          source venv/bin/activate
+          python .config/scripts/generate_sonar_metrics_comment.py
 
-      - if: ${{ job.status == 'success'}}
-        name: Send Message via Telegram
-        uses: appleboy/telegram-action@master
-        with:
-          token: ${{ secrets.BOTTOKEN }}
-          to: ${{ secrets.CHAT_ID }}
-          message: |
-            ✅ ${{ github.actor }} create a new release (${{ env.VERSION }}):
-            Repository: ${{ github.repository }}
-            See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
-            Build Status: ${{ job.status }}
-            See New Build on: https://${{ secrets.SSH_HOST }}
-
-            Good job!
-
-      - if: ${{ job.status != 'success'}}
-        name: Send Message via Telegram
-        uses: appleboy/telegram-action@master
-        with:
-          token: ${{ secrets.BOTTOKEN }}
-          to: ${{ secrets.CHAT_ID }}
-          message: |
-            ⛔️ There was an error when build project
-            ${{ github.actor }} created commit:
-            Commit message: ${{ github.event.commits[0].message }}
-            Repository: ${{ github.repository }}
-            See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
-            Build Status: ${{ job.status }}
+      - name: Fail CI if Scan or Quality Gate fails ❌
+        if: ${{ steps.sonar_scan.outcome == 'failure' || steps.sonar_quality_gate.outcome == 'failure' }}
+        run: exit 1
