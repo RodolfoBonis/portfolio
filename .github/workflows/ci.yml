@@ -110,9 +110,6 @@ jobs:
       - name: Install dependencies 👨🏻‍💻
         run: yarn --frozen-lockfile
 
-      - name: Install Python dependencies
-        run: pip install -r .config/scripts/requirements.txt
-
       - name: SonarQube Scan 🔍
         uses: sonarsource/sonarqube-scan-action@master
         env:
@@ -141,6 +138,8 @@ jobs:
           GITHUB_REPO_NAME: ${{ github.repository }}
           GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
+          pip install -r .config/scripts/requirements.txt && \
+          pip install --upgrade sonarqube-api && \
           python .config/scripts/generate_sonar_metrics_comment.py
 
       - name: Fail CI if Scan or Quality Gate fails ❌

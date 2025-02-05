@@ -1,5 +1,5 @@
 from github import Github
-from sonarqube import SonarQubeClient
+import sonarqube
 import os
 
 # Configurações
@@ -23,12 +23,12 @@ METRICS = {
 }
 
 # Inicializa o cliente SonarQube
-sonar = SonarQubeClient(sonarqube_url=SONARQUBE_URL, token=SONARQUBE_TOKEN)
+sonar = sonarqube.SonarQubeClient(sonarqube_url=SONARQUBE_URL, token=SONARQUBE_TOKEN)
 
 # Inicializa o cliente PyGithub
 github = Github(GITHUB_TOKEN)
 repo = github.get_repo(GITHUB_REPO_NAME)
-pr = repo.get_pull(GITHUB_PR_NUMBER)
+pr = repo.get_pull(int(GITHUB_PR_NUMBER))
 
 # Função para criar o comentário no GitHub
 def create_github_comment(analysis_results, project_key):
