@@ -8,7 +8,7 @@ SONARQUBE_TOKEN = os.environ.get("SONARQUBE_TOKEN")
 
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 GITHUB_REPO_NAME = os.environ.get("GITHUB_REPO_NAME")
-GITHUB_PR_NUMBER = os.environ.get("GITHUB_PR_NUMBER")
+GITHUB_PR_NUMBER = int(os.environ.get("GITHUB_PR_NUMBER"))
 PROJECT_KEY = os.environ.get("SONARQUBE_PROJECT_KEY")
 
 # Definição das métricas
