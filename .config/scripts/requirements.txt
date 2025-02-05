@@ -1,4 +1,3 @@
 openai
 PyGithub
 requests
-sonarqube-api

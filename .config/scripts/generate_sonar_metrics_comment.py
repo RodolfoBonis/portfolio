@@ -1,6 +1,6 @@
-from github import Github
-from sonarqube import SonarQubeClient
 import os
+import requests
+from github import Github
 
 # Configurações
 SONARQUBE_URL = os.environ.get("SONARQUBE_URL")
@@ -22,13 +22,23 @@ METRICS = {
     "duplicated_lines_density": "Duplications"
 }
 
-# Inicializa o cliente SonarQube
-sonar = SonarQubeClient(sonarqube_url=SONARQUBE_URL, token=SONARQUBE_TOKEN)
-
 # Inicializa o cliente PyGithub
 github = Github(GITHUB_TOKEN)
 repo = github.get_repo(GITHUB_REPO_NAME)
 pr = repo.get_pull(GITHUB_PR_NUMBER)
+
+# Função para fazer requisições à API do SonarQube
+def make_sonarqube_request(endpoint, params=None):
+    headers = {
+        "Authorization": f"Bearer {SONARQUBE_TOKEN}"
+    }
+    url = f"{SONARQUBE_URL}/api/{endpoint}"
+    response = requests.get(url, headers=headers, params=params)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Error fetching data from SonarQube: {response.status_code} - {response.text}")
+        return None
 
 # Função para criar o comentário no GitHub
 def create_github_comment(analysis_results, project_key):
@@ -43,17 +53,11 @@ def create_github_comment(analysis_results, project_key):
 
     project_name = analysis_results["component"]["name"]
 
-    # Obtém o status do Quality Gate usando a biblioteca sonarqube-api
-    try:
-        quality_gate_data = sonar.qualitygates.get_quality_gates(projectKey=project_key)
-    except Exception as e:
-        print(f"Error getting Quality Gate status: {e}")
-        quality_gate_data = None
-
+    # Obtém o status do Quality Gate
+    quality_gate_data = make_sonarqube_request("qualitygates/project_status", {"projectKey": project_key})
     if quality_gate_data:
-        quality_gate = quality_gate_data.get("projectStatus", {})
-        status = quality_gate.get("status", "UNKNOWN")
-        conditions = quality_gate.get("conditions", [])
+        status = quality_gate_data.get("projectStatus", {}).get("status", "UNKNOWN")
+        conditions = quality_gate_data.get("projectStatus", {}).get("conditions", [])
     else:
         status = "UNKNOWN"
         conditions = []
@@ -93,11 +97,11 @@ def post_github_comment(pr, comment_body):
 
 # Exemplo de uso
 try:
-    # Busca métricas do projeto usando a biblioteca sonarqube-api
-    analysis_results = sonar.measures.get_component_with_specified_measures(
-        component=PROJECT_KEY,
-        metricKeys=list(METRICS.keys())
-    )
+    # Busca métricas do projeto usando a API do SonarQube
+    analysis_results = make_sonarqube_request("measures/component", {
+        "component": PROJECT_KEY,
+        "metricKeys": ",".join(METRICS.keys())
+    })
     if analysis_results:
         comment = create_github_comment(analysis_results, PROJECT_KEY)
         post_github_comment(pr, comment)
