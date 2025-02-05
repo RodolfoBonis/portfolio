@@ -1,6 +1,7 @@
-from github import Github
-from sonarqube import SonarQubeClient
 import os
+
+import requests
+from github import Github
 
 # Configurações
 SONARQUBE_URL = os.environ.get("SONARQUBE_URL")
@@ -22,16 +23,39 @@ METRICS = {
     "duplicated_lines_density": "Duplications"
 }
 
-# Inicializa o cliente SonarQube
-sonar = SonarQubeClient(sonarqube_url=SONARQUBE_URL, token=SONARQUBE_TOKEN)
-
 # Inicializa o cliente PyGithub
 github = Github(GITHUB_TOKEN)
 repo = github.get_repo(GITHUB_REPO_NAME)
 pr = repo.get_pull(int(GITHUB_PR_NUMBER))
 
+# Função para obter as métricas do SonarQube
+def get_sonarqube_metrics(project_key):
+    url = f"{SONARQUBE_URL}/api/measures/component"
+    params = {
+        "component": project_key,
+        "metricKeys": ",".join(METRICS.keys())
+    }
+    auth = (SONARQUBE_TOKEN, "")
+    response = requests.get(url, params=params, auth=auth)
+    if response.status_code != 200:
+        raise Exception(f"Erro ao obter métricas do SonarQube: {response.status_code} - {response.text}")
+    return response.json()
+
+# Função para obter o status do Quality Gate
+def get_quality_gate_status(project_key):
+    url = f"{SONARQUBE_URL}/api/qualitygates/project_status"
+    params = {
+        "projectKey": project_key
+    }
+
+    auth = (SONARQUBE_TOKEN, "")
+    response = requests.get(url, params=params, auth=auth)
+    if response.status_code != 200:
+        raise Exception(f"Erro ao obter status do Quality Gate: {response.status_code} - {response.text}")
+    return response.json()
+
 # Função para criar o comentário no GitHub
-def create_github_comment(analysis_results, project_key):
+def create_github_comment(analysis_results, quality_gate_data, project_key):
     if not analysis_results or not analysis_results.get("component"):
         return "No SonarQube analysis results found."
 
@@ -42,13 +66,6 @@ def create_github_comment(analysis_results, project_key):
     }
 
     project_name = analysis_results["component"]["name"]
-
-    # Obtém o status do Quality Gate usando a biblioteca sonarqube-api
-    try:
-        quality_gate_data = sonar.qualitygates.get_quality_gates(projectKey=project_key)
-    except Exception as e:
-        print(f"Error getting Quality Gate status: {e}")
-        quality_gate_data = None
 
     if quality_gate_data:
         quality_gate = quality_gate_data.get("projectStatus", {})
@@ -93,13 +110,11 @@ def post_github_comment(pr, comment_body):
 
 # Exemplo de uso
 try:
-    # Busca métricas do projeto usando a biblioteca sonarqube-api
-    analysis_results = sonar.measures.get_component_with_specified_measures(
-        component=PROJECT_KEY,
-        metricKeys=list(METRICS.keys())
-    )
+    # Busca métricas do projeto usando a API do SonarQube
+    analysis_results = get_sonarqube_metrics(PROJECT_KEY)
+    quality_gate_data = get_quality_gate_status(PROJECT_KEY)
     if analysis_results:
-        comment = create_github_comment(analysis_results, PROJECT_KEY)
+        comment = create_github_comment(analysis_results, quality_gate_data, PROJECT_KEY)
         post_github_comment(pr, comment)
     else:
         print("Could not retrieve SonarQube analysis results.")
