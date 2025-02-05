@@ -1,5 +1,6 @@
 from github import Github
 from sonarqube import SonarQubeClient
+import os
 
 # Configurações
 SONARQUBE_URL = os.environ.get("SONARQUBE_URL")
