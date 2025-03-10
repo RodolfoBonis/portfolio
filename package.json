@@ -50,7 +50,7 @@
     "@nuxtjs/tailwindcss": "^6.6.5",
     "autoprefixer": "^10.4.14",
     "eslint": "^8.24.0",
-    "eslint-config-prettier": "^9.0.0",
+    "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-nuxt": "^4.0.0",
     "eslint-plugin-vue": "^9.5.1",
     "husky": "^9.1.7",
