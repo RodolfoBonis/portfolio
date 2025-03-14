@@ -28,7 +28,7 @@
     "@heroicons/vue": "^2.2.0",
     "@nuxt/postcss8": "^1.1.3",
     "@nuxtjs/dotenv": "^1.4.2",
-    "@tailwindcss/postcss": "^4.0.1",
+    "@tailwindcss/postcss": "^4.0.14",
     "@tailwindcss/vite": "^4.0.1",
     "@vue-hero-icons/outline": "^1.7.2",
     "axios": "^1.3.4",
