@@ -8890,10 +8890,15 @@ tailwind-config-viewer@^2.0.4:
     portfinder "^1.0.26"
     replace-in-file "^6.1.0"
 
-tailwindcss@4.0.1, tailwindcss@^4.0.1:
+tailwindcss@4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-4.0.1.tgz#ae722697352001233a8f491aeb755e83139c453b"
   integrity sha512-UK5Biiit/e+r3i0O223bisoS5+y7ZT1PM8Ojn0MxRHzXN1VPZ2KY6Lo6fhu1dOfCfyUAlK7Lt6wSxowRabATBw==
+
+tailwindcss@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-4.1.0.tgz#f51694989c82116a07049db6c0c110aec4d7298c"
+  integrity sha512-vBYstoFnvUZCDxaauNGQQEvJNQgCd1vSMDRYuZZMH1xRRcTboOk1rJrW5yFkEabU9X6Yx1C4LQ+QvPOvQj4Daw==
 
 tailwindcss@~3.4.17:
   version "3.4.17"
