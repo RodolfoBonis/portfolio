@@ -1,25 +1,27 @@
-<script lang="ts">
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-
-export default {
-  components: { FontAwesomeIcon },
-  props: {
-    link: {
-      type: String,
-      required: false,
-      default: '',
-    },
-    icon: {
-      type: Array<string>,
-      required: true,
-      default: ['fab', 'github'],
-    },
+<script setup lang="ts">
+defineProps({
+  name: {
+    type: String,
+    required: true,
   },
-}
+  icon: {
+    type: String,
+    required: true,
+  },
+  url: {
+    type: String,
+    required: true,
+  },
+})
 </script>
 
 <template>
-  <a :href="link" target="_blank">
-    <font-awesome-icon class="text-white fa-lg px-3" :icon="icon" />
+  <a
+    :href="url"
+    target="_blank"
+    class="text-[var(--text-color)] hover:text-[var(--accent-light)] text-2xl transition-colors"
+    :title="name"
+  >
+    <span class="material-icons">{{ icon }}</span>
   </a>
 </template>

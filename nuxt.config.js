@@ -2,7 +2,14 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineNuxtConfig({
   target: 'static',
-
+  typescript: {
+    typeCheck: true,
+    tsConfig: {
+      compilerOptions: {
+        moduleResolution: 'bundler',
+      },
+    },
+  },
   runtimeConfig: {
     public: {
       cdnApiKey: process.env.CDN_API_KEY,
@@ -11,9 +18,9 @@ export default defineNuxtConfig({
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: 'Rodolfo De Bonis',
+    title: 'Rodolfo De Bonis – Portfólio',
     htmlAttrs: {
-      lang: 'en',
+      lang: 'pt',
     },
     meta: [
       {
@@ -24,13 +31,33 @@ export default defineNuxtConfig({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        hid: 'description',
         name: 'description',
-        content: '',
+        content:
+          'Portfólio de Rodolfo De Bonis – Engenheiro de Software, especialista em Desenvolvimento Mobile, DevOps, SaaS.',
       },
       {
         name: 'format-detection',
         content: 'telephone=no',
+      },
+      {
+        property: 'og:title',
+        content: 'Rodolfo De Bonis – Portfólio',
+      },
+      {
+        property: 'og:description',
+        content: 'Engenheiro de Software | DevOps | Mobile | D&D Master',
+      },
+      {
+        property: 'og:image',
+        content: 'https://rodolfodebonis.com.br/api/portfolio/me.jpeg',
+      },
+      {
+        property: 'og:url',
+        content: 'https://rodolfodebonis.com.br',
+      },
+      {
+        property: 'og:type',
+        content: 'website',
       },
     ],
     link: [
@@ -40,6 +67,7 @@ export default defineNuxtConfig({
         href: '/favicon.ico',
       },
     ],
+    script: [{ src: 'https://unpkg.com/scrollreveal' }],
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
@@ -47,7 +75,17 @@ export default defineNuxtConfig({
     '@/assets/css/colors.css',
     '@/assets/css/main.css',
     '@fortawesome/fontawesome-svg-core/styles.css',
+    'material-design-icons-iconfont/dist/material-design-icons.css',
   ],
+  vite: {
+    plugins: [tailwindcss()],
+    optimizeDeps: {
+      include: ['vue'],
+    },
+    build: {
+      assetsInlineLimit: 0,
+    },
+  },
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: ['~/plugins/fontawesome.js'],
@@ -63,12 +101,21 @@ export default defineNuxtConfig({
     '@nuxtjs/stylelint-module',
     // https://go.nuxtjs.dev/dotenv
     ['@nuxtjs/dotenv', { systemvars: true }],
-    // https://go.nuxtjs.dev/tailwindcss
-    '@nuxt/postcss8',
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
-  modules: [],
+  modules: ['@nuxtjs/color-mode', '@vueuse/nuxt', '@nuxtjs/google-fonts'],
+
+  colorMode: {
+    classSuffix: '',
+    preference: 'dark',
+    fallback: 'dark',
+    storageKey: 'nuxt-color-mode',
+    globalName: '__NUXT_COLOR_MODE__',
+    componentName: 'ColorScheme',
+    classPrefix: '',
+    dataValue: 'dark',
+  },
 
   styleResources: {
     scss: ['./assets/css/*.css'],
@@ -82,8 +129,60 @@ export default defineNuxtConfig({
   },
 
   compatibilityDate: '2025-01-30',
-  devtools: { enabled: false },
-  vite: {
-    plugins: [tailwindcss()],
+  devtools: { enabled: true },
+
+  googleFonts: {
+    families: {
+      Inter: [300, 400, 600, 700],
+      Poppins: [400, 600],
+    },
+    display: 'swap',
+  },
+
+  app: {
+    head: {
+      title: 'Rodolfo De Bonis – Portfólio',
+      meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        {
+          name: 'description',
+          content:
+            'Portfólio de Rodolfo De Bonis – Engenheiro de Software, especialista em Desenvolvimento Mobile, DevOps, SaaS.',
+        },
+        { property: 'og:title', content: 'Rodolfo De Bonis – Portfólio' },
+        {
+          property: 'og:description',
+          content: 'Engenheiro de Software | DevOps | Mobile | D&D Master',
+        },
+        {
+          property: 'og:image',
+          content: 'https://rodolfodebonis.com.br/imagens/og-image.png',
+        },
+        { property: 'og:url', content: 'https://rodolfodebonis.com.br' },
+        { property: 'og:type', content: 'website' },
+      ],
+      link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+      script: [{ src: 'https://unpkg.com/scrollreveal' }],
+    },
+  },
+
+  // Configuração de roteamento
+  router: {
+    options: {
+      strict: false,
+    },
+    trailingSlash: true,
+  },
+
+  // Configuração de geração estática
+  generate: {
+    fallback: true,
+  },
+
+  // Configuração de roteamento
+  routeRules: {
+    '/**': { ssr: true },
+    '/_nuxt/**': { static: true },
   },
 })

@@ -1,32 +1,98 @@
 @import 'tailwindcss';
+@import './colors.css';
 
-*,
-::after,
-::before,
-::backdrop,
-::file-selector-button {
-  border-color: var(--color-gray-200, currentColor);
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-[var(--bg-color)] text-[var(--text-color)] font-sans;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-['Poppins'] text-[var(--heading-color)];
+  }
 }
 
-body {
-  display: flex;
-  background-color: var(--primary-color);
-  color: var(--accent-color);
-  padding-top: 80px;
-  max-width: max-content;
-  margin: auto;
+@layer components {
+  .container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm transition-colors duration-200;
+  }
+
+  .btn-primary {
+    @apply bg-[var(--accent-color)] text-white hover:bg-[var(--accent-light)];
+  }
+
+  .btn-secondary {
+    @apply bg-[var(--card-color)] text-[var(--text-color)] hover:opacity-90;
+  }
+
+  .card {
+    @apply bg-[var(--card-color)] rounded-lg shadow-lg p-6 border border-[var(--border-color)];
+  }
+
+  .section {
+    @apply py-16 sm:py-24;
+  }
+
+  .section-title {
+    @apply text-3xl sm:text-4xl font-bold mb-8 text-center;
+  }
+
+  .section-subtitle {
+    @apply text-xl text-[var(--text-color)] mb-12 text-center max-w-3xl mx-auto;
+  }
 }
 
-header {
-  background: var(--primary-color);
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 999;
-  box-shadow: 0 0 6px 0 rgba(28, 34, 54, 1);
+/* Animações */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
 }
 
-.dialog {
-  background: var(--primary-color);
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-up-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-[var(--card-color)];
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-[var(--border-color)] rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-[var(--accent-color)];
 }

@@ -1,111 +1,137 @@
 <template>
-  <header>
-    <nav
-      class="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8"
-      aria-label="Global"
-    >
-      <div class="flex lg:flex-1">
-        <a href="/" class="-m-1.5 p-1.5">
-          <span class="sr-only">Rodolfo De Bonis</span>
-          <img class="h-8 w-auto" :src="logoUrl" alt="" />
-        </a>
-      </div>
+  <header
+    class="fixed w-full top-0 left-0 z-50 bg-[var(--card-color)]/80 backdrop-blur-md"
+  >
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <!-- Logo -->
+      <NuxtLink
+        to="#hero"
+        class="text-[var(--accent-color)] font-bold text-2xl hover:opacity-80"
+      >
+        R<span class="text-[var(--heading-color)]">.</span>
+      </NuxtLink>
 
-      <div class="flex lg:hidden">
-        <button
-          type="button"
-          class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
-          @click="mobileMenuOpen = true"
-        >
-          <span class="sr-only">Open main menu</span>
-          <Bars3Icon class="h-6 w-6" aria-hidden="true" />
-        </button>
-      </div>
-      <div class="hidden lg:flex lg:gap-x-12">
-        <a href="#about-me" class="text-sm font-semibold leading-6">About me</a>
-        <a href="#stacks" class="text-sm font-semibold leading-6">Stacks</a>
-        <a href="#works" class="text-sm font-semibold leading-6">Works</a>
-      </div>
-      <div class="hidden lg:flex lg:flex-1 lg:justify-end leading-6">
-        <SocialMedia />
-      </div>
+      <!-- Links (Desktop) -->
+      <ul class="hidden md:flex space-x-8 text-sm font-medium">
+        <li>
+          <NuxtLink to="#about" class="hover:text-[var(--accent-light)]"
+            >Sobre</NuxtLink
+          >
+        </li>
+        <li>
+          <NuxtLink to="#stacks" class="hover:text-[var(--accent-light)]"
+            >Stacks</NuxtLink
+          >
+        </li>
+        <li>
+          <NuxtLink to="#works" class="hover:text-[var(--accent-light)]"
+            >Projetos</NuxtLink
+          >
+        </li>
+        <li>
+          <NuxtLink to="#experience" class="hover:text-[var(--accent-light)]"
+            >Experiência</NuxtLink
+          >
+        </li>
+        <li>
+          <NuxtLink to="#contact" class="hover:text-[var(--accent-light)]"
+            >Contato</NuxtLink
+          >
+        </li>
+      </ul>
+
+      <!-- Botão de Toggle de Tema (Desktop) -->
+      <button
+        class="hidden md:block text-xl text-[var(--text-color)] hover:text-[var(--accent-light)]"
+        @click="toggleTheme"
+      >
+        <span class="material-icons">{{
+          isDarkMode ? 'light_mode' : 'dark_mode'
+        }}</span>
+      </button>
+
+      <!-- Botão Hamburger (Mobile) -->
+      <button
+        class="md:hidden text-2xl text-[var(--text-color)] hover:text-[var(--accent-light)]"
+        @click="toggleMobileMenu"
+      >
+        <span class="material-icons">menu</span>
+      </button>
     </nav>
 
-    <Dialog
-      is="div"
-      class="lg:hidden"
-      :open="mobileMenuOpen"
-      @close="mobileMenuOpen = false"
-    >
-      <div class="fixed inset-0 z-10" />
-      <DialogPanel
-        class="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto dialog px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10"
-      >
-        <div class="flex items-center justify-between">
-          <a href="#" class="-m-1.5 p-1.5" @click="mobileMenuOpen = false">
-            <span class="sr-only">Rodolfo De Bonis</span>
-            <img class="h-8 w-auto" :src="logoUrl" alt="" />
-          </a>
-          <button
-            type="button"
-            class="-m-2.5 rounded-md p-2.5 text-gray-700"
-            @click="mobileMenuOpen = false"
+    <!-- Menu (Mobile) -->
+    <div v-show="isMobileMenuOpen" class="md:hidden bg-[var(--card-color)]">
+      <ul class="flex flex-col px-6 py-4 space-y-4">
+        <li>
+          <NuxtLink to="#about" class="block hover:text-[var(--accent-light)]"
+            >Sobre</NuxtLink
           >
-            <span class="sr-only">Close menu</span>
-            <XMarkIcon class="h-6 w-6" aria-hidden="true" />
+        </li>
+        <li>
+          <NuxtLink to="#stacks" class="block hover:text-[var(--accent-light)]"
+            >Stacks</NuxtLink
+          >
+        </li>
+        <li>
+          <NuxtLink to="#works" class="block hover:text-[var(--accent-light)]"
+            >Projetos</NuxtLink
+          >
+        </li>
+        <li>
+          <NuxtLink
+            to="#experience"
+            class="block hover:text-[var(--accent-light)]"
+            >Experiência</NuxtLink
+          >
+        </li>
+        <li>
+          <NuxtLink to="#contact" class="block hover:text-[var(--accent-light)]"
+            >Contato</NuxtLink
+          >
+        </li>
+        <li>
+          <button
+            class="flex items-center space-x-2 text-[var(--text-color)] hover:text-[var(--accent-light)]"
+            @click="toggleTheme"
+          >
+            <span class="material-icons">{{
+              isDarkMode ? 'light_mode' : 'dark_mode'
+            }}</span>
+            <span class="text-sm">{{
+              isDarkMode ? 'Modo Claro' : 'Modo Escuro'
+            }}</span>
           </button>
-        </div>
-        <div class="flex-col">
-          <div class="mt-6 flow-root">
-            <div class="-my-6 divide-y divide-gray-500/10">
-              <div class="space-y-2 py-6">
-                <a
-                  href="#about-me"
-                  class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 hover:bg-gray-900"
-                  @click="mobileMenuOpen = false"
-                  >About me</a
-                >
-                <a
-                  href="#stacks"
-                  class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 hover:bg-gray-900"
-                  @click="mobileMenuOpen = false"
-                  >Stacks</a
-                >
-                <a
-                  href="#works"
-                  class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 hover:bg-gray-900"
-                  @click="mobileMenuOpen = false"
-                  >Works</a
-                >
-              </div>
-            </div>
-          </div>
-
-          <div class="absolute bottom-5 left-2">
-            <SocialMedia />
-          </div>
-        </div>
-      </DialogPanel>
-    </Dialog>
+        </li>
+      </ul>
+    </div>
   </header>
 </template>
 
-<script>
-import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline'
-import { DialogPanel, Dialog } from '@headlessui/vue'
-import SocialMedia from '~/components/SocialMedia.vue'
+<script setup>
+import { ref, onMounted } from 'vue'
 
-const mobileMenuOpen = ref(false)
+const isDarkMode = ref(false)
+const isMobileMenuOpen = ref(false)
 
-export default {
-  name: 'MainHeader',
-  // eslint-disable-next-line vue/no-reserved-component-names
-  components: { DialogPanel, Dialog, Bars3Icon, XMarkIcon, SocialMedia },
-  data: function () {
-    return {
-      mobileMenuOpen,
-      logoUrl: '/api/cdn/portfolio/logo-light.png',
-    }
-  },
+function toggleTheme() {
+  isDarkMode.value = !isDarkMode.value
+  document.documentElement.classList.toggle('light-mode')
+  localStorage.setItem('theme', isDarkMode.value ? 'dark' : 'light')
 }
+
+function toggleMobileMenu() {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value
+}
+
+onMounted(() => {
+  // Carrega preferência salva no localStorage
+  const savedTheme = localStorage.getItem('theme')
+  if (savedTheme === 'dark') {
+    isDarkMode.value = true
+    document.documentElement.classList.remove('light-mode')
+  } else {
+    isDarkMode.value = false
+    document.documentElement.classList.add('light-mode')
+  }
+})
 </script>
