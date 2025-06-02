@@ -5,8 +5,6 @@ services:
       - '3000:3000'
     environment:
       - CDN_API_KEY=${CDN_API_KEY}
-    volumes:
-      - ./.config/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     networks:
       - portfolio-network
 
