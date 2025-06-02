@@ -1,11 +1,3 @@
-import {
-  defineEventHandler,
-  getRouterParam,
-  setResponseHeader,
-  createError,
-  sendError,
-} from 'h3'
-
 export default defineEventHandler(async (event) => {
   try {
     const path = getRouterParam(event, 'path')
