@@ -1,10 +1,13 @@
 # Use the official Node.js LTS (Long Term Support) image as the base image
-FROM node:18.20.5-alpine AS builder
+FROM node:18.20.5-slim AS builder
 
 # Set the working directory in the container
 WORKDIR /app
 
-RUN apk add --update python3 make g++
+# Instalar dependências necessárias
+RUN apt-get update && \
+    apt-get install -y python3 make g++ && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy the package.json and yarn.lock files to the container
 COPY package.json yarn.lock ./
@@ -18,13 +21,10 @@ COPY . .
 
 RUN yarn generate
 
-
-
 # Use a smaller production image
 FROM nginx:stable-alpine AS production
 
 COPY --from=builder /app/.output/public /usr/share/nginx/html
-
 
 COPY ./.config/nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
