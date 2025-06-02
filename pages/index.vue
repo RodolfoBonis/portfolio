@@ -28,13 +28,14 @@
 </template>
 
 <script>
-import { CDN_API_KEY } from '~/src/constants/cdn.const'
+import { useRuntimeConfig } from '#app'
 
 export default {
   data: function () {
+    const config = useRuntimeConfig()
     return {
       age: new Date().getFullYear() - 1996,
-      logoUrl: `https://rb-cdn.rodolfodebonis.com.br/v1/cdn/portfolio/me.jpeg?X-Api-Key=${CDN_API_KEY}`,
+      logoUrl: `https://rb-cdn.rodolfodebonis.com.br/v1/cdn/portfolio/me.jpeg?X-Api-Key=${config.public.cdnApiKey}`,
     }
   },
 }
