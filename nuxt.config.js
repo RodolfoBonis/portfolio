@@ -3,6 +3,12 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineNuxtConfig({
   target: 'static',
 
+  runtimeConfig: {
+    public: {
+      cdnApiKey: process.env.CDN_API_KEY
+    }
+  },
+
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     title: 'Rodolfo De Bonis',
