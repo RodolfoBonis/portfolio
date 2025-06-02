@@ -17,7 +17,13 @@
     "lint:prettier": "prettier --check .",
     "lint": "yarn lint:js && yarn lint:style",
     "lintfix": "prettier --write --list-different . && yarn lint:js --fix && yarn lint:style --fix",
-    "prepare": "husky"
+    "prepare": "husky",
+    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop ecosystem.config.js",
+    "pm2:restart": "pm2 restart ecosystem.config.js",
+    "pm2:delete": "pm2 delete ecosystem.config.js",
+    "pm2:logs": "pm2 logs",
+    "pm2:monit": "pm2 monit"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
@@ -35,8 +41,8 @@
     "axios": "^1.3.4",
     "core-js": "^3.25.3",
     "dotenv": "^16.5.0",
-    "node-sass": "^9.0.0",
     "nuxt": "^3.3.2",
+    "sass": "^1.83.4",
     "sass-loader": "^16.0.4",
     "vue": "^3.5.13"
   },
@@ -56,10 +62,10 @@
     "eslint-plugin-nuxt": "^4.0.0",
     "eslint-plugin-vue": "^9.5.1",
     "husky": "^9.1.7",
+    "pm2": "^6.0.6",
     "postcss": "^8.4.21",
     "postcss-html": "^1.5.0",
     "prettier": "^3.0.1",
-    "sass": "^1.83.4",
     "stylelint": "^16.10.0",
     "stylelint-config-prettier": "^9.0.3",
     "stylelint-config-recommended-vue": "^1.4.0",
