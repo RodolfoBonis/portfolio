@@ -94,7 +94,6 @@
 import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline'
 import { DialogPanel, Dialog } from '@headlessui/vue'
 import SocialMedia from '~/components/SocialMedia.vue'
-import { CDN_API_KEY } from '~/src/constants/cdn.const'
 
 const mobileMenuOpen = ref(false)
 
@@ -105,7 +104,7 @@ export default {
   data: function () {
     return {
       mobileMenuOpen,
-      logoUrl: `https://rb-cdn.rodolfodebonis.com.br/v1/cdn/portfolio/logo-light.png?X-Api-Key=${CDN_API_KEY}`,
+      logoUrl: '/api/cdn/portfolio/logo-light.png',
     }
   },
 }
