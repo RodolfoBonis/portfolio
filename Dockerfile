@@ -1,25 +1,26 @@
-FROM node:18.20.5-slim AS builder
+# Etapa de build
+FROM node:18.20.5-alpine AS builder
 
 WORKDIR /app
 
-RUN apt-get update && \
-    apt-get install -y python3 make g++ && \
-    rm -rf /var/lib/apt/lists/*
-
 COPY package.json yarn.lock ./
-
-RUN yarn install
+RUN yarn install --frozen-lockfile
 
 COPY . .
+RUN yarn build
 
-RUN yarn generate
+# Etapa de produção
+FROM node:18.20.5-alpine AS production
 
-FROM nginx:stable-alpine AS production
+WORKDIR /app
 
-COPY --from=builder /app/.output/public /usr/share/nginx/html
+COPY --from=builder /app/.output /app/.output
+COPY --from=builder /app/package.json /app/package.json
+COPY --from=builder /app/yarn.lock /app/yarn.lock
+COPY --from=builder /app/ecosystem.config.js /app/ecosystem.config.js
 
-COPY ./.config/nginx/nginx.conf /etc/nginx/conf.d/default.conf
+RUN yarn install --production --frozen-lockfile
 
-EXPOSE 80
+EXPOSE 3000
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["yarn", "start"]
