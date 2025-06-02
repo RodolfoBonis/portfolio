@@ -1,36 +1,34 @@
+import {
+  defineEventHandler,
+  getRouterParam,
+  createError,
+  setResponseHeader,
+} from 'h3'
+import { $fetch } from 'ofetch'
+
 export default defineEventHandler(async (event) => {
+  const path = getRouterParam(event, 'path')
+  if (!path) {
+    throw createError({
+      statusCode: 400,
+      message: 'Path parameter is required',
+    })
+  }
+
   try {
-    const path = getRouterParam(event, 'path')
-
-    if (!path) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Caminho da imagem não fornecido',
-      })
-    }
-
     const imageUrl = `https://rb-cdn.rodolfodebonis.com.br/v1/cdn/${path}`
-
     const response = await $fetch(imageUrl, {
       headers: {
         'X-API-Key': String(process.env.CDN_API_KEY),
       },
-      responseType: 'arrayBuffer',
     })
 
-    setResponseHeader(event, 'Content-Type', 'image/jpeg')
-    setResponseHeader(event, 'Cache-Control', 'public, max-age=31536000')
-    return Buffer.from(response as ArrayBuffer)
-  } catch (error: any) {
-    return sendError(
-      event,
-      createError({
-        statusCode: 500,
-        statusMessage: 'Erro ao carregar imagem do CDN',
-        data: {
-          error: error.message,
-        },
-      }),
-    )
+    setResponseHeader(event, 'Content-Type', 'image/png')
+    return response
+  } catch (error) {
+    throw createError({
+      statusCode: 500,
+      message: 'Error fetching image from CDN',
+    })
   }
 })
