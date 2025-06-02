@@ -32,10 +32,9 @@ import { useRuntimeConfig } from '#app'
 
 export default {
   data: function () {
-    const config = useRuntimeConfig()
     return {
       age: new Date().getFullYear() - 1996,
-      logoUrl: `https://rb-cdn.rodolfodebonis.com.br/v1/cdn/portfolio/me.jpeg?X-Api-Key=${config.public.cdnApiKey}`,
+      logoUrl: '/api/cdn',
     }
   },
 }
