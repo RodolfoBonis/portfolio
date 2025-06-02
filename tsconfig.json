@@ -2,20 +2,19 @@
   "compilerOptions": {
     "target": "ES2018",
     "module": "ESNext",
-    "moduleResolution": "Node",
-    "lib": ["ESNext", "ESNext.AsyncIterable", "DOM"],
-    "esModuleInterop": true,
-    "allowJs": true,
-    "sourceMap": true,
+    "moduleResolution": "bundler",
     "strict": true,
-    "noEmit": true,
-    "experimentalDecorators": true,
-    "baseUrl": ".",
+    "jsx": "preserve",
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "lib": ["ESNext", "ESNext.AsyncIterable", "DOM"],
+    "skipLibCheck": true,
+    "types": ["node", "h3", "vue", "nuxt"],
     "paths": {
       "~/*": ["./*"],
       "@/*": ["./*"]
-    },
-    "types": ["@nuxt/types", "@nuxtjs/axios", "@types/node"]
+    }
   },
   "exclude": ["node_modules", ".nuxt", "dist"]
 }
