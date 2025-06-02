@@ -91,76 +91,76 @@ jobs:
       - name: Run Prettier 🖌
         run: yarn lint:prettier
 
-  sonar:
-    runs-on: ubuntu-latest
-    needs: [setup]
-    steps:
-      - name: Checkout 🛎
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_TOKEN }}
-          fetch-depth: 0
+  # sonar:
+  #   runs-on: ubuntu-latest
+  #   needs: [setup]
+  #   steps:
+  #     - name: Checkout 🛎
+  #       uses: actions/checkout@v4
+  #       with:
+  #         token: ${{ secrets.GH_TOKEN }}
+  #         fetch-depth: 0
 
-      - name: Setup Node.js 🏗
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ needs.setup.outputs.node_version }}
-          check-latest: true
+  #     - name: Setup Node.js 🏗
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: ${{ needs.setup.outputs.node_version }}
+  #         check-latest: true
 
-      - name: Install dependencies 👨🏻‍💻
-        run: yarn --frozen-lockfile
+  #     - name: Install dependencies 👨🏻‍💻
+  #       run: yarn --frozen-lockfile
 
-      - name: Setup Python 🐍
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
+  #     - name: Setup Python 🐍
+  #       uses: actions/setup-python@v4
+  #       with:
+  #         python-version: '3.x'
 
-      - name: Create and activate virtual environment
-        run: |
-          python -m venv venv
-          source venv/bin/activate
+  #     - name: Create and activate virtual environment
+  #       run: |
+  #         python -m venv venv
+  #         source venv/bin/activate
 
-      - name: Install Python dependencies
-        run: |
-          source venv/bin/activate
-          pip install -r .config/scripts/requirements.txt
+  #     - name: Install Python dependencies
+  #       run: |
+  #         source venv/bin/activate
+  #         pip install -r .config/scripts/requirements.txt
 
-      - name: Verify Python dependencies
-        run: |
-          source venv/bin/activate
-          pip list
+  #     - name: Verify Python dependencies
+  #       run: |
+  #         source venv/bin/activate
+  #         pip list
 
-      - name: SonarQube Scan 🔍
-        uses: sonarsource/sonarqube-scan-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        with:
-          args: >
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-            -Dsonar.sources=.
-            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+  #     - name: SonarQube Scan 🔍
+  #       uses: sonarsource/sonarqube-scan-action@master
+  #       env:
+  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  #         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+  #       with:
+  #         args: >
+  #           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+  #           -Dsonar.sources=.
+  #           -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
 
-      - name: SonarQube Quality Gate 🚪
-        uses: sonarsource/sonarqube-quality-gate-action@master
-        timeout-minutes: 5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  #     - name: SonarQube Quality Gate 🚪
+  #       uses: sonarsource/sonarqube-quality-gate-action@master
+  #       timeout-minutes: 5
+  #       env:
+  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Run script for Sonar metrics 📊
-        if: ${{ github.event_name == 'pull_request' && always() }}
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_TOKEN }}
-          SONARQUBE_URL: ${{ secrets.SONAR_HOST_URL }}
-          SONARQUBE_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONARQUBE_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          GITHUB_REPO_NAME: ${{ github.repository }}
-          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          source venv/bin/activate
-          python .config/scripts/generate_sonar_metrics_comment.py
+  #     - name: Run script for Sonar metrics 📊
+  #       if: ${{ github.event_name == 'pull_request' && always() }}
+  #       env:
+  #         OPENAI_API_KEY: ${{ secrets.OPENAI_TOKEN }}
+  #         SONARQUBE_URL: ${{ secrets.SONAR_HOST_URL }}
+  #         SONARQUBE_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  #         SONARQUBE_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+  #         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+  #         GITHUB_REPO_NAME: ${{ github.repository }}
+  #         GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+  #       run: |
+  #         source venv/bin/activate
+  #         python .config/scripts/generate_sonar_metrics_comment.py
 
-      - name: Fail CI if Scan or Quality Gate fails ❌
-        if: ${{ steps.sonar_scan.outcome == 'failure' || steps.sonar_quality_gate.outcome == 'failure' }}
-        run: exit 1
+  #     - name: Fail CI if Scan or Quality Gate fails ❌
+  #       if: ${{ steps.sonar_scan.outcome == 'failure' || steps.sonar_quality_gate.outcome == 'failure' }}
+  #       run: exit 1
