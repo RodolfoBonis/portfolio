@@ -14,7 +14,7 @@
         <img
           class="w-32 h-32 rounded-full object-cover"
           :src="logoUrl"
-          alt=""
+          alt="Rodolfo De Bonis"
         />
       </div>
 
@@ -28,13 +28,11 @@
 </template>
 
 <script>
-import { useRuntimeConfig } from '#app'
-
 export default {
   data: function () {
     return {
       age: new Date().getFullYear() - 1996,
-      logoUrl: '/api/cdn',
+      logoUrl: '/api/cdn/portfolio/me.jpeg',
     }
   },
 }
