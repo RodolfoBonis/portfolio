@@ -23,12 +23,15 @@
             Missão &amp; Visão
           </h3>
           <p class="text-sm">
-            Minha missão é simples: Minimizar ao máximo qualquer tarefa manual para que eu possa focar no que realmente importa. 
-            Um pipeline CI/CD bem afinado é tão satisfatório quanto um crítico de 20 em D&D: acontece pouco, mas quando acontece, 
-            faz toda a diferença. Sonho com o dia em que, relaxado no sofá, 
-            vou monitorar meus clusters Kubernetes enquanto um robozinho me entrega um café quentinho — 
-            porque produtividade de verdade é ter sistemas tão eficientes que eu mal precise pensar neles e, 
-            de quebra, ganhar tempo para criar o próximo desafio épico.
+            Minha missão é simples: Minimizar ao máximo qualquer tarefa manual
+            para que eu possa focar no que realmente importa. Um pipeline CI/CD
+            bem afinado é tão satisfatório quanto um crítico de 20 em D&D:
+            acontece pouco, mas quando acontece, faz toda a diferença. Sonho com
+            o dia em que, relaxado no sofá, vou monitorar meus clusters
+            Kubernetes enquanto um robozinho me entrega um café quentinho —
+            porque produtividade de verdade é ter sistemas tão eficientes que eu
+            mal precise pensar neles e, de quebra, ganhar tempo para criar o
+            próximo desafio épico.
           </p>
         </div>
         <div class="space-y-4 sr-reveal delay-400">
