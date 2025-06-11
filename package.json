@@ -47,7 +47,7 @@
   },
   "devDependencies": {
     "@azure/data-tables": "^13.3.0",
-    "@azure/keyvault-secrets": "^4.9.0",
+    "@azure/keyvault-secrets": "^4.10.0",
     "@azure/storage-blob": "^12.27.0",
     "@babel/eslint-parser": "^7.19.1",
     "@capacitor/preferences": "^7.0.1",
