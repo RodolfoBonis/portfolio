@@ -63,7 +63,7 @@
     "@planetscale/database": "^1.19.0",
     "@tailwindcss/cli": "^4.1.8",
     "@tailwindcss/postcss": "^4.1.8",
-    "@types/node": "^22.15.29",
+    "@types/node": "^24.0.4",
     "@types/vue": "^2.0.0",
     "@upstash/redis": "^1.34.9",
     "@vercel/kv": "^3.0.0",
