@@ -1,0 +1,204 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Pull Request Creation Automation Rule
+
+## Objective
+Automate the process of creating detailed Pull Requests with comprehensive descriptions pointing to specified target branches.
+
+## When to Apply
+- When user requests to "create a PR" or "criar um PR"
+- When user asks to "open pull request" 
+- When user mentions "PR para [branch]" or "PR to [branch]"
+- When user specifies target branch for PR creation
+
+## Automated Process
+
+### 1. Branch Analysis
+```bash
+# Get current branch
+git branch --show-current
+
+# Get target branch (default to 'main' if not specified)
+# Target branch should be extracted from user command
+```
+
+### 2. Changes Analysis
+```bash
+# Compare current branch with target branch
+git diff --name-status [target-branch]..HEAD
+
+# Get commit history
+git log --oneline [target-branch]..HEAD
+
+# Get detailed diff summary
+git diff --stat [target-branch]..HEAD
+```
+
+### 3. PR Description Generation
+Generate comprehensive PR description including:
+
+#### Structure:
+```markdown
+## 📋 Resumo
+[Brief summary of changes]
+
+## 🔧 Tipo de Mudança
+- [ ] ✨ Feature (nova funcionalidade)
+- [ ] 🐛 Bug fix (correção de bug)
+- [ ] 🔥 Breaking change (mudança que quebra compatibilidade)
+- [ ] 📝 Documentation (atualização de documentação)
+- [ ] 🎨 Style (formatação, sem mudança de funcionalidade)
+- [ ] ♻️ Refactor (refatoração de código)
+- [ ] ⚡ Performance (melhoria de performance)
+- [ ] ✅ Test (adição ou correção de testes)
+- [ ] 🔧 Chore (manutenção, configuração)
+
+## 📁 Arquivos Modificados
+[List of modified files with brief description]
+
+## 💡 Motivação e Contexto
+[Why these changes are needed]
+
+## 🚀 Como Testar
+[Testing instructions]
+
+## 📝 Commits Incluídos
+[List of commits in this PR]
+
+## 🔗 Issues Relacionadas
+Closes #[issue_number]
+
+## ✅ Checklist
+- [ ] Código revisado e testado
+- [ ] Documentação atualizada (se necessário)
+- [ ] Testes passando
+- [ ] Sem conflitos com a branch de destino
+```
+
+### 4. File Change Analysis
+For each modified file, identify:
+- **Type of change**: Added, Modified, Deleted, Renamed
+- **Purpose**: What functionality was changed
+- **Impact**: How it affects the system
+- **Category**: Feature, fix, refactor, etc.
+
+### 5. Commit Analysis
+For each commit:
+- **Message**: Commit message
+- **Type**: Extracted from conventional commit format
+- **Files**: Files affected
+- **Impact**: Scope of changes
+
+### 6. PR Creation Command
+```bash
+# Using GitHub CLI (gh)
+gh pr create \
+  --title "[Type]: Brief description" \
+  --body "$(cat pr_description.md)" \
+  --base [target-branch] \
+  --head [current-branch]
+```
+
+## Classification Rules
+
+### PR Title Format
+- Use conventional commit format: `type(scope): description`
+- Keep under 72 characters
+- Use imperative mood
+
+### PR Type Detection
+Based on commits and file changes:
+- **feat**: New features, new files with functionality
+- **fix**: Bug fixes, corrections
+- **refactor**: Code improvements without new features
+- **docs**: Documentation changes
+- **test**: Test additions/modifications
+- **style**: Formatting, linting fixes
+- **perf**: Performance improvements
+- **build**: Build system, dependencies
+- **ci**: CI configuration changes
+- **chore**: Maintenance tasks
+
+### Description Details
+1. **Summary**: High-level overview of changes
+2. **Motivation**: Why changes were needed
+3. **Implementation**: How changes were implemented
+4. **Testing**: How to test the changes
+5. **Impact**: What areas are affected
+6. **Breaking Changes**: If any (highlighted)
+
+## Target Branch Detection
+Extract target branch from user input patterns:
+- "PR para main" → target: main
+- "PR to develop" → target: develop  
+- "PR apontando para staging" → target: staging
+- Default to "main" if not specified
+
+## Additional Features
+
+### 1. Automatic Labels
+Based on change type:
+- `feature` for new functionality
+- `bug` for fixes
+- `documentation` for docs
+- `refactor` for code improvements
+- `breaking-change` for breaking changes
+
+### 2. Reviewer Assignment
+- Suggest reviewers based on file ownership
+- Auto-assign team members for specific areas
+
+### 3. Draft PR Option
+- Create as draft if changes are incomplete
+- Auto-detect based on TODO comments or test failures
+
+## Error Handling
+
+### Common Issues:
+1. **No target branch specified**: Default to 'main'
+2. **GitHub CLI not installed**: Provide installation instructions
+3. **No changes to create PR**: Alert user
+4. **Authentication issues**: Guide to setup
+
+## Execution Example
+
+### User Input:
+"criar PR para main"
+
+### Process:
+1. **Detect target**: main
+2. **Analyze changes**: 
+   ```
+   M  features/auth/auth_route.go
+   A  features/auth/domain/usecases/refresh_uc.go
+   M  docs/swagger.yaml
+   ```
+3. **Generate description**: 
+   ```markdown
+   ## 📋 Resumo
+   Implementa funcionalidade de refresh token para autenticação JWT
+   
+   ## 🔧 Tipo de Mudança
+   - [x] ✨ Feature (nova funcionalidade)
+   
+   ## 📁 Arquivos Modificados
+   - `features/auth/auth_route.go` - Adicionada rota para refresh token
+   - `features/auth/domain/usecases/refresh_uc.go` - Novo use case para refresh
+   - `docs/swagger.yaml` - Documentação da nova rota
+   ```
+4. **Create PR**: 
+   ```bash
+   gh pr create --title "feat(auth): implement JWT refresh token functionality" --base main
+   ```
+
+## Automatic Execution
+When this rule is triggered, the AI should:
+1. Extract target branch from user input
+2. Execute git commands to analyze changes
+3. Generate comprehensive PR description
+4. Create PR using GitHub CLI
+5. Present PR URL and summary to user
+6. Suggest next steps (review assignment, testing)

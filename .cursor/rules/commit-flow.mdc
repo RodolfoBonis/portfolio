@@ -1,0 +1,134 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Commit Flow Automation Rule
+
+## Objective
+Automate the process of analyzing repository changes and creating individual well-structured commits using conventional commits.
+
+## When to Apply
+- When user requests to "commit the changes"
+- When user asks to "analyze and commit" 
+- When user mentions "individual commits" or "conventional commits"
+- When there are multiple modified files that need to be committed separately
+
+## Automated Process
+
+### 1. Initial Analysis
+```bash
+# Check current git status
+git status
+```
+
+### 2. For Each Modified File
+```bash
+# Analyze diff for each file individually
+git diff <file>
+```
+
+### 3. Change Classification
+Analyze each diff and classify according to conventional commits:
+
+**Commit Types:**
+- `feat`: New feature
+- `fix`: Bug fix
+- `refactor`: Code refactoring (no new functionality or fix)
+- `style`: Formatting changes, whitespace, etc.
+- `test`: Adding or modifying tests
+- `docs`: Documentation changes
+- `perf`: Performance improvements
+- `build`: Build system changes
+- `ci`: CI configuration changes
+- `chore`: Other changes that don't modify src or test
+
+**Scope:** 
+- Component, feature, or affected area (e.g., `auth`, `payment`, `ui`)
+
+### 4. Commit Message Structure
+```
+<type>(<scope>): <concise description>
+
+<optional body explaining what was changed>
+
+<optional footer with breaking changes or closed issues>
+```
+
+### 5. Individual Commit Process
+For each file:
+1. `git add <file>`
+2. `git commit -m "<conventional_message>"`
+3. Repeat for next file
+
+### 6. Detailed Diff Analysis
+For each change, identify:
+- **What was added** (lines with +)
+- **What was removed** (lines with -)
+- **What was modified** (context)
+- **Impact of change** (functionality, test, style, etc.)
+
+## Execution Example
+
+### Scenario: 3 modified files
+```
+modified: components/Button/Button.tsx
+modified: components/Button/Button.spec.tsx  
+modified: utils/formatters.ts
+```
+
+### Analysis and Commits:
+1. **Button.tsx**: Added new `variant` prop
+   ```bash
+   git add components/Button/Button.tsx
+   git commit -m "feat(ui): add variant prop to Button component"
+   ```
+
+2. **Button.spec.tsx**: Tests for new `variant` prop
+   ```bash
+   git add components/Button/Button.spec.tsx
+   git commit -m "test(ui): add tests for Button variant prop"
+   ```
+
+3. **formatters.ts**: Currency formatting bug fix
+   ```bash
+   git add utils/formatters.ts
+   git commit -m "fix(utils): correct currency formatting edge case"
+   ```
+
+## Classification Rules
+
+### For Test Files (.spec.tsx, .test.ts, etc.)
+- Always use `test:` as type
+- Scope based on component/feature being tested
+
+### For React Components
+- `feat:` for new functionality or props
+- `fix:` for bug fixes
+- `refactor:` for code improvements without API changes
+- `style:` for CSS/styling changes only
+
+### For Utils/Helpers
+- `feat:` for new utility functions
+- `fix:` for bug fixes
+- `refactor:` for code improvements
+
+## Additional Guidelines
+
+1. **Always analyze complete diff** before classifying
+2. **Be specific with scope** (e.g., `auth/login`, `payment/checkout`)
+3. **Concise but informative description** (max 50 characters)
+4. **Use imperative mood** ("add", "fix", "update", not "added", "fixed")
+5. **Include context** if change is not obvious
+6. **Mention breaking changes** in footer if applicable
+
+## Automatic Execution
+When this rule is triggered, the AI should:
+1. Execute `git status` to list changes
+2. For each modified file, execute `git diff <file>`
+3. Analyze diff content
+4. Classify change according to conventional commits
+5. Propose commit message
+6. Execute individual commit
+7. Repeat for all files
+8. Present final summary of created commits
