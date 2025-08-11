@@ -101,7 +101,14 @@ jobs:
 
       - name: Sync ArgoCD Application
         run: |
+          # Force refresh to ensure ArgoCD picks up the latest changes
+          argocd app get portfolio-app-stg --hard-refresh --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
+          # Wait a moment for refresh to complete
+          sleep 10
+          # Sync the application
           argocd app sync portfolio-app-stg --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
+          # Wait for sync to complete and verify deployment
+          argocd app wait portfolio-app-stg --timeout 300 --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
 
       - name: Send Success Message via Telegram
         if: ${{ job.status == 'success'}}
