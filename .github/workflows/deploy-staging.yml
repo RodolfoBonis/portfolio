@@ -16,7 +16,7 @@ on:
 jobs:
   deploy-staging:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout 🛎
         uses: actions/checkout@master
@@ -118,7 +118,7 @@ jobs:
             See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
             Status: ${{ job.status }}
             Staging URL: https://stg.rodolfodebonis.com.br
-            
+
             Ready for testing! 🧪
 
       - name: Send Failure Message via Telegram
@@ -134,5 +134,5 @@ jobs:
             Version: ${{ env.VERSION }}
             See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
             Status: ${{ job.status }}
-            
+
             Please check the logs! 🔍

@@ -19,7 +19,7 @@ on:
 jobs:
   deploy-version:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout 🛎
         uses: actions/checkout@master
@@ -104,7 +104,7 @@ jobs:
             Image: ${{ env.IMAGE_URL }}
             Status: ${{ job.status }}
             URL: ${{ env.URL }}
-            
+
             Deployment complete! ✅
 
       - name: Send Failure Message via Telegram
@@ -120,5 +120,5 @@ jobs:
             Environment: ${{ inputs.environment }}
             Repository: ${{ github.repository }}
             Status: ${{ job.status }}
-            
+
             Please check the logs! 🔍
