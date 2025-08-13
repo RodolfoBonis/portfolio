@@ -1,0 +1,287 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Pull Request Analysis Automation Rule
+
+## Objective
+Automate the process of detailed Pull Request analysis with ROBUST data collection and multiple fallback strategies.
+
+## When to Apply
+- When user requests "analyze PR #123" or "analise o PR #123"
+- When user asks for "detailed analysis of PR [number]"
+- When user mentions "review PR" or "revisar PR"
+- When user requests "PR details [number/link]"
+- When there is reference to a PR number for analysis
+
+## ROBUST Data Collection Strategy
+
+### Primary Strategy: GitHub API via cURL
+**MOST RELIABLE - Always try this first**
+```bash
+# 1. Get PR basic information (ALWAYS WORKS)
+curl -H "Authorization: token $(gh auth token)" \
+  "https://api.github.com/repos/[OWNER/REPO]/pulls/[PR_NUMBER]"
+
+# 2. Get PR files and changes (ALWAYS WORKS)
+curl -H "Authorization: token $(gh auth token)" \
+  "https://api.github.com/repos/[OWNER/REPO]/pulls/[PR_NUMBER]/files"
+
+# 3. Get PR commits (ALWAYS WORKS)
+curl -H "Authorization: token $(gh auth token)" \
+  "https://api.github.com/repos/[OWNER/REPO]/pulls/[PR_NUMBER]/commits"
+```
+
+### Secondary Strategy: GitHub CLI (if primary fails)
+```bash
+# Fallback commands with error handling
+gh pr view [PR_NUMBER] --repo [OWNER/REPO] --json title,body,author,state,baseRefName,headRefName,createdAt,labels,additions,deletions,changedFiles 2>/dev/null || echo "GH_CLI_FAILED"
+
+gh pr diff [PR_NUMBER] --repo [OWNER/REPO] --name-only 2>/dev/null || echo "GH_DIFF_FAILED"
+```
+
+### Tertiary Strategy: Direct Tools
+```bash
+# Last resort - try available tools
+fetch_pull_request [PR_NUMBER] [OWNER/REPO] || echo "TOOL_FAILED"
+```
+
+## MANDATORY Execution Flow
+
+### Step 1: Authentication Check
+```bash
+# Verify GitHub authentication
+gh auth status 2>/dev/null || echo "AUTH_REQUIRED"
+```
+
+### Step 2: Repository Detection
+```bash
+# Auto-detect repository from URL/context or use provided
+# Extract owner/repo from: https://github.com/owner/repo/pull/123
+```
+
+### Step 3: Data Collection (PARALLEL EXECUTION)
+**CRITICAL: Execute ALL commands in parallel for maximum efficiency**
+
+```bash
+# Primary data collection (RUN SIMULTANEOUSLY)
+curl -H "Authorization: token $(gh auth token)" "https://api.github.com/repos/[OWNER/REPO]/pulls/[PR_NUMBER]" &
+curl -H "Authorization: token $(gh auth token)" "https://api.github.com/repos/[OWNER/REPO]/pulls/[PR_NUMBER]/files" &
+curl -H "Authorization: token $(gh auth token)" "https://api.github.com/repos/[OWNER/REPO]/pulls/[PR_NUMBER]/commits" &
+
+# Wait for all requests to complete
+wait
+```
+
+### Step 4: Data Processing
+Parse JSON responses and extract:
+- PR metadata (title, author, state, branches, dates)
+- File changes (additions, deletions, modifications)
+- Commit information
+- Diff details
+
+### Step 5: Analysis Generation
+Generate comprehensive analysis using collected data.
+
+## ENHANCED Analysis Report Structure
+
+```markdown
+# 🔍 Análise Detalhada do [PR #[number]](https://github.com/[owner]/[repo]/pull/[number])
+
+## 📊 Informações Gerais
+- **Título**: [PR title]
+- **Autor**: [author]
+- **Status**: [Open/Closed/Merged with emoji]
+- **Branch Base**: [base branch]
+- **Branch Head**: [head branch]
+- **Criado**: [formatted date]
+- **Última Atualização**: [formatted date]
+- **Reviewers**: [list of reviewers]
+- **Assignees**: [list of assignees]
+
+## 🎯 Objetivo e Motivação
+[Detailed analysis of PR description and purpose]
+
+## 📁 Resumo das Mudanças
+### Arquivos Modificados: **[number]**
+### Linhas Adicionadas: **+[number]**
+### Linhas Removidas: **-[number]**
+### Commits: **[number]**
+
+## 🔧 Categorização das Mudanças
+
+### ✨ Nova Funcionalidade
+[Detailed list of new features]
+
+### 🐛 Correções de Bug
+[List of bug fixes]
+
+### ♻️ Refatoração
+[List of refactoring changes]
+
+### 📝 Documentação
+[Documentation changes]
+
+### 🧪 Testes
+[Test additions/modifications]
+
+## 📋 Análise Detalhada dos Arquivos
+
+### [File Name 1]
+- **Tipo de Mudança**: [Addition/Modification/Removal]
+- **Propósito**: [What was changed and why]
+- **Impacto**: [How it affects the system]
+- **Linhas Modificadas**: +[X]/-[Y]
+
+**Mudanças Principais:**
+- [Detailed change 1]
+- [Detailed change 2]
+
+### [File Name 2]
+[Same detailed format...]
+
+## 💡 Insights e Considerações
+
+### 🟢 Aspectos Positivos
+- [Well-implemented aspects with detailed explanation]
+- [Identified best practices]
+- [Significant improvements]
+
+### 🟡 Pontos de Atenção
+- [Specific risks with detailed explanation]
+- [Areas that need review]
+- [Dependencies or side impacts]
+
+### 🟠 Possíveis Melhorias
+- [Specific improvement suggestions]
+- [Performance considerations]
+- [Security considerations]
+
+## 🎯 Resumo Executivo
+[Concise but comprehensive summary of PR impact and importance]
+
+## 🚀 Recomendações para Review
+
+### Focos Prioritários:
+1. [Specific area 1 with detailed explanation]
+2. [Specific area 2 with detailed explanation]
+3. [Specific area 3 with detailed explanation]
+
+### Testes Recomendados:
+- [Specific test recommendation 1]
+- [Specific test recommendation 2]
+- [Specific test recommendation 3]
+
+### Checklist de Aprovação:
+- [ ] [Specific check 1]
+- [ ] [Specific check 2]
+- [ ] [Specific check 3]
+
+---
+
+**Veredito**: [Detailed verdict with reasoning]
+```
+
+## ERROR HANDLING & FALLBACKS
+
+### Authentication Issues
+```bash
+# Check authentication first
+if ! gh auth status >/dev/null 2>&1; then
+  echo "⚠️ GitHub authentication required. Run: gh auth login"
+  exit 1
+fi
+```
+
+### Repository Access Issues
+```bash
+# Verify repository exists and is accessible
+if ! curl -s -H "Authorization: token $(gh auth token)" "https://api.github.com/repos/[OWNER/REPO]" >/dev/null; then
+  echo "❌ Repository not found or access denied"
+  exit 1
+fi
+```
+
+### PR Not Found
+```bash
+# Check if PR exists
+PR_CHECK=$(curl -s -H "Authorization: token $(gh auth token)" "https://api.github.com/repos/[OWNER/REPO]/pulls/[PR_NUMBER]")
+if echo "$PR_CHECK" | grep -q "Not Found"; then
+  echo "❌ PR #[PR_NUMBER] not found in repository [OWNER/REPO]"
+  exit 1
+fi
+```
+
+### Network Issues
+```bash
+# Retry logic for network failures
+for i in {1..3}; do
+  RESULT=$(curl -s -H "Authorization: token $(gh auth token)" "https://api.github.com/repos/[OWNER/REPO]/pulls/[PR_NUMBER]")
+  if [ $? -eq 0 ] && ! echo "$RESULT" | grep -q "API rate limit"; then
+    break
+  fi
+  echo "⏳ Retry $i/3 in 2 seconds..."
+  sleep 2
+done
+```
+
+## IMPROVED Pattern Recognition
+
+### URL Parsing
+```regex
+# Extract from GitHub URLs
+https://github\.com/([^/]+)/([^/]+)/pull/(\d+)
+# Capture groups: $1=owner, $2=repo, $3=pr_number
+```
+
+### Repository Context Detection
+```bash
+# If no repo specified, try to detect from current directory
+if [ -z "$REPO" ]; then
+  REPO=$(git remote get-url origin 2>/dev/null | sed -n 's/.*github\.com[/:]\([^/]*\/[^/]*\)\.git.*/\1/p')
+fi
+```
+
+## EXECUTION PRIORITY
+
+### 1. ALWAYS start with GitHub API via cURL (most reliable)
+### 2. If cURL fails, try GitHub CLI with error handling
+### 3. If both fail, try available tools
+### 4. If all fail, provide clear error message with troubleshooting steps
+
+## PERFORMANCE OPTIMIZATIONS
+
+### Parallel Execution
+- **MANDATORY**: Run all API calls in parallel using `&` and `wait`
+- **MANDATORY**: Use `antml:function_calls` with multiple parallel calls
+- **NEVER**: Run sequential calls when parallel is possible
+
+### Data Caching
+- Store results in variables to avoid repeated API calls
+- Reuse authentication tokens across requests
+
+### Rate Limiting
+- Implement exponential backoff for rate limit errors
+- Show progress indicators for long-running operations
+
+## MANDATORY EXECUTION SEQUENCE
+
+When this rule is triggered, the AI MUST:
+
+1. **Extract PR info** from user input (number, repository)
+2. **Verify authentication** (gh auth status)
+3. **Execute PARALLEL API calls** using cURL
+4. **Process JSON responses** and extract all relevant data
+5. **Generate comprehensive analysis** with detailed insights
+6. **Provide actionable recommendations** for review
+7. **Handle errors gracefully** with clear troubleshooting steps
+8. **Always respond in Portuguese** for Brazilian users
+
+### CRITICAL SUCCESS FACTORS:
+- ✅ **Multiple fallback strategies** (cURL → gh CLI → tools)
+- ✅ **Parallel execution** for maximum speed
+- ✅ **Comprehensive error handling** with clear messages
+- ✅ **Detailed analysis** with actionable insights
+- ✅ **Portuguese language** responses for Brazilian users
+- ✅ **Robust data collection** that works even when some methods fail
