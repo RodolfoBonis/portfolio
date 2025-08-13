@@ -78,11 +78,17 @@ jobs:
       - name: Update k3s manifest with specified version
         run: |
           cd k3s-manifest
-          # Update ArgoCD application with specified image tag
-          yq e -i '.spec.sources[0].helm.values |= sub("tag: \"[^\"]*\""; "tag: \"" + "${{ inputs.version }}" + "\"")' ${{ env.CONFIG_FILE }}
+          if [ "${{ inputs.environment }}" == "staging" ]; then
+            # Update staging values file in chart
+            yq e -i '.image.tag = "${{ inputs.version }}"' ./apps/portfolio/app/chart/values-stg.yaml
+            git add ./apps/portfolio/app/chart/values-stg.yaml
+          else
+            # Update production values file in chart
+            yq e -i '.image.tag = "${{ inputs.version }}"' ./apps/portfolio/app/chart/values-prod.yaml
+            git add ./apps/portfolio/app/chart/values-prod.yaml
+          fi
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add ${{ env.CONFIG_FILE }}
           git commit -m "feat(portfolio): deploy version ${{ inputs.version }} to ${{ inputs.environment }}"
           git push
 
