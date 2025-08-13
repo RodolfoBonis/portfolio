@@ -157,7 +157,7 @@ jobs:
         run: echo "::set-output name=tag::v${{ env.VERSION }}"
 
       - name: Download commit messages
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: commit-messages
           path: .
