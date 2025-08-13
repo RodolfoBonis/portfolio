@@ -86,40 +86,18 @@ jobs:
           git commit -m "feat(portfolio): deploy version ${{ inputs.version }} to ${{ inputs.environment }}"
           git push
 
-      - name: Force ArgoCD cache refresh and deploy (ArgoCD CLI only)
+      - name: Sync ArgoCD Application
         run: |
-          echo "🔄 Forcing cache refresh for ${{ env.APP_NAME }} using only ArgoCD CLI..."
+          echo "🚀 Force syncing ${{ env.APP_NAME }}..."
 
-          # Step 1: Multiple hard refreshes to force cache invalidation
-          echo "💨 Performing multiple hard refreshes to clear all caches..."
-          for i in {1..3}; do
-            echo "Hard refresh attempt $i/3..."
-            argocd app get ${{ env.APP_NAME }} --hard-refresh --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
-            sleep 10
-          done
-
-          # Step 2: Wait for repository cache to be invalidated
-          echo "⏱️ Waiting for repository cache invalidation to propagate..."
-          sleep 45
-
-          # Step 3: Perform repository refresh to force re-reading from Git
-          echo "📡 Forcing repository refresh..."
-          REPO_URL=$(argocd app get ${{ env.APP_NAME }} --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }} -o json | jq -r '.spec.sources[0].repoURL')
-          argocd repo get "$REPO_URL" --refresh hard --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }} || echo "Repository refresh completed"
-
-          # Step 4: Final hard refresh after repository refresh
-          echo "🔄 Final hard refresh to ensure fresh manifests..."
-          argocd app get ${{ env.APP_NAME }} --hard-refresh --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
-
-          # Step 5: Force sync with prune to apply changes
-          echo "🚀 Force syncing ${{ env.APP_NAME }} with updated manifests..."
+          # Force sync with prune to apply changes
           argocd app sync ${{ env.APP_NAME }} --force --prune --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
 
-          # Step 6: Wait for deployment to complete
+          # Wait for deployment to complete
           echo "⏳ Waiting for deployment to complete (up to 5 minutes)..."
           argocd app wait ${{ env.APP_NAME }} --timeout 300 --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
 
-          # Step 7: Verify deployment through ArgoCD
+          # Verify deployment through ArgoCD
           echo "🔍 Verifying deployment status..."
           echo "Expected version: ${{ inputs.version }}"
 
