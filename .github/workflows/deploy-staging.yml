@@ -99,16 +99,61 @@ jobs:
           git commit -m "feat(portfolio): update staging image to ${{ env.IMAGE_URL }}"
           git push
 
-      - name: Sync ArgoCD Application
+      - name: Setup kubectl for ArgoCD operations
         run: |
-          # Force refresh to ensure ArgoCD picks up the latest changes
+          # Install kubectl
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+
+      - name: Force ArgoCD repository cache refresh and deploy
+        env:
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
+        run: |
+          echo "🔄 Forcing repository cache refresh for staging..."
+          
+          # Setup kubeconfig for kubectl operations only for cache clearing
+          echo "$KUBECONFIG_DATA" | base64 -d > ~/.kube/config
+          
+          # Step 1: Clear ArgoCD repository server cache by restarting it
+          echo "🧹 Clearing repository server cache..."
+          kubectl rollout restart deployment argocd-repo-server -n argocd
+          kubectl rollout status deployment argocd-repo-server -n argocd --timeout=60s
+          
+          # Step 2: Hard refresh the staging application to invalidate manifest cache
+          echo "💨 Performing hard refresh to invalidate cached manifests..."
           argocd app get portfolio-app-stg --hard-refresh --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
-          # Wait a moment for refresh to complete
-          sleep 10
-          # Sync the application
-          argocd app sync portfolio-app-stg --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
-          # Wait for sync to complete and verify deployment
+          
+          # Step 3: Wait for cache to clear and repository to be re-read
+          echo "⏱️ Waiting for cache refresh to propagate..."
+          sleep 30
+          
+          # Step 4: Force sync with prune to apply changes
+          echo "🚀 Force syncing staging application with updated manifests..."
+          argocd app sync portfolio-app-stg --force --prune --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
+          
+          # Step 5: Wait for deployment to complete
+          echo "⏳ Waiting for staging deployment to complete (up to 5 minutes)..."
           argocd app wait portfolio-app-stg --timeout 300 --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
+          
+          # Step 6: Verify deployment through ArgoCD
+          echo "🔍 Verifying staging deployment status..."
+          echo "Expected version: ${{ env.VERSION }}"
+          
+          # Get application status to verify deployment
+          APP_STATUS=$(argocd app get portfolio-app-stg --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }} -o json)
+          SYNC_STATUS=$(echo "$APP_STATUS" | jq -r '.status.sync.status')
+          HEALTH_STATUS=$(echo "$APP_STATUS" | jq -r '.status.health.status')
+          
+          echo "Sync Status: $SYNC_STATUS"
+          echo "Health Status: $HEALTH_STATUS"
+          
+          if [ "$SYNC_STATUS" = "Synced" ] && [ "$HEALTH_STATUS" = "Healthy" ]; then
+            echo "✅ Staging deployment verification successful!"
+          else
+            echo "❌ Staging deployment verification failed! Sync: $SYNC_STATUS, Health: $HEALTH_STATUS"
+            exit 1
+          fi
 
       - name: Send Success Message via Telegram
         if: ${{ job.status == 'success'}}
