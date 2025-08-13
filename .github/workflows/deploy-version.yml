@@ -1,0 +1,156 @@
+name: Deploy Specific Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag to deploy (e.g., 1.5.0, 1.4.3-stg-abc123)'
+        required: true
+        type: string
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+        default: 'staging'
+
+jobs:
+  deploy-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout 🛎
+        uses: actions/checkout@master
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Setup ArgoCD CLI
+        uses: imajeetyadav/argocd-cli@v1
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Preset Image Name
+        run: echo "IMAGE_URL=$(echo ${{ steps.login-ecr.outputs.registry }}/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ inputs.version }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Verify image exists in ECR
+        run: |
+          echo "Verifying image exists: ${{ env.IMAGE_URL }}"
+          aws ecr describe-images --repository-name "${{ github.repository_owner }}/${{ github.event.repository.name }}" --image-ids imageTag="${{ inputs.version }}" || {
+            echo "❌ Image with tag ${{ inputs.version }} not found in ECR"
+            echo "Available tags:"
+            aws ecr list-images --repository-name "${{ github.repository_owner }}/${{ github.event.repository.name }}" --query 'imageIds[*].imageTag' --output table
+            exit 1
+          }
+
+      - name: Set environment variables
+        run: |
+          if [ "${{ inputs.environment }}" == "staging" ]; then
+            echo "APP_NAME=portfolio-app-stg" >> $GITHUB_ENV
+            echo "CONFIG_FILE=./clusters/dev/portfolio-app.yaml" >> $GITHUB_ENV
+            echo "NAMESPACE=portfolio-stg" >> $GITHUB_ENV
+            echo "URL=https://stg.rodolfodebonis.com.br" >> $GITHUB_ENV
+          else
+            echo "APP_NAME=portfolio-app-prod" >> $GITHUB_ENV
+            echo "CONFIG_FILE=./clusters/prod/portfolio-app.yaml" >> $GITHUB_ENV
+            echo "NAMESPACE=portfolio" >> $GITHUB_ENV
+            echo "URL=https://rodolfodebonis.com.br" >> $GITHUB_ENV
+          fi
+
+      - name: Checkout k3s manifest repository
+        uses: actions/checkout@master
+        with:
+          repository: RodolfoBonis/k3s-apps
+          ref: main
+          path: k3s-manifest
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Update k3s manifest with specified version
+        run: |
+          cd k3s-manifest
+          if [ "${{ inputs.environment }}" == "staging" ]; then
+            # Update staging values file in chart
+            yq e -i '.image.tag = "${{ inputs.version }}"' ./apps/portfolio/app/chart/values-stg.yaml
+            git add ./apps/portfolio/app/chart/values-stg.yaml
+          else
+            # Update production values file in chart
+            yq e -i '.image.tag = "${{ inputs.version }}"' ./apps/portfolio/app/chart/values-prod.yaml
+            git add ./apps/portfolio/app/chart/values-prod.yaml
+          fi
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git commit -m "feat(portfolio): deploy version ${{ inputs.version }} to ${{ inputs.environment }}"
+          git push
+
+      - name: Sync ArgoCD Application
+        run: |
+          echo "🚀 Force syncing ${{ env.APP_NAME }}..."
+
+          # Force sync with prune to apply changes
+          argocd app sync ${{ env.APP_NAME }} --force --prune --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
+
+          # Wait for deployment to complete
+          echo "⏳ Waiting for deployment to complete (up to 5 minutes)..."
+          argocd app wait ${{ env.APP_NAME }} --timeout 300 --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
+
+          # Verify deployment through ArgoCD
+          echo "🔍 Verifying deployment status..."
+          echo "Expected version: ${{ inputs.version }}"
+
+          # Get application status to verify deployment
+          APP_STATUS=$(argocd app get ${{ env.APP_NAME }} --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }} -o json)
+          SYNC_STATUS=$(echo "$APP_STATUS" | jq -r '.status.sync.status')
+          HEALTH_STATUS=$(echo "$APP_STATUS" | jq -r '.status.health.status')
+
+          echo "Sync Status: $SYNC_STATUS"
+          echo "Health Status: $HEALTH_STATUS"
+
+          if [ "$SYNC_STATUS" = "Synced" ] && [ "$HEALTH_STATUS" = "Healthy" ]; then
+            echo "✅ Deployment verification successful!"
+          else
+            echo "❌ Deployment verification failed! Sync: $SYNC_STATUS, Health: $HEALTH_STATUS"
+            exit 1
+          fi
+
+      - name: Send Success Message via Telegram
+        if: ${{ job.status == 'success'}}
+        uses: appleboy/telegram-action@master
+        with:
+          token: ${{ secrets.BOTTOKEN }}
+          to: ${{ secrets.CHAT_ID }}
+          message: |
+            🎯 ${{ github.actor }} deployed specific version:
+            Repository: ${{ github.repository }}
+            Version: ${{ inputs.version }}
+            Environment: ${{ inputs.environment }} (${{ env.NAMESPACE }})
+            Image: ${{ env.IMAGE_URL }}
+            Status: ${{ job.status }}
+            URL: ${{ env.URL }}
+
+            Deployment complete! ✅
+
+      - name: Send Failure Message via Telegram
+        if: ${{ job.status != 'success'}}
+        uses: appleboy/telegram-action@master
+        with:
+          token: ${{ secrets.BOTTOKEN }}
+          to: ${{ secrets.CHAT_ID }}
+          message: |
+            ❌ Version deployment failed
+            ${{ github.actor }} attempted to deploy:
+            Version: ${{ inputs.version }}
+            Environment: ${{ inputs.environment }}
+            Repository: ${{ github.repository }}
+            Status: ${{ job.status }}
+
+            Please check the logs! 🔍
