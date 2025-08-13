@@ -1,0 +1,164 @@
+name: Deploy to Staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag to deploy (leave empty to build new image from current commit)'
+        required: false
+        type: string
+      use_existing_image:
+        description: 'Use existing ECR image (skips build)'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout 🛎
+        uses: actions/checkout@master
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Set up Docker Buildx
+        if: ${{ !inputs.use_existing_image }}
+        uses: docker/setup-buildx-action@v3
+
+      - name: Setup ArgoCD CLI
+        uses: imajeetyadav/argocd-cli@v1
+
+      - name: Determine version to deploy
+        id: version
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            echo "VERSION=${{ inputs.version }}" >> $GITHUB_ENV
+            echo "Using provided version: ${{ inputs.version }}"
+          else
+            # Generate staging version with commit SHA
+            CURRENT_VERSION=$(cat version.txt)
+            COMMIT_SHA=$(git rev-parse --short HEAD)
+            STAGING_VERSION="${CURRENT_VERSION}-stg-${COMMIT_SHA}"
+            echo "VERSION=$STAGING_VERSION" >> $GITHUB_ENV
+            echo "Generated staging version: $STAGING_VERSION"
+          fi
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Preset Image Name
+        run: echo "IMAGE_URL=$(echo ${{ steps.login-ecr.outputs.registry }}/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ env.VERSION }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Build and push Docker Image
+        if: ${{ !inputs.use_existing_image }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_URL }}
+          build-args: |
+            "GITHUB_TOKEN=${{ secrets.GH_TOKEN }}"
+            "VERSION=${{ env.VERSION }}"
+
+      - name: Verify existing image (if using existing)
+        if: ${{ inputs.use_existing_image }}
+        run: |
+          echo "Verifying image exists: ${{ env.IMAGE_URL }}"
+          aws ecr describe-images --repository-name "${{ github.repository_owner }}/${{ github.event.repository.name }}" --image-ids imageTag="${{ env.VERSION }}" || {
+            echo "❌ Image with tag ${{ env.VERSION }} not found in ECR"
+            exit 1
+          }
+
+      - name: Checkout k3s manifest repository
+        uses: actions/checkout@master
+        with:
+          repository: RodolfoBonis/k3s-apps
+          ref: main
+          path: k3s-manifest
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Update staging k3s manifest with new image version
+        run: |
+          cd k3s-manifest
+          # Update staging ArgoCD application with new image tag
+          yq e -i '.spec.sources[0].helm.values |= sub("tag: \"[^\"]*\""; "tag: \"" + env(VERSION) + "\"")' ./clusters/dev/portfolio-app.yaml
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add ./clusters/dev/portfolio-app.yaml
+          git commit -m "feat(portfolio): update staging image to ${{ env.IMAGE_URL }}"
+          git push
+
+      - name: Sync ArgoCD Application
+        run: |
+          echo "🚀 Force syncing staging application..."
+
+          # Force sync with prune to apply changes
+          argocd app sync portfolio-app-stg --force --prune --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
+
+          # Wait for deployment to complete
+          echo "⏳ Waiting for staging deployment to complete (up to 5 minutes)..."
+          argocd app wait portfolio-app-stg --timeout 300 --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
+
+          # Verify deployment through ArgoCD
+          echo "🔍 Verifying staging deployment status..."
+          echo "Expected version: ${{ env.VERSION }}"
+
+          # Get application status to verify deployment
+          APP_STATUS=$(argocd app get portfolio-app-stg --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }} -o json)
+          SYNC_STATUS=$(echo "$APP_STATUS" | jq -r '.status.sync.status')
+          HEALTH_STATUS=$(echo "$APP_STATUS" | jq -r '.status.health.status')
+
+          echo "Sync Status: $SYNC_STATUS"
+          echo "Health Status: $HEALTH_STATUS"
+
+          if [ "$SYNC_STATUS" = "Synced" ] && [ "$HEALTH_STATUS" = "Healthy" ]; then
+            echo "✅ Staging deployment verification successful!"
+          else
+            echo "❌ Staging deployment verification failed! Sync: $SYNC_STATUS, Health: $HEALTH_STATUS"
+            exit 1
+          fi
+
+      - name: Send Success Message via Telegram
+        if: ${{ job.status == 'success'}}
+        uses: appleboy/telegram-action@master
+        with:
+          token: ${{ secrets.BOTTOKEN }}
+          to: ${{ secrets.CHAT_ID }}
+          message: |
+            🚀 ${{ github.actor }} deployed to STAGING:
+            Repository: ${{ github.repository }}
+            Version: ${{ env.VERSION }}
+            Image: ${{ env.IMAGE_URL }}
+            Environment: Staging (portfolio-stg)
+            See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+            Status: ${{ job.status }}
+            Staging URL: https://stg.rodolfodebonis.com.br
+
+            Ready for testing! 🧪
+
+      - name: Send Failure Message via Telegram
+        if: ${{ job.status != 'success'}}
+        uses: appleboy/telegram-action@master
+        with:
+          token: ${{ secrets.BOTTOKEN }}
+          to: ${{ secrets.CHAT_ID }}
+          message: |
+            ❌ STAGING deployment failed
+            ${{ github.actor }} attempted deployment:
+            Repository: ${{ github.repository }}
+            Version: ${{ env.VERSION }}
+            See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+            Status: ${{ job.status }}
+
+            Please check the logs! 🔍
