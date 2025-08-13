@@ -40,7 +40,8 @@ jobs:
             # Generate staging version with commit SHA
             CURRENT_VERSION=$(cat version.txt)
             COMMIT_SHA=$(git rev-parse --short HEAD)
-            STAGING_VERSION="${CURRENT_VERSION}-stg-${COMMIT_SHA}"
+            RUN_NUMBER="${GITHUB_RUN_NUMBER:-0}"
+            STAGING_VERSION="${CURRENT_VERSION}-stg-${COMMIT_SHA}-${RUN_NUMBER}"
             echo "VERSION=$STAGING_VERSION" >> $GITHUB_ENV
             echo "Generated staging version: $STAGING_VERSION"
           fi
@@ -91,17 +92,45 @@ jobs:
       - name: Update staging k3s manifest with new image version
         run: |
           cd k3s-manifest
-          # Update staging ArgoCD application with new image tag
-          yq e -i '.spec.sources[0].helm.values |= sub("tag: \"[^\"]*\""; "tag: \"" + env(VERSION) + "\"")' ./clusters/dev/portfolio-app.yaml
+          # Update staging values file in chart (source of truth for stg)
+          yq e -i '.image.tag = env(VERSION)' ./apps/portfolio/app/chart/values-stg.yaml
+          # (Optional) ensure inline values are not used anymore
+          yq e -i 'del(.spec.sources[0].helm.values)' ./clusters/dev/portfolio-app.yaml
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add ./clusters/dev/portfolio-app.yaml
+          git add ./apps/portfolio/app/chart/values-stg.yaml ./clusters/dev/portfolio-app.yaml
           git commit -m "feat(portfolio): update staging image to ${{ env.IMAGE_URL }}"
           git push
 
       - name: Sync ArgoCD Application
         run: |
-          argocd app sync portfolio-app-stg --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
+          echo "🚀 Force syncing staging application..."
+
+          # Force sync with prune to apply changes
+          argocd app sync portfolio-app-stg --force --prune --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
+
+          # Wait for deployment to complete
+          echo "⏳ Waiting for staging deployment to complete (up to 5 minutes)..."
+          argocd app wait portfolio-app-stg --timeout 300 --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
+
+          # Verify deployment through ArgoCD
+          echo "🔍 Verifying staging deployment status..."
+          echo "Expected version: ${{ env.VERSION }}"
+
+          # Get application status to verify deployment
+          APP_STATUS=$(argocd app get portfolio-app-stg --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }} -o json)
+          SYNC_STATUS=$(echo "$APP_STATUS" | jq -r '.status.sync.status')
+          HEALTH_STATUS=$(echo "$APP_STATUS" | jq -r '.status.health.status')
+
+          echo "Sync Status: $SYNC_STATUS"
+          echo "Health Status: $HEALTH_STATUS"
+
+          if [ "$SYNC_STATUS" = "Synced" ] && [ "$HEALTH_STATUS" = "Healthy" ]; then
+            echo "✅ Staging deployment verification successful!"
+          else
+            echo "❌ Staging deployment verification failed! Sync: $SYNC_STATUS, Health: $HEALTH_STATUS"
+            exit 1
+          fi
 
       - name: Send Success Message via Telegram
         if: ${{ job.status == 'success'}}

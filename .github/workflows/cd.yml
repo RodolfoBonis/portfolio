@@ -112,17 +112,44 @@ jobs:
           cd k3s-manifest
           # Extract version from IMAGE_URL
           VERSION=$(echo "${{ env.IMAGE_URL }}" | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+')
-          # Update production ArgoCD application with new image tag
-          yq e -i '.spec.sources[0].helm.values |= sub("tag: \"[^\"]*\""; "tag: \"" + env(VERSION) + "\"")' ./clusters/prod/portfolio-app.yaml
+          # Update production values file in chart
+          yq e -i '.image.tag = env(VERSION)' ./apps/portfolio/app/chart/values-prod.yaml
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add ./clusters/prod/portfolio-app.yaml
+          git add ./apps/portfolio/app/chart/values-prod.yaml
           git commit -m "feat(portfolio): update production image to ${{ env.IMAGE_URL }}"
           git push
 
       - name: Sync ArgoCD Application
         run: |
-          argocd app sync portfolio-app-prod --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
+          echo "🚀 Force syncing ArgoCD application..."
+
+          # Force sync with prune to apply changes
+          argocd app sync portfolio-app-prod --force --prune --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
+
+          # Wait for deployment to complete
+          echo "⏳ Waiting for deployment to complete (up to 10 minutes)..."
+          argocd app wait portfolio-app-prod --timeout 600 --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
+
+          # Verify deployment through ArgoCD
+          echo "🔍 Verifying deployment status..."
+          EXPECTED_VERSION="${{ env.VERSION }}"
+          echo "Expected version: $EXPECTED_VERSION"
+
+          # Get application status to verify deployment
+          APP_STATUS=$(argocd app get portfolio-app-prod --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }} -o json)
+          SYNC_STATUS=$(echo "$APP_STATUS" | jq -r '.status.sync.status')
+          HEALTH_STATUS=$(echo "$APP_STATUS" | jq -r '.status.health.status')
+
+          echo "Sync Status: $SYNC_STATUS"
+          echo "Health Status: $HEALTH_STATUS"
+
+          if [ "$SYNC_STATUS" = "Synced" ] && [ "$HEALTH_STATUS" = "Healthy" ]; then
+            echo "✅ Deployment verification successful!"
+          else
+            echo "❌ Deployment verification failed! Sync: $SYNC_STATUS, Health: $HEALTH_STATUS"
+            exit 1
+          fi
 
       - name: Create Tag for Release
         id: create_tag
@@ -130,7 +157,7 @@ jobs:
         run: echo "::set-output name=tag::v${{ env.VERSION }}"
 
       - name: Download commit messages
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: commit-messages
           path: .
