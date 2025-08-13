@@ -112,11 +112,11 @@ jobs:
           cd k3s-manifest
           # Extract version from IMAGE_URL
           VERSION=$(echo "${{ env.IMAGE_URL }}" | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+')
-          # Update production ArgoCD application with new image tag
-          yq e -i '.spec.sources[0].helm.values |= sub("tag: \"[^\"]*\""; "tag: \"" + env(VERSION) + "\"")' ./clusters/prod/portfolio-app.yaml
+          # Update production values file in chart
+          yq e -i '.image.tag = env(VERSION)' ./apps/portfolio/app/chart/values-prod.yaml
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add ./clusters/prod/portfolio-app.yaml
+          git add ./apps/portfolio/app/chart/values-prod.yaml
           git commit -m "feat(portfolio): update production image to ${{ env.IMAGE_URL }}"
           git push
 
