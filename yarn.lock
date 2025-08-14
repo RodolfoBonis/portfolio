@@ -711,13 +711,13 @@
   resolved "https://registry.npmjs.org/@dual-bundle/import-meta-resolve/-/import-meta-resolve-4.1.0.tgz"
   integrity sha512-+nxncfwHM5SgAtrVzgpzJOI1ol0PkumhVo469KCf9lUi21IGcY90G98VuHm9VRrUypmAzawAHO9bs6hqeADaVg==
 
-"@effect/platform@0.81.0":
-  version "0.81.0"
-  resolved "https://registry.npmjs.org/@effect/platform/-/platform-0.81.0.tgz"
-  integrity sha512-RZ0pqpSUET0Ab3CBjOhJ12C2/vWLQsy+SLJbGNxjcOm9xZAwQowggWCs4S3ZXhdnNTR5WJHH02WlAWHJDaMKhA==
+"@effect/platform@0.85.2":
+  version "0.85.2"
+  resolved "https://registry.yarnpkg.com/@effect/platform/-/platform-0.85.2.tgz#794ab0878fc9d607a9c87aabbba4a5eab3adb269"
+  integrity sha512-zIRixbQeO6QniR0k2mwR7DmR2HO1w6+qQlzQ5nb8lyPyPgd1gV9wo/9yBeB6zRC+CGnxiUiYsRMamclVISuxLw==
   dependencies:
     find-my-way-ts "^0.1.5"
-    msgpackr "^1.11.2"
+    msgpackr "^1.11.4"
     multipasta "^0.2.5"
 
 "@emnapi/core@^1.4.3", "@emnapi/core@^1.4.5":
@@ -3252,13 +3252,13 @@
   resolved "https://registry.npmjs.org/@uploadthing/mime-types/-/mime-types-0.3.5.tgz"
   integrity sha512-iYOmod80XXOSe4NVvaUG9FsS91YGPUaJMTBj52Nwu0G2aTzEN6Xcl0mG1rWqXJ4NUH8MzjVqg+tQND5TPkJWhg==
 
-"@uploadthing/shared@7.1.8":
-  version "7.1.8"
-  resolved "https://registry.npmjs.org/@uploadthing/shared/-/shared-7.1.8.tgz"
-  integrity sha512-OA9ZrTfILOCt1G93wOD7dZmS653z99Nr3isZpIxzBO3y4B2geKFmPjJUZClig2RrAWLKr2VUYToXKfd9D/wP9w==
+"@uploadthing/shared@7.1.9":
+  version "7.1.9"
+  resolved "https://registry.yarnpkg.com/@uploadthing/shared/-/shared-7.1.9.tgz#1397ba9b7b5271a3cf91c7f883bdcf0555b001dd"
+  integrity sha512-5Gn1wGVSygsBxI6tjOwwEQt/U4m+vbmZCnsuf8pDfZ+MiXe3el03CWMmpbH3KtSu0BwG48wyCKNfHplZsphvOA==
   dependencies:
     "@uploadthing/mime-types" "0.3.5"
-    effect "3.14.21"
+    effect "3.16.8"
     sqids "^0.3.0"
 
 "@upstash/redis@^1.34.0", "@upstash/redis@^1.34.9":
@@ -5403,10 +5403,10 @@ ee-first@1.1.1:
   resolved "https://registry.npmjs.org/ee-first/-/ee-first-1.1.1.tgz"
   integrity sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==
 
-effect@3.14.21:
-  version "3.14.21"
-  resolved "https://registry.npmjs.org/effect/-/effect-3.14.21.tgz"
-  integrity sha512-TKR7zfWcuZgEdWd+oIGA8LdREj/c+1Q0wz4pWqQtYT7VHnkW/QQEYCXgrDI5dT6lJgRTgyQAC1bAnpAf6MdjIA==
+effect@3.16.8:
+  version "3.16.8"
+  resolved "https://registry.yarnpkg.com/effect/-/effect-3.16.8.tgz#ce8ea9df52abb00eb2440664e1c062b1887ba6ed"
+  integrity sha512-E4U0MZFBun99myxOogy9ZZ1c3IYR47L/A5GqCP9Lp+6ORag0YLmGHOrYxQ3agN1FOMTrElgtJmciicwnHdE+Ug==
   dependencies:
     "@standard-schema/spec" "^1.0.0"
     fast-check "^3.23.1"
@@ -8342,10 +8342,10 @@ msgpackr-extract@^3.0.2:
     "@msgpackr-extract/msgpackr-extract-linux-x64" "3.0.3"
     "@msgpackr-extract/msgpackr-extract-win32-x64" "3.0.3"
 
-msgpackr@^1.11.2:
-  version "1.11.4"
-  resolved "https://registry.npmjs.org/msgpackr/-/msgpackr-1.11.4.tgz"
-  integrity sha512-uaff7RG9VIC4jacFW9xzL3jc0iM32DNHe4jYVycBcjUePT/Klnfj7pqtWJt9khvDFizmjN2TlYniYmSS2LIaZg==
+msgpackr@^1.11.4:
+  version "1.11.5"
+  resolved "https://registry.yarnpkg.com/msgpackr/-/msgpackr-1.11.5.tgz#edf0b9d9cb7d8ed6897dd0e42cfb865a2f4b602e"
+  integrity sha512-UjkUHN0yqp9RWKy0Lplhh+wlpdt9oQBYgULZOiFhV3VclSF1JnSQWZ5r9gORQlNYaUKQoR8itv7g7z1xDDuACA==
   optionalDependencies:
     msgpackr-extract "^3.0.2"
 
@@ -11660,16 +11660,16 @@ update-browserslist-db@^1.1.3:
     escalade "^3.2.0"
     picocolors "^1.1.1"
 
-uploadthing@^7.7.2:
-  version "7.7.2"
-  resolved "https://registry.npmjs.org/uploadthing/-/uploadthing-7.7.2.tgz"
-  integrity sha512-Q8rp40vnh8g4+OHvocmf+YVoSi+6RWTKmemo5BgW7R8iFU2O2EYH/n+CIxPzxhYyH/QjhRF/pHoIMcUL/8OtSg==
+uploadthing@^7.7.3:
+  version "7.7.3"
+  resolved "https://registry.yarnpkg.com/uploadthing/-/uploadthing-7.7.3.tgz#d3436670b472fd2dfd817bbb79e5c517ad022b0f"
+  integrity sha512-jmPMVoqM+fWP1EXiwP6VBLTJykZ8z4ryrUr1N8yc87T+cxZw2vyvX2ReCaLhfjdbielPjHm486VCHtO2gYBFQA==
   dependencies:
-    "@effect/platform" "0.81.0"
+    "@effect/platform" "0.85.2"
     "@standard-schema/spec" "1.0.0-beta.4"
     "@uploadthing/mime-types" "0.3.5"
-    "@uploadthing/shared" "7.1.8"
-    effect "3.14.21"
+    "@uploadthing/shared" "7.1.9"
+    effect "3.16.8"
 
 uqr@^0.1.2:
   version "0.1.2"
