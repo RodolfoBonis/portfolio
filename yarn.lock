@@ -668,35 +668,35 @@
     enabled "2.0.x"
     kuler "^2.0.0"
 
-"@deno/kv-darwin-arm64@0.10.0":
-  version "0.10.0"
-  resolved "https://registry.npmjs.org/@deno/kv-darwin-arm64/-/kv-darwin-arm64-0.10.0.tgz"
-  integrity sha512-A3ZlAtDwustZDPG7F2quF0PLn18qagGdRP7BynaRdyMvbQRZFKODg2MBjtRJIoaDnbodbprnyxFNwIKKHTEgXg==
+"@deno/kv-darwin-arm64@0.12.0":
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/@deno/kv-darwin-arm64/-/kv-darwin-arm64-0.12.0.tgz#0d1f40c34cb03a0a3194ef1ce03522ff7c1508a5"
+  integrity sha512-yL5Whs9sYGv6lrFFVbeqdDuBKHdn4dKqXIyk27HZjvftQYFfK4dazXseO+FNtfcxTFPcG+9GTA0nbo9n2M4Ycg==
 
-"@deno/kv-darwin-x64@0.10.0":
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/@deno/kv-darwin-x64/-/kv-darwin-x64-0.10.0.tgz#4a634b3585d5cb135bec97d068b4094bd3d3a110"
-  integrity sha512-olIc2rVGat+CdVc4sAoCnaCht3072+Y87rNA3RVDlHSdCf/lCA/72rKHkhLnr2N0NDaZuObgez0q5dlnG81Hvg==
+"@deno/kv-darwin-x64@0.12.0":
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/@deno/kv-darwin-x64/-/kv-darwin-x64-0.12.0.tgz#7bdad213f7243fca6f020ec01eab7d0edd7e2340"
+  integrity sha512-ADqSwAsChneyROQEo3j1T7R5A4aZ4MFcxAy57+xAXszPADf2AhRQvyixN+KTNTdXaI0utyyD4rgBoAKApOhO/g==
 
-"@deno/kv-linux-x64-gnu@0.10.0":
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/@deno/kv-linux-x64-gnu/-/kv-linux-x64-gnu-0.10.0.tgz#709051b3f7a80a2a963164756f29893bef4be99d"
-  integrity sha512-WruhVdvLQmy/IbawcRQlqvqd7ieUbZnKU/0Cxy0y4LXwPQ9SBHeUG6U0YI6+4gN+q26GXBnifEQv6e6ocqS9Qg==
+"@deno/kv-linux-x64-gnu@0.12.0":
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/@deno/kv-linux-x64-gnu/-/kv-linux-x64-gnu-0.12.0.tgz#b839897667997ebae7db5455f0370d316a12ae0b"
+  integrity sha512-PiDoORkhQHdtWzHFYydSFpy3G07qzwihLqOBidsihBMFeF9AGvxU8dlaaVI820nqbTrr1wARJTEWXxG6TcOIuA==
 
-"@deno/kv-win32-x64-msvc@0.10.0":
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/@deno/kv-win32-x64-msvc/-/kv-win32-x64-msvc-0.10.0.tgz#a9ec4f332b4aad255e88f2eb860e3457836e0ec3"
-  integrity sha512-7l9rlxS7KERpnRSXGoot+zXBeaDt4Dt+LShTva+XwuYqQstnxTuo0xLNzt36+nYHtMeVGCxZUzwQFCNp8686Sw==
+"@deno/kv-win32-x64-msvc@0.12.0":
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/@deno/kv-win32-x64-msvc/-/kv-win32-x64-msvc-0.12.0.tgz#f6e73f1692a10d7c9ba44e8539a9d91c0ad09f55"
+  integrity sha512-M+zwuLf+hGSzOhY5kggKwpKGFqNvS3+DMTNCefLtBACZcDLyTu4pPUcOb6PHcdMXt+9pdc9azVgXkclJHIZ2iA==
 
-"@deno/kv@^0.10.0":
-  version "0.10.0"
-  resolved "https://registry.npmjs.org/@deno/kv/-/kv-0.10.0.tgz"
-  integrity sha512-fbQFYsWvTbyjj6QhXOXFzb3AaMuStOTgUQvgoHf0bJ2s8csklV4V5NkGvi/aNH3uqmduYw+LULz9pPerpiwNfA==
+"@deno/kv@^0.12.0":
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/@deno/kv/-/kv-0.12.0.tgz#a533af2903ca010b6576ca4304894e7f6770a6eb"
+  integrity sha512-ANolBOnj3Y2tISOzUut/SQiunAU0k2lYLKiJxrEOmMjT2kzizvf3+eWcVN4dUIngph7+d6KrigyOWRJvUsKWYg==
   optionalDependencies:
-    "@deno/kv-darwin-arm64" "0.10.0"
-    "@deno/kv-darwin-x64" "0.10.0"
-    "@deno/kv-linux-x64-gnu" "0.10.0"
-    "@deno/kv-win32-x64-msvc" "0.10.0"
+    "@deno/kv-darwin-arm64" "0.12.0"
+    "@deno/kv-darwin-x64" "0.12.0"
+    "@deno/kv-linux-x64-gnu" "0.12.0"
+    "@deno/kv-win32-x64-msvc" "0.12.0"
 
 "@dependents/detective-less@^5.0.1":
   version "5.0.1"
