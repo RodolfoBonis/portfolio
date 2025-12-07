@@ -5,6 +5,7 @@ import {
   setResponseHeader,
 } from 'h3'
 import { $fetch } from 'ofetch'
+import { RbAuthenticator } from '@rblab/rb_auth_client'
 
 export default defineEventHandler(async (event) => {
   const path = getRouterParam(event, 'path')
@@ -16,10 +17,18 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
+
+    const auth = new RbAuthenticator({
+      clientID: process.env.CLIENT_ID ?? "",
+      clientSecret: process.env.CLIENT_SECRET ?? "",
+    });
+
+    const token = await auth.getToken();
+
     const imageUrl = `https://rb-cdn.rodolfodebonis.com.br/v1/cdn/${path}`
     const response = await $fetch(imageUrl, {
       headers: {
-        'X-API-Key': String(process.env.CDN_API_KEY),
+        Authorization: `Bearer ${token}`,
       },
     })
 
