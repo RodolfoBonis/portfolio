@@ -44,6 +44,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
+      - name: Configure Verdaccio Registry 🔐
+        run: |
+          echo "@rblab:registry=https://npm.rodolfodebonis.com.br" > .npmrc
+          echo "//npm.rodolfodebonis.com.br/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
+          echo "registry=https://registry.npmjs.org/" >> .npmrc
+
       - name: Install dependencies 👨🏻‍💻
         run: yarn --frozen-lockfile
 
@@ -62,6 +68,12 @@ jobs:
         with:
           node-version: ${{ needs.setup.outputs.node_version }}
           check-latest: true
+
+      - name: Configure Verdaccio Registry 🔐
+        run: |
+          echo "@rblab:registry=https://npm.rodolfodebonis.com.br" > .npmrc
+          echo "//npm.rodolfodebonis.com.br/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
+          echo "registry=https://registry.npmjs.org/" >> .npmrc
 
       - name: Install dependencies 👨🏻‍💻
         run: yarn --frozen-lockfile
@@ -84,6 +96,12 @@ jobs:
         with:
           node-version: ${{ needs.setup.outputs.node_version }}
           check-latest: true
+
+      - name: Configure Verdaccio Registry 🔐
+        run: |
+          echo "@rblab:registry=https://npm.rodolfodebonis.com.br" > .npmrc
+          echo "//npm.rodolfodebonis.com.br/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
+          echo "registry=https://registry.npmjs.org/" >> .npmrc
 
       - name: Install dependencies 👨🏻‍💻
         run: yarn --frozen-lockfile

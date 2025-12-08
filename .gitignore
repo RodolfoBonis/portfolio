@@ -59,6 +59,10 @@ typings/
 # dotenv environment variables file
 .env
 
+# NPM Registry Configuration (contains auth token)
+.npmrc
+.yarnrc.yml
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 

@@ -1,0 +1,7 @@
+# Configure your Verdaccio token before installing dependencies
+# Copy this file to .npmrc and replace ${VERDACCIO_TOKEN} with your actual token
+# Get your token from: cat ~/.npmrc | grep "npm.rodolfodebonis.com.br/:_authToken"
+
+@rblab:registry=https://npm.rodolfodebonis.com.br
+//npm.rodolfodebonis.com.br/:_authToken=${VERDACCIO_TOKEN}
+registry=https://registry.npmjs.org/

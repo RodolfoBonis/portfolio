@@ -71,6 +71,7 @@ jobs:
           build-args: |
             "GITHUB_TOKEN=${{ secrets.GH_TOKEN }}"
             "VERSION=${{ env.VERSION }}"
+            "VERDACCIO_TOKEN=${{ secrets.VERDACCIO_TOKEN }}"
 
       - name: Verify existing image (if using existing)
         if: ${{ inputs.use_existing_image }}
