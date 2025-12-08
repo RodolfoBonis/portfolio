@@ -17,13 +17,12 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-
     const auth = new RbAuthenticator({
-      clientID: process.env.CLIENT_ID ?? "",
-      clientSecret: process.env.CLIENT_SECRET ?? "",
-    });
+      clientID: process.env.CLIENT_ID ?? '',
+      clientSecret: process.env.CLIENT_SECRET ?? '',
+    })
 
-    const token = await auth.getToken();
+    const token = await auth.getToken()
 
     const imageUrl = `https://rb-cdn.rodolfodebonis.com.br/v1/cdn/${path}`
     const response = await $fetch(imageUrl, {
