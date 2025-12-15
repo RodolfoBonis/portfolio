@@ -79,13 +79,13 @@ jobs:
         run: |
           cd k3s-manifest
           if [ "${{ inputs.environment }}" == "staging" ]; then
-            # Update staging values file in chart
-            yq e -i '.image.tag = "${{ inputs.version }}"' ./apps/portfolio/app/chart/values-stg.yaml
-            git add ./apps/portfolio/app/chart/values-stg.yaml
+            # Update staging values file
+            yq e -i '.web-server.image.tag = "${{ inputs.version }}"' ./apps/portfolio/values-stg.yaml
+            git add ./apps/portfolio/values-stg.yaml
           else
-            # Update production values file in chart
-            yq e -i '.image.tag = "${{ inputs.version }}"' ./apps/portfolio/app/chart/values-prod.yaml
-            git add ./apps/portfolio/app/chart/values-prod.yaml
+            # Update production values file
+            yq e -i '.web-server.image.tag = "${{ inputs.version }}"' ./apps/portfolio/values-prod.yaml
+            git add ./apps/portfolio/values-prod.yaml
           fi
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"

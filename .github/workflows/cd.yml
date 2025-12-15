@@ -113,11 +113,11 @@ jobs:
           cd k3s-manifest
           # Extract version from IMAGE_URL
           VERSION=$(echo "${{ env.IMAGE_URL }}" | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+')
-          # Update production values file in chart
-          yq e -i '.image.tag = env(VERSION)' ./apps/portfolio/app/chart/values-prod.yaml
+          # Update production values file
+          yq e -i '.web-server.image.tag = env(VERSION)' ./apps/portfolio/values-prod.yaml
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add ./apps/portfolio/app/chart/values-prod.yaml
+          git add ./apps/portfolio/values-prod.yaml
           git commit -m "feat(portfolio): update production image to ${{ env.IMAGE_URL }}"
           git push
 

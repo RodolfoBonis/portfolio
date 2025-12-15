@@ -93,13 +93,11 @@ jobs:
       - name: Update staging k3s manifest with new image version
         run: |
           cd k3s-manifest
-          # Update staging values file in chart (source of truth for stg)
-          yq e -i '.image.tag = env(VERSION)' ./apps/portfolio/app/chart/values-stg.yaml
-          # (Optional) ensure inline values are not used anymore
-          yq e -i 'del(.spec.sources[0].helm.values)' ./clusters/dev/portfolio-app.yaml
+          # Update staging values file
+          yq e -i '.web-server.image.tag = env(VERSION)' ./apps/portfolio/values-stg.yaml
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add ./apps/portfolio/app/chart/values-stg.yaml ./clusters/dev/portfolio-app.yaml
+          git add ./apps/portfolio/values-stg.yaml
           git commit -m "feat(portfolio): update staging image to ${{ env.IMAGE_URL }}"
           git push
 
