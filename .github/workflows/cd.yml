@@ -126,11 +126,11 @@ jobs:
           echo "🚀 Force syncing ArgoCD application..."
 
           # Force sync with prune to apply changes
-          argocd app sync portfolio-app-prod --force --prune --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
+          argocd app sync portfolio-prod --force --prune --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
 
           # Wait for deployment to complete
           echo "⏳ Waiting for deployment to complete (up to 10 minutes)..."
-          argocd app wait portfolio-app-prod --timeout 600 --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
+          argocd app wait portfolio-prod --timeout 600 --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
 
           # Verify deployment through ArgoCD
           echo "🔍 Verifying deployment status..."
@@ -138,7 +138,7 @@ jobs:
           echo "Expected version: $EXPECTED_VERSION"
 
           # Get application status to verify deployment
-          APP_STATUS=$(argocd app get portfolio-app-prod --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }} -o json)
+          APP_STATUS=$(argocd app get portfolio-prod --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_TOKEN }} -o json)
           SYNC_STATUS=$(echo "$APP_STATUS" | jq -r '.status.sync.status')
           HEALTH_STATUS=$(echo "$APP_STATUS" | jq -r '.status.health.status')
 

@@ -56,13 +56,13 @@ jobs:
       - name: Set environment variables
         run: |
           if [ "${{ inputs.environment }}" == "staging" ]; then
-            echo "APP_NAME=portfolio-app-stg" >> $GITHUB_ENV
-            echo "CONFIG_FILE=./clusters/dev/portfolio-app.yaml" >> $GITHUB_ENV
+            echo "APP_NAME=portfolio-stg" >> $GITHUB_ENV
+            echo "CONFIG_FILE=./clusters/dev/portfolio-stg.yaml" >> $GITHUB_ENV
             echo "NAMESPACE=portfolio-stg" >> $GITHUB_ENV
             echo "URL=https://stg.rodolfodebonis.com.br" >> $GITHUB_ENV
           else
-            echo "APP_NAME=portfolio-app-prod" >> $GITHUB_ENV
-            echo "CONFIG_FILE=./clusters/prod/portfolio-app.yaml" >> $GITHUB_ENV
+            echo "APP_NAME=portfolio-prod" >> $GITHUB_ENV
+            echo "CONFIG_FILE=./clusters/prod/portfolio-prod.yaml" >> $GITHUB_ENV
             echo "NAMESPACE=portfolio" >> $GITHUB_ENV
             echo "URL=https://rodolfodebonis.com.br" >> $GITHUB_ENV
           fi
