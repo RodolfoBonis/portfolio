@@ -8,9 +8,10 @@
           <h2 class="text-3xl md:text-4xl font-bold">Fale Comigo</h2>
         </div>
         <p class="text-[var(--text-muted)] mb-12">
-          Tem um projeto em mente, precisa de consultoria DevOps, ou quer trocar ideia sobre D&D?
+          Tem um projeto em mente, quer trocar ideia sobre arquitetura de software,
+          ou só bater um papo sobre RPG?
           <br />
-          <span class="text-[var(--text-secondary)]">Manda uma mensagem — eu respondo!</span>
+          <span class="text-[var(--text-secondary)]">Me manda uma mensagem — respondo sempre!</span>
         </p>
 
         <form

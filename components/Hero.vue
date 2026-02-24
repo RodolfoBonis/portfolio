@@ -63,7 +63,7 @@
         </div>
 
         <!-- Right: Terminal -->
-        <div class="hidden lg:block animate-fade-up delay-200">
+        <div class="animate-fade-up delay-200">
           <div class="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-xl overflow-hidden shadow-2xl">
             <!-- Terminal header -->
             <div class="flex items-center gap-2 px-4 py-3 border-b border-[var(--border)] bg-[var(--bg-tertiary)]">

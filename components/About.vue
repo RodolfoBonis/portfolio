@@ -40,9 +40,10 @@
           <div class="space-y-4 text-[var(--text-secondary)] leading-relaxed">
             <p>
               Sou Rodolfo, moro em <span class="text-[var(--text-primary)]">Maceió - AL</span>
-              e tenho {{ age }} anos. Com {{ yearsExp }}+ anos de carreira em
-              desenvolvimento de software, já mergulhei fundo em tudo — de
-              Flutter e mobile até Kubernetes e infraestrutura como código.
+              e tenho {{ age }} anos. Com {{ yearsExp }}+ anos de carreira,
+              já passei por mobile (Flutter, Swift, Android), backend (Go, Python),
+              frontend (Vue, Angular) e infra (Kubernetes, Terraform, CI/CD) —
+              full stack de verdade, do app ao cluster.
             </p>
             <p>
               Minha missão é simples: <span class="text-[var(--accent)]">minimizar ao máximo qualquer tarefa manual</span>

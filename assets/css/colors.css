@@ -1,34 +1,33 @@
 /* Design System — Industrial/Terminal Aesthetic */
-:root {
-  /* Surfaces */
+
+/* Dark Mode (default) */
+:root,
+html.dark {
   --bg-primary: #09090b;
   --bg-secondary: #0f0f12;
   --bg-tertiary: #18181b;
   --surface: #1c1c21;
   --surface-hover: #27272a;
 
-  /* Borders */
   --border: #27272a;
   --border-hover: #3f3f46;
 
-  /* Text */
   --text-primary: #fafafa;
   --text-secondary: #a1a1aa;
   --text-muted: #71717a;
 
-  /* Accent — Terminal Green */
   --accent: #10b981;
   --accent-hover: #34d399;
   --accent-muted: rgba(16, 185, 129, 0.15);
   --accent-glow: rgba(16, 185, 129, 0.4);
 
-  /* Semantic */
   --success: #22c55e;
   --warning: #f59e0b;
   --error: #ef4444;
 }
 
-.light-mode {
+/* Light Mode */
+html.light {
   --bg-primary: #fafafa;
   --bg-secondary: #f4f4f5;
   --bg-tertiary: #e4e4e7;
