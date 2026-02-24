@@ -95,3 +95,4 @@ sw.*
 
 .output
 
+node_modules/
