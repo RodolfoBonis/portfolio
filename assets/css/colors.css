@@ -1,22 +1,48 @@
-/* Variáveis de cores para Dark Mode e Light Mode */
-:root {
-  /* Dark Mode (padrão) */
-  --bg-color: #0d1117;
-  --card-color: #161b22;
-  --border-color: #30363d;
-  --text-color: #c9d1d9;
-  --heading-color: #f0f6fc;
-  --accent-color: #58a6ff;
-  --accent-light: #79c0ff;
+/* Design System — Industrial/Terminal Aesthetic */
+
+/* Dark Mode (default) */
+:root,
+html.dark {
+  --bg-primary: #09090b;
+  --bg-secondary: #0f0f12;
+  --bg-tertiary: #18181b;
+  --surface: #1c1c21;
+  --surface-hover: #27272a;
+
+  --border: #27272a;
+  --border-hover: #3f3f46;
+
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+
+  --accent: #10b981;
+  --accent-hover: #34d399;
+  --accent-muted: rgba(16, 185, 129, 0.15);
+  --accent-glow: rgba(16, 185, 129, 0.4);
+
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --error: #ef4444;
 }
 
-.light-mode {
-  /* Light Mode */
-  --bg-color: #ffffff;
-  --card-color: #f6f8fa;
-  --border-color: #30363d;
-  --text-color: #24292f;
-  --heading-color: #0d1117;
-  --accent-color: #0366d6;
-  --accent-light: #0366d6;
+/* Light Mode */
+html.light {
+  --bg-primary: #fafafa;
+  --bg-secondary: #f4f4f5;
+  --bg-tertiary: #e4e4e7;
+  --surface: #ffffff;
+  --surface-hover: #f4f4f5;
+
+  --border: #e4e4e7;
+  --border-hover: #d4d4d8;
+
+  --text-primary: #09090b;
+  --text-secondary: #52525b;
+  --text-muted: #a1a1aa;
+
+  --accent: #059669;
+  --accent-hover: #10b981;
+  --accent-muted: rgba(5, 150, 105, 0.1);
+  --accent-glow: rgba(5, 150, 105, 0.2);
 }

@@ -1,86 +1,75 @@
 <template>
-  <section id="about" class="py-20 px-4 bg-[var(--bg-color)]">
-    <div class="max-w-4xl mx-auto text-center">
-      <h2 class="text-4xl font-semibold text-[var(--heading-color)] mb-8">
-        Sobre Mim
-      </h2>
-      <div class="grid md:grid-cols-3 gap-12">
-        <div class="space-y-4 sr-reveal">
-          <h3 class="text-2xl font-medium text-[var(--accent-color)]">
-            Quem Sou
-          </h3>
-          <p class="text-sm">
-            Sou Rodolfo, moro em Maceió - AL e tenho {{ age }} anos de vida – e
-            8 de carreira em desenvolvimento de software. Formado em Análise e
-            Desenvolvimento de Sistemas, já mergulhei fundo em Flutter, docker,
-            Kubernetes e outras diversas tecnologias. Quando não estou tubulando
-            clusters no Rb Lab, você me encontra liderando sessões épicas de
-            D&D, tentando convencer o grupo que "Mestre sempre dá XP".
-          </p>
+  <section id="about" class="py-24 relative">
+    <div class="glow-line mb-24"></div>
+    <div class="section-container">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="mono text-[var(--accent)] text-sm">01.</span>
+        <h2 class="text-3xl md:text-4xl font-bold">Sobre Mim</h2>
+      </div>
+      <p class="text-[var(--text-muted)] mb-16 max-w-2xl">
+        Conheça a pessoa por trás do código
+      </p>
+
+      <div class="grid lg:grid-cols-5 gap-12">
+        <!-- Photo + Bio -->
+        <div class="lg:col-span-2 space-y-6">
+          <div class="relative group">
+            <div class="absolute -inset-1 bg-gradient-to-r from-[var(--accent)] to-emerald-600 rounded-2xl opacity-20 blur group-hover:opacity-40 transition-opacity"></div>
+            <img
+              :src="logoUrl"
+              alt="Rodolfo De Bonis"
+              class="relative w-full aspect-square object-cover rounded-2xl border border-[var(--border)]"
+            />
+          </div>
+          <div class="flex justify-center gap-4">
+            <a
+              v-for="social in socials"
+              :key="social.url"
+              :href="social.url"
+              target="_blank"
+              class="w-10 h-10 flex items-center justify-center rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--accent)] hover:border-[var(--accent)]/30 transition-all"
+              :title="social.name"
+            >
+              <span class="material-icons text-lg">{{ social.icon }}</span>
+            </a>
+          </div>
         </div>
-        <div class="space-y-4 sr-reveal delay-200">
-          <h3 class="text-2xl font-medium text-[var(--accent-color)]">
-            Missão &amp; Visão
-          </h3>
-          <p class="text-sm">
-            Minha missão é simples: Minimizar ao máximo qualquer tarefa manual
-            para que eu possa focar no que realmente importa. Um pipeline CI/CD
-            bem afinado é tão satisfatório quanto um crítico de 20 em D&D:
-            acontece pouco, mas quando acontece, faz toda a diferença. Sonho com
-            o dia em que, relaxado no sofá, vou monitorar meus clusters
-            Kubernetes enquanto um robozinho me entrega um café quentinho —
-            porque produtividade de verdade é ter sistemas tão eficientes que eu
-            mal precise pensar neles e, de quebra, ganhar tempo para criar o
-            próximo desafio épico.
-          </p>
-        </div>
-        <div class="space-y-4 sr-reveal delay-400">
-          <h3 class="text-2xl font-medium text-[var(--accent-color)]">
-            Dados Rápidos
-          </h3>
-          <div class="grid grid-cols-1 gap-4">
+
+        <!-- Content -->
+        <div class="lg:col-span-3 space-y-8">
+          <div class="space-y-4 text-[var(--text-secondary)] leading-relaxed">
+            <p>
+              Sou Rodolfo, moro em <span class="text-[var(--text-primary)]">Maceió - AL</span>
+              e tenho {{ age }} anos. Com {{ yearsExp }}+ anos de carreira,
+              já passei por mobile (Flutter, Swift, Android), backend (Go, Python),
+              frontend (Vue, Angular) e infra (Kubernetes, Terraform, CI/CD) —
+              full stack de verdade, do app ao cluster.
+            </p>
+            <p>
+              Minha missão é simples: <span class="text-[var(--accent)]">minimizar ao máximo qualquer tarefa manual</span>
+              para focar no que realmente importa. Um pipeline CI/CD bem afinado
+              é tão satisfatório quanto um crítico de 20 em D&D.
+            </p>
+            <p>
+              Quando não estou orquestrando clusters no
+              <span class="mono text-[var(--text-primary)]">Rb Lab</span>,
+              você me encontra liderando sessões épicas de D&D 5e ou
+              clutchando rounds no R6 Siege.
+            </p>
+          </div>
+
+          <!-- Quick facts -->
+          <div class="grid grid-cols-2 gap-4">
             <div
-              class="flex items-center bg-[var(--card-color)] p-4 rounded-lg border border-[var(--border-color)]"
+              v-for="fact in facts"
+              :key="fact.label"
+              class="flex items-center gap-3 p-4 rounded-xl bg-[var(--surface)] border border-[var(--border)] hover-lift"
             >
-              <span class="material-icons text-[var(--accent-color)] mr-3"
-                >location_on</span
-              >
-              <span>Maceió, Brasil</span>
-            </div>
-            <div
-              class="flex items-center bg-[var(--card-color)] p-4 rounded-lg border border-[var(--border-color)]"
-            >
-              <span class="material-icons text-[var(--accent-color)] mr-3"
-                >timer</span
-              >
-              <span>8+ anos de experiência</span>
-            </div>
-            <div
-              class="flex items-center bg-[var(--card-color)] p-4 rounded-lg border border-[var(--border-color)]"
-            >
-              <span class="material-icons text-[var(--accent-color)] mr-3"
-                >code</span
-              >
-              <span>Linguagens: Go • Python • Dart • JavaScript</span>
-            </div>
-            <div
-              class="flex items-center bg-[var(--card-color)] p-4 rounded-lg border border-[var(--border-color)]"
-            >
-              <span class="material-icons text-[var(--accent-color)] mr-3"
-                >build</span
-              >
-              <span
-                >Ferramentas: Kubernetes • Terraform • Vault • n8n •
-                SonarQube</span
-              >
-            </div>
-            <div
-              class="flex items-center bg-[var(--card-color)] p-4 rounded-lg border border-[var(--border-color)]"
-            >
-              <span class="material-icons text-[var(--accent-color)] mr-3"
-                >sports_esports</span
-              >
-              <span>Hobbies: R6 Siege, D&D 5e, Maratona de séries</span>
+              <span class="material-icons text-[var(--accent)]">{{ fact.icon }}</span>
+              <div>
+                <div class="text-xs text-[var(--text-muted)] mono">{{ fact.label }}</div>
+                <div class="text-sm text-[var(--text-primary)]">{{ fact.value }}</div>
+              </div>
             </div>
           </div>
         </div>
@@ -90,18 +79,21 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
-
+const logoUrl = '/api/cdn/portfolio/me.jpeg'
 const age = new Date().getFullYear() - 1996
-onMounted(() => {
-  const sr = ScrollReveal({
-    origin: 'bottom',
-    distance: '40px',
-    duration: 800,
-    delay: 100,
-    reset: false,
-  })
+const yearsExp = new Date().getFullYear() - 2017
 
-  sr.reveal('.sr-reveal', { interval: 200 })
-})
+const facts = [
+  { icon: 'location_on', label: 'Localização', value: 'Maceió, Brasil' },
+  { icon: 'timer', label: 'Experiência', value: `${yearsExp}+ anos` },
+  { icon: 'code', label: 'Linguagens', value: 'Go • Python • Dart • TS' },
+  { icon: 'sports_esports', label: 'Hobbies', value: 'D&D 5e • R6 Siege' },
+]
+
+const socials = [
+  { name: 'GitHub', icon: 'code', url: 'https://github.com/RodolfoBonis' },
+  { name: 'LinkedIn', icon: 'work', url: 'https://www.linkedin.com/in/rodolfo-de-bonis/' },
+  { name: 'X', icon: 'rocket_launch', url: 'https://x.com/RodolfoBonis' },
+  { name: 'Email', icon: 'email', url: 'mailto:dev@rodolfodebonis.com.br' },
+]
 </script>

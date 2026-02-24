@@ -1,45 +1,22 @@
 <template>
-  <PageNotFound v-if="error.statusCode === 404" />
-  <div
-    v-else
-    class="min-h-screen bg-[var(--bg-color)] flex items-center justify-center"
-  >
-    <div class="text-center">
-      <h1 class="text-4xl font-bold text-[var(--heading-color)] mb-4">
-        Erro {{ error.statusCode }}
-      </h1>
-      <p class="text-xl text-[var(--text-color)] mb-8">{{ error.message }}</p>
-      <NuxtLink
-        to="/"
-        class="inline-block bg-[var(--accent-color)] hover:bg-[var(--accent-light)] text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200"
+  <div class="min-h-screen bg-[var(--bg-primary)] flex flex-col items-center justify-center p-4 grain">
+    <div class="max-w-lg text-center space-y-6">
+      <div class="mono text-6xl font-bold text-[var(--accent)]">404</div>
+      <h1 class="text-2xl font-semibold text-[var(--text-primary)]">Página não encontrada</h1>
+      <p class="text-[var(--text-muted)] mono text-sm">
+        <span class="text-[var(--accent)]">❯</span> Error: ENOENT — a rota que você procura não existe neste servidor.
+      </p>
+      <a
+        href="/"
+        class="inline-flex items-center gap-2 bg-[var(--accent)] text-[var(--bg-primary)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--accent-hover)] transition-colors"
       >
-        Voltar ao Início
-      </NuxtLink>
+        <span class="material-icons text-lg">home</span>
+        Voltar ao início
+      </a>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
-import { useTheme } from '~/composables/useTheme'
-import PageNotFound from '~/components/PageNotFound.vue'
-
-const { initTheme } = useTheme()
-const props = defineProps({
-  error: {
-    type: Object,
-    required: true,
-  },
-})
-
-onMounted(() => {
-  initTheme()
-})
-
-// Se não for um erro 404, redirecionar para a página inicial após 5 segundos
-if (props.error.statusCode !== 404) {
-  setTimeout(() => {
-    navigateTo('/')
-  }, 5000)
-}
+const props = defineProps({ error: Object })
 </script>

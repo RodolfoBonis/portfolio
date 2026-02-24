@@ -1,105 +1,63 @@
 <template>
-  <header
-    class="fixed w-full top-0 left-0 z-50 bg-[var(--card-color)]/80 backdrop-blur-md"
-  >
-    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+  <header class="fixed w-full top-0 left-0 z-50 glass">
+    <nav class="section-container py-4 flex items-center justify-between">
       <!-- Logo -->
-      <NuxtLink
-        to="#hero"
-        class="text-[var(--accent-color)] font-bold text-2xl hover:opacity-80"
-      >
-        R<span class="text-[var(--heading-color)]">.</span>
-      </NuxtLink>
+      <a href="#hero" class="mono text-[var(--accent)] font-bold text-lg tracking-tight hover:opacity-80 transition">
+        ~/rodolfo<span class="terminal-cursor"></span>
+      </a>
 
-      <!-- Links (Desktop) -->
-      <ul class="hidden md:flex space-x-8 text-sm font-medium">
-        <li>
-          <NuxtLink to="#about" class="hover:text-[var(--accent-light)]"
-            >Sobre</NuxtLink
+      <!-- Desktop Nav -->
+      <ul class="hidden md:flex items-center gap-8">
+        <li v-for="link in links" :key="link.href">
+          <a
+            :href="link.href"
+            class="text-sm text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors mono"
           >
-        </li>
-        <li>
-          <NuxtLink to="#stacks" class="hover:text-[var(--accent-light)]"
-            >Stacks</NuxtLink
-          >
-        </li>
-        <li>
-          <NuxtLink to="#works" class="hover:text-[var(--accent-light)]"
-            >Projetos</NuxtLink
-          >
-        </li>
-        <li>
-          <NuxtLink to="#experience" class="hover:text-[var(--accent-light)]"
-            >Experiência</NuxtLink
-          >
-        </li>
-        <li>
-          <NuxtLink to="#contact" class="hover:text-[var(--accent-light)]"
-            >Contato</NuxtLink
-          >
-        </li>
-      </ul>
-
-      <!-- Botão de Toggle de Tema (Desktop) -->
-      <button
-        class="hidden md:block text-xl text-[var(--text-color)] hover:text-[var(--accent-light)]"
-        @click="toggleTheme"
-      >
-        <span class="material-icons">{{
-          isDarkMode ? 'light_mode' : 'dark_mode'
-        }}</span>
-      </button>
-
-      <!-- Botão Hamburger (Mobile) -->
-      <button
-        class="md:hidden text-2xl text-[var(--text-color)] hover:text-[var(--accent-light)]"
-        @click="toggleMobileMenu"
-      >
-        <span class="material-icons">menu</span>
-      </button>
-    </nav>
-
-    <!-- Menu (Mobile) -->
-    <div v-show="isMobileMenuOpen" class="md:hidden bg-[var(--card-color)]">
-      <ul class="flex flex-col px-6 py-4 space-y-4">
-        <li>
-          <NuxtLink to="#about" class="block hover:text-[var(--accent-light)]"
-            >Sobre</NuxtLink
-          >
-        </li>
-        <li>
-          <NuxtLink to="#stacks" class="block hover:text-[var(--accent-light)]"
-            >Stacks</NuxtLink
-          >
-        </li>
-        <li>
-          <NuxtLink to="#works" class="block hover:text-[var(--accent-light)]"
-            >Projetos</NuxtLink
-          >
-        </li>
-        <li>
-          <NuxtLink
-            to="#experience"
-            class="block hover:text-[var(--accent-light)]"
-            >Experiência</NuxtLink
-          >
-        </li>
-        <li>
-          <NuxtLink to="#contact" class="block hover:text-[var(--accent-light)]"
-            >Contato</NuxtLink
-          >
+            {{ link.label }}
+          </a>
         </li>
         <li>
           <button
-            class="flex items-center space-x-2 text-[var(--text-color)] hover:text-[var(--accent-light)]"
             @click="toggleTheme"
+            class="text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
+            :title="isDark ? 'Modo claro' : 'Modo escuro'"
           >
-            <span class="material-icons">{{
-              isDarkMode ? 'light_mode' : 'dark_mode'
-            }}</span>
-            <span class="text-sm">{{
-              isDarkMode ? 'Modo Claro' : 'Modo Escuro'
-            }}</span>
+            <span class="material-icons text-xl">{{ isDark ? 'light_mode' : 'dark_mode' }}</span>
+          </button>
+        </li>
+      </ul>
+
+      <!-- Mobile Menu Button -->
+      <button
+        @click="menuOpen = !menuOpen"
+        class="md:hidden text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
+      >
+        <span class="material-icons text-2xl">{{ menuOpen ? 'close' : 'menu' }}</span>
+      </button>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div
+      v-show="menuOpen"
+      class="md:hidden bg-[var(--bg-secondary)] border-t border-[var(--border)]"
+    >
+      <ul class="flex flex-col px-6 py-4 gap-4">
+        <li v-for="link in links" :key="link.href">
+          <a
+            :href="link.href"
+            @click="menuOpen = false"
+            class="block text-sm text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors mono"
+          >
+            {{ link.label }}
+          </a>
+        </li>
+        <li>
+          <button
+            @click="toggleTheme"
+            class="flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
+          >
+            <span class="material-icons text-lg">{{ isDark ? 'light_mode' : 'dark_mode' }}</span>
+            <span>{{ isDark ? 'Modo Claro' : 'Modo Escuro' }}</span>
           </button>
         </li>
       </ul>
@@ -108,30 +66,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+const colorMode = useColorMode()
+const menuOpen = ref(false)
+const isDark = computed(() => colorMode.value === 'dark')
 
-const isDarkMode = ref(false)
-const isMobileMenuOpen = ref(false)
+const links = [
+  { label: '.sobre()', href: '#about' },
+  { label: '.stacks()', href: '#stacks' },
+  { label: '.projetos()', href: '#projects' },
+  { label: '.xp()', href: '#experience' },
+  { label: '.contato()', href: '#contact' },
+]
 
 function toggleTheme() {
-  isDarkMode.value = !isDarkMode.value
-  document.documentElement.classList.toggle('light-mode')
-  localStorage.setItem('theme', isDarkMode.value ? 'dark' : 'light')
+  colorMode.preference = isDark.value ? 'light' : 'dark'
 }
-
-function toggleMobileMenu() {
-  isMobileMenuOpen.value = !isMobileMenuOpen.value
-}
-
-onMounted(() => {
-  // Carrega preferência salva no localStorage
-  const savedTheme = localStorage.getItem('theme')
-  if (savedTheme === 'dark') {
-    isDarkMode.value = true
-    document.documentElement.classList.remove('light-mode')
-  } else {
-    isDarkMode.value = false
-    document.documentElement.classList.add('light-mode')
-  }
-})
 </script>
