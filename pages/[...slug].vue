@@ -1,13 +1,7 @@
-<template>
-  <PageNotFound />
-</template>
-
 <script setup>
-import PageNotFound from '~/components/PageNotFound.vue'
-
-definePageMeta({
-  layout: 'default',
+throw createError({
+  statusCode: 404,
+  statusMessage: 'Page not found',
+  fatal: true,
 })
-
-setResponseStatus(useRequestEvent(), 404)
 </script>
