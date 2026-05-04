@@ -32,6 +32,10 @@ export default defineNuxtConfig({
     build: {
       assetsInlineLimit: 0,
     },
+    define: {
+      __VUE_PROD_DEVTOOLS__: 'false',
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
+    },
   },
 
   components: true,
@@ -77,6 +81,11 @@ export default defineNuxtConfig({
       ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        {
+          rel: 'apple-touch-icon',
+          sizes: '180x180',
+          href: '/apple-touch-icon.png',
+        },
       ],
     },
   },
