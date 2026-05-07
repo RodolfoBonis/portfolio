@@ -1,7 +1,10 @@
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineNuxtConfig({
-  target: 'static',
+  // Note: `target: 'static'` is a Nuxt 2 leftover and is ignored by
+  // Nuxt 4 — the actual deploy target is the Nitro preset, which the
+  // Dockerfile already runs as `node .output/server/index.mjs`.
+  // Removed so the actual mode (Node server) is unambiguous.
 
   typescript: {
     typeCheck: true,
@@ -13,6 +16,12 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
+    // Server-only — never sent to the client. Both env vars come from
+    // the Helm chart (values-{stg,prod}.yaml -> Vault).
+    blogApiUrl:
+      process.env.BLOG_API_URL ||
+      'https://api.management.rodolfodebonis.com.br',
+    blogTenantId: process.env.BLOG_TENANT_ID || '',
     public: {
       cdnApiKey: process.env.CDN_API_KEY,
     },
@@ -100,8 +109,24 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-01-30',
   devtools: { enabled: true },
 
+  // SWR (stale-while-revalidate) for the blog routes: the HTML is
+  // pre-rendered at build/first-hit, served instantly on subsequent
+  // requests, and revalidated in the background after the TTL. The
+  // home page rebuilds every 10 min so a freshly-published post shows
+  // up in the "Últimas postagens" section without a manual rebuild.
   routeRules: {
     '/**': { ssr: true },
     '/_nuxt/**': { static: true },
+
+    '/': { swr: 600 },                        // 10 min — refresh latest posts
+    '/blog': { swr: 300 },                    // 5 min — list page
+    '/blog/**': { swr: 600 },                 // 10 min — article detail
+    '/en/blog': { swr: 300 },
+    '/en/blog/**': { swr: 600 },
+
+    // The proxy under /api/blog should never be cached (it forwards
+    // tenant-scoped headers and we want every revalidation to hit a
+    // fresh upstream response).
+    '/api/blog/**': { cache: false },
   },
 })

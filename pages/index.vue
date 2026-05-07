@@ -6,6 +6,7 @@
       <About />
       <Stacks />
       <Projects />
+      <BlogLatestPosts lang="pt-BR" :limit="3" />
       <Experience />
       <Contact />
     </main>
