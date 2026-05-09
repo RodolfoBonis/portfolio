@@ -118,10 +118,14 @@ import { useBlog, type Lang, type BlogListResponse } from '~/composables/useBlog
 
 const props = defineProps<{
   lang: Lang
+  // Pre-applied tag filter (used by /blog/tag/[slug] routes). Users
+  // can still toggle to other tags via the chip row, so this is a
+  // starting point not a hard scope.
+  initialTag?: string
 }>()
 
 const search = ref('')
-const activeTag = ref('')
+const activeTag = ref(props.initialTag ?? '')
 const page = ref(1)
 
 const copy = computed(() => {

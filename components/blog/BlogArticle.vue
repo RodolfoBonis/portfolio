@@ -33,6 +33,7 @@
           v-for="tag in data.post.tags"
           :key="tag.id"
           :label="tag.slug"
+          :href="tagHref(tag.slug)"
         />
       </div>
 
@@ -69,6 +70,13 @@
 
       <!-- Body (server-rendered HTML) -->
       <BlogMarkdownContent :html="data.html" />
+
+      <!-- Related (renders nothing if no shared-tag matches) -->
+      <BlogRelatedPosts
+        :tags="data.post.tags"
+        :exclude="data.post.id"
+        :lang="lang"
+      />
 
       <!-- Share -->
       <div class="mt-16 pt-8 border-t border-[var(--border)]">
@@ -141,6 +149,14 @@ const translation = computed<PostTranslation | undefined>(() =>
 // shape ever drifts; the avatar derives initials from the name so a
 // rename in Keycloak shows up the next time the post is republished.
 const authorName = computed(() => data.value?.post?.author?.name ?? '')
+
+// Tag pills link to the per-tag page. Same lang prefix the post
+// itself uses so we don't shuttle the user across language variants.
+function tagHref(slug: string) {
+  return props.lang === 'en'
+    ? `/en/blog/tag/${slug}`
+    : `/blog/tag/${slug}`
+}
 
 const authorInitials = computed(() => {
   const name = authorName.value.trim()

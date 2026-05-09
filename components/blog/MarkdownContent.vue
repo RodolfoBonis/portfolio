@@ -3,15 +3,73 @@
        shiki). Author-supplied HTML is disabled in the renderer so this
        v-html is safe given the trusted authoring path (admin only). -->
   <article
+    ref="articleRef"
     class="prose-blog max-w-none"
     v-html="html"
   ></article>
 </template>
 
 <script setup lang="ts">
-defineProps<{
+import { onMounted, ref, watch } from 'vue'
+
+const props = defineProps<{
   html: string
 }>()
+
+const articleRef = ref<HTMLElement | null>(null)
+
+// Decorate code blocks with a copy button on hydrate. Server-rendered
+// HTML stays clean (no <button> noise in SSR/feed); the button only
+// shows up after the client mounts. Re-runs when the html prop
+// changes so dev HMR + future client-side updates stay consistent.
+function decoratePre() {
+  const root = articleRef.value
+  if (!root) return
+  const pres = root.querySelectorAll('pre')
+  pres.forEach((pre) => {
+    if (pre.parentElement?.classList.contains('code-block-wrapper')) return
+
+    const wrapper = document.createElement('div')
+    wrapper.className = 'code-block-wrapper'
+
+    const button = document.createElement('button')
+    button.type = 'button'
+    button.className = 'code-block-copy'
+    button.setAttribute('aria-label', 'Copy code')
+    button.textContent = 'copy'
+    button.addEventListener('click', async () => {
+      const code = pre.querySelector('code')?.innerText ?? pre.innerText
+      try {
+        await navigator.clipboard.writeText(code)
+        button.textContent = 'copied'
+        button.classList.add('is-copied')
+        window.setTimeout(() => {
+          button.textContent = 'copy'
+          button.classList.remove('is-copied')
+        }, 1500)
+      } catch {
+        button.textContent = 'failed'
+        window.setTimeout(() => {
+          button.textContent = 'copy'
+        }, 1500)
+      }
+    })
+
+    pre.parentElement?.insertBefore(wrapper, pre)
+    wrapper.appendChild(pre)
+    wrapper.appendChild(button)
+  })
+}
+
+onMounted(decoratePre)
+watch(
+  () => props.html,
+  () => {
+    // queueMicrotask gives Vue's v-html update a tick to land before
+    // we walk the DOM looking for the new <pre> elements.
+    queueMicrotask(decoratePre)
+  },
+)
 </script>
 
 <style>
@@ -173,5 +231,44 @@ html.light .prose-blog pre code {
 .prose-blog th {
   color: var(--text-primary);
   font-weight: 600;
+}
+
+/* Copy button injected onMounted by the script above. The wrapper
+   keeps positioning predictable (relative + group hover) without
+   touching the shiki-emitted <pre> structure. */
+.code-block-wrapper {
+  position: relative;
+}
+
+.code-block-wrapper .code-block-copy {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.6875rem;
+  text-transform: lowercase;
+  padding: 0.2rem 0.55rem;
+  background: var(--bg-primary);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 150ms, color 150ms, border-color 150ms;
+}
+
+.code-block-wrapper:hover .code-block-copy,
+.code-block-wrapper .code-block-copy:focus-visible {
+  opacity: 1;
+}
+
+.code-block-wrapper .code-block-copy:hover {
+  color: var(--accent);
+  border-color: color-mix(in oklab, var(--accent) 50%, transparent);
+}
+
+.code-block-wrapper .code-block-copy.is-copied {
+  color: var(--accent);
+  border-color: var(--accent);
 }
 </style>

@@ -2,7 +2,7 @@
   <header class="fixed w-full top-0 left-0 z-50 glass">
     <nav class="section-container py-4 flex items-center justify-between">
       <!-- Logo -->
-      <a href="#hero" class="mono text-[var(--accent)] font-bold text-lg tracking-tight hover:opacity-80 transition">
+      <a :href="hrefHome" class="mono text-[var(--accent)] font-bold text-lg tracking-tight hover:opacity-80 transition">
         ~/rodolfo<span class="terminal-cursor"></span>
       </a>
 
@@ -67,17 +67,26 @@
 
 <script setup>
 const colorMode = useColorMode()
+const route = useRoute()
 const menuOpen = ref(false)
 const isDark = computed(() => colorMode.value === 'dark')
 
-const links = [
-  { label: '.sobre()', href: '#about' },
-  { label: '.stacks()', href: '#stacks' },
-  { label: '.projetos()', href: '#projects' },
-  { label: '.blog()', href: '#blog' },
-  { label: '.xp()', href: '#experience' },
-  { label: '.contato()', href: '#contact' },
-]
+// On the home route the bare `#anchor` works (and avoids a no-op
+// navigation). Anywhere else (e.g. /blog/...) the anchor doesn't exist
+// on the current page so we have to navigate home first — Nuxt's
+// scrollBehavior then resolves the hash on arrival. Dynamic prefix
+// keeps both paths working without two link sets.
+const hrefPrefix = computed(() => (route.path === '/' ? '' : '/'))
+const hrefHome = computed(() => (route.path === '/' ? '#hero' : '/'))
+
+const links = computed(() => [
+  { label: '.sobre()', href: `${hrefPrefix.value}#about` },
+  { label: '.stacks()', href: `${hrefPrefix.value}#stacks` },
+  { label: '.projetos()', href: `${hrefPrefix.value}#projects` },
+  { label: '.blog()', href: `${hrefPrefix.value}#blog` },
+  { label: '.xp()', href: `${hrefPrefix.value}#experience` },
+  { label: '.contato()', href: `${hrefPrefix.value}#contact` },
+])
 
 function toggleTheme() {
   colorMode.preference = isDark.value ? 'light' : 'dark'
