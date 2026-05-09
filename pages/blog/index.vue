@@ -39,6 +39,12 @@ useHead({
       hreflang: 'x-default',
       href: 'https://rodolfodebonis.com.br/blog',
     },
+    {
+      rel: 'alternate',
+      type: 'application/rss+xml',
+      href: 'https://rodolfodebonis.com.br/feed.xml',
+      title: 'Rodolfo De Bonis — Blog',
+    },
   ],
 })
 </script>
