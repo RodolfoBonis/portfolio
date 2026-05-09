@@ -74,6 +74,7 @@ const links = [
   { label: '.sobre()', href: '#about' },
   { label: '.stacks()', href: '#stacks' },
   { label: '.projetos()', href: '#projects' },
+  { label: '.blog()', href: '#blog' },
   { label: '.xp()', href: '#experience' },
   { label: '.contato()', href: '#contact' },
 ]

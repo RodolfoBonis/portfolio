@@ -12,8 +12,11 @@ RUN echo "@rblab:registry=https://npm.rodolfodebonis.com.br" > .npmrc && \
     echo "//npm.rodolfodebonis.com.br/:_authToken=${VERDACCIO_TOKEN}" >> .npmrc && \
     echo "registry=https://registry.npmjs.org/" >> .npmrc
 
-# Install dependencies
-RUN npm ci
+# Install dependencies. --legacy-peer-deps tolerates the
+# vite-plugin-checker peer-dep mismatch (it asks for eslint >=9.39 but
+# the project still pins eslint 8.x — pre-existing issue, the eslint
+# bump is queued separately).
+RUN npm ci --legacy-peer-deps
 
 # Remove .npmrc for security
 RUN rm -f .npmrc
