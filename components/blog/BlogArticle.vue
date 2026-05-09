@@ -46,10 +46,10 @@
         <div
           class="w-10 h-10 rounded-full bg-[var(--accent)] text-[var(--bg-primary)] flex items-center justify-center font-bold text-sm"
         >
-          RB
+          {{ authorInitials }}
         </div>
         <div class="flex flex-col text-sm">
-          <span class="font-medium text-[var(--text-primary)]">Rodolfo De Bonis</span>
+          <span class="font-medium text-[var(--text-primary)]">{{ authorName }}</span>
           <span class="mono text-xs text-[var(--text-muted)]">
             {{ formattedDate }} · {{ data.reading_time_minutes }} min
             <template v-if="data.post.view_count > 0">
@@ -135,6 +135,19 @@ const { data, error } = await useAsyncData<{
 const translation = computed<PostTranslation | undefined>(() =>
   data.value?.post ? pickTranslation(data.value.post, props.lang) : undefined,
 )
+
+// Author display: snapshotted at publish-time on the API side
+// (`post.author.name`). Empty fallback keeps SSR happy if the API
+// shape ever drifts; the avatar derives initials from the name so a
+// rename in Keycloak shows up the next time the post is republished.
+const authorName = computed(() => data.value?.post?.author?.name ?? '')
+
+const authorInitials = computed(() => {
+  const name = authorName.value.trim()
+  if (!name) return '?'
+  const parts = name.split(/\s+/).slice(0, 2)
+  return parts.map((p) => p.charAt(0).toUpperCase()).join('') || '?'
+})
 
 const canonicalUrl = computed(() => {
   const path =
@@ -224,12 +237,12 @@ useHead({
           inLanguage: props.lang,
           author: {
             '@type': 'Person',
-            name: 'Rodolfo De Bonis',
+            name: post.author?.name || 'Rodolfo De Bonis',
             url: 'https://rodolfodebonis.com.br',
           },
           publisher: {
             '@type': 'Person',
-            name: 'Rodolfo De Bonis',
+            name: post.author?.name || 'Rodolfo De Bonis',
           },
           mainEntityOfPage: {
             '@type': 'WebPage',

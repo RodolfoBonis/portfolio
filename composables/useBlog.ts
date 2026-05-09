@@ -38,10 +38,16 @@ export interface BlogTag {
   post_count?: number
 }
 
+export interface BlogAuthor {
+  sub: string
+  name: string
+  email?: string
+}
+
 export interface BlogPost {
   id: string
   tenant_id: string
-  author_identity_id: string
+  author: BlogAuthor
   status: PostStatus
   published_at?: string | null
   cover_image_url?: string
