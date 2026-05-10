@@ -239,6 +239,22 @@ useHead({
     if (!data.value?.post || !translation.value) return []
     const post = data.value.post
     const t = translation.value
+    // Strip HTML to feed schema.org `articleBody`. The crawler-facing
+    // body doesn't need to be perfectly typeset — a regex strip is
+    // sufficient and avoids pulling in a parser. The `data.html`
+    // already came from the trusted server-render pipeline so we
+    // don't worry about untrusted markup here either.
+    const articleBody = (data.value.html || '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+    // The backend's reading_time_minutes is computed at write-time as
+    // ceil(words / 200) so the inverse gives a stable wordCount
+    // estimate without re-counting client-side.
+    const wordCount = data.value.reading_time_minutes
+      ? data.value.reading_time_minutes * 200
+      : undefined
+    const authorURL = 'https://rodolfodebonis.com.br/#about'
     return [
       {
         type: 'application/ld+json',
@@ -251,14 +267,18 @@ useHead({
           datePublished: post.published_at,
           dateModified: post.updated_at,
           inLanguage: props.lang,
+          articleBody,
+          wordCount,
+          commentCount: 0,
           author: {
             '@type': 'Person',
             name: post.author?.name || 'Rodolfo De Bonis',
-            url: 'https://rodolfodebonis.com.br',
+            url: authorURL,
           },
           publisher: {
             '@type': 'Person',
             name: post.author?.name || 'Rodolfo De Bonis',
+            url: authorURL,
           },
           mainEntityOfPage: {
             '@type': 'WebPage',
