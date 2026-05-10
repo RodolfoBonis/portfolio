@@ -90,6 +90,15 @@
         </div>
       </div>
 
+      <!-- Comments — anonymous, validated via Cloudflare Turnstile,
+           moderated server-side. The slug used here is the same one
+           that resolved this page so the API can disambiguate per-
+           language comment threads on bilingual posts. -->
+      <BlogComments
+        :post-slug="translation?.slug ?? slug"
+        :lang="lang"
+      />
+
       <!-- Back -->
       <div class="mt-12">
         <NuxtLink

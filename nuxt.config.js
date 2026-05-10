@@ -24,6 +24,12 @@ export default defineNuxtConfig({
     blogTenantId: process.env.BLOG_TENANT_ID || '',
     public: {
       cdnApiKey: process.env.CDN_API_KEY,
+      // Cloudflare Turnstile site key — public by design; the
+      // server-side validation against the secret happens upstream
+      // in rb_management_api.
+      turnstileSiteKey:
+        process.env.NUXT_PUBLIC_TURNSTILE_SITE_KEY ||
+        '0x4AAAAAADMxSiVZ-Z2SNWwG',
     },
   },
 
@@ -49,7 +55,13 @@ export default defineNuxtConfig({
 
   components: true,
 
-  modules: ['@nuxtjs/color-mode', '@vueuse/nuxt', '@nuxtjs/google-fonts'],
+  modules: ['@nuxtjs/color-mode', '@vueuse/nuxt', '@nuxtjs/google-fonts', '@nuxtjs/turnstile'],
+
+  turnstile: {
+    siteKey:
+      process.env.NUXT_PUBLIC_TURNSTILE_SITE_KEY ||
+      '0x4AAAAAADMxSiVZ-Z2SNWwG',
+  },
 
   colorMode: {
     classSuffix: '',
