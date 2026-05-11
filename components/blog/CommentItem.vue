@@ -98,6 +98,16 @@ import {
   useComments,
   type BlogComment,
 } from '~/composables/useComments'
+// Explicit imports — Nuxt's path-prefixed auto-import would resolve
+// these as <BlogCommentForm>/<BlogCommentItem>, breaking both the
+// reply form and the recursive child rendering on this page.
+import CommentForm from './CommentForm.vue'
+
+// Pin the component name so the <CommentItem> self-reference in the
+// template resolves regardless of Nuxt's auto-import behaviour. With
+// the path-prefixed default the recursive tag would otherwise look
+// for <BlogCommentItem> and find nothing.
+defineOptions({ name: 'CommentItem' })
 
 const props = defineProps<{
   comment: BlogComment
