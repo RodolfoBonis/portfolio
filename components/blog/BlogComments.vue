@@ -32,6 +32,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useComments, type BlogComment } from '~/composables/useComments'
+// Explicit imports — Nuxt's path-prefixed auto-import would resolve
+// these as <BlogCommentForm>/<BlogCommentItem>, leaving the
+// short-named tags below unresolved (silent <!----> in prod).
+import CommentForm from './CommentForm.vue'
+import CommentItem from './CommentItem.vue'
 
 const props = defineProps<{
   postSlug: string
