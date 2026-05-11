@@ -50,7 +50,8 @@ export interface CreateCommentResponse {
 
 export interface FlagCommentInput {
   reason?: string
-  turnstile_token: string
+  /** Optional — backend gates flag spam via per-IP rate limit + dedup. */
+  turnstile_token?: string
 }
 
 const editTokenStorageKey = (id: string) => `blog:comment:${id}:edit_token`

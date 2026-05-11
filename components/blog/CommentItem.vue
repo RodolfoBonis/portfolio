@@ -142,19 +142,14 @@ async function onSaveEdit() {
 
 async function onFlag() {
   if (flagged.value) return
-  // Flag also goes through Turnstile on the API side. We don't show
-  // a captcha here for the click — the rate-limit (10/min/IP) plus
-  // server dedup are the safety net. A future improvement: open a
-  // small modal with a NuxtTurnstile widget for the flag too.
+  // Backend doesn't require Turnstile on flag — relies on per-IP
+  // rate limit (10/min) + UNIQUE(comment_id, ip_hash) for dedup, so
+  // the worst a determined spammer can do is one flag per IP.
   flagging.value = true
   try {
-    await comments.flag(props.comment.id, {
-      reason: '',
-      turnstile_token: 'noop', // backend will 403 — see TODO note below
-    })
+    await comments.flag(props.comment.id, { reason: '' })
     flagged.value = true
   } catch {
-    // Turnstile rejection or network — silent for now.
     flagged.value = false
   } finally {
     flagging.value = false
