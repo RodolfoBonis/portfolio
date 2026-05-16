@@ -75,7 +75,7 @@
 <script setup>
 import { experienceMeta } from '~/data/experience'
 
-const { t, tm, locale } = useI18n()
+const { t, tm, rt, locale } = useI18n()
 
 // timeline rebuilds the period string from periodStart/periodEnd in
 // the locale ("2017") + the localised `periodCurrent` label
@@ -93,10 +93,10 @@ const timeline = computed(() => {
       const periodEnd = meta.current ? currentLabel : item.periodEnd ?? currentLabel
       return {
         id: item.id,
-        period: `${item.periodStart} – ${periodEnd}`,
-        title: item.title,
-        description: item.description,
-        achievements: item.achievements ?? [],
+        period: `${rt(item.periodStart)} – ${rt(periodEnd)}`,
+        title: rt(item.title),
+        description: rt(item.description),
+        achievements: (item.achievements ?? []).map((a) => rt(a)),
         current: !!meta.current,
         tags: meta.tags ?? [],
       }
