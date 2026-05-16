@@ -74,12 +74,16 @@ const translation = computed(() => pickTranslation(props.post, lang.value))
 const title = computed(() => translation.value?.title ?? '—')
 const excerpt = computed(() => translation.value?.excerpt ?? '')
 
-// Build the link for the appropriate language. Falls back to slug from
-// any available translation when the requested lang isn't present.
+// Build the link using the translation that actually provided the slug.
+// If EN is missing, we fall back to PT route (/blog/...) instead of
+// incorrectly forcing /en/blog/... with a PT slug.
 const link = computed(() => {
-  const slug = translation.value?.slug ?? props.post.translations?.[0]?.slug
+  const selected = props.post.translations?.find((t) => t.lang === lang.value)
+  const fallback = props.post.translations?.find((t) => t.lang === 'pt-BR') ?? props.post.translations?.[0]
+  const target = selected ?? fallback
+  const slug = target?.slug
   if (!slug) return '/blog'
-  return lang.value === 'en' ? `/en/blog/${slug}` : `/blog/${slug}`
+  return target?.lang === 'en' ? `/en/blog/${slug}` : `/blog/${slug}`
 })
 
 const formattedDate = computed(() => {
