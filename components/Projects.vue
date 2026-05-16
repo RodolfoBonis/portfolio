@@ -84,7 +84,7 @@
 <script setup>
 import { projectsMeta } from '~/data/projects'
 
-const { t, tm, locale } = useI18n()
+const { t, tm, rt, locale } = useI18n()
 
 // projects merges the locale-specific copy (title, description,
 // highlights) with the locale-neutral meta (image, tags, githubUrl).
@@ -101,13 +101,14 @@ const projects = computed(() => {
   const byId = new Map(projectsMeta.map((p) => [p.id, p]))
   return localized
     .map((item) => {
-      const meta = byId.get(item.id)
+      const itemId = rt(item.id)
+      const meta = byId.get(itemId)
       if (!meta) return null
       return {
-        id: item.id,
-        title: item.title,
-        description: item.description,
-        highlights: item.highlights ?? [],
+        id: itemId,
+        title: rt(item.title),
+        description: rt(item.description),
+        highlights: (item.highlights ?? []).map((h) => rt(h)),
         image: meta.image,
         tags: meta.tags,
         githubUrl: meta.githubUrl,
