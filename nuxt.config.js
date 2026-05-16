@@ -55,7 +55,36 @@ export default defineNuxtConfig({
 
   components: true,
 
-  modules: ['@nuxtjs/color-mode', '@vueuse/nuxt', '@nuxtjs/google-fonts', '@nuxtjs/turnstile'],
+  modules: ['@nuxtjs/color-mode', '@vueuse/nuxt', '@nuxtjs/google-fonts', '@nuxtjs/turnstile', '@nuxtjs/i18n'],
+
+  // Bilingual portfolio. PT-BR keeps every existing URL (root, no
+  // prefix); EN gets a /en mirror via prefix_except_default.
+  // Browser detection only kicks in on the first hit at /; visitors
+  // who land on a deep link (shared blog post, tag page, an /en/...
+  // bookmark) are served the URL they asked for, then the cookie
+  // pins the choice. The 4 blog page files opt out via
+  // defineI18nRoute({ locales: false }) — the existing /blog and
+  // /en/blog routes are preserved exactly so indexed slugs don't
+  // 301 or 404.
+  i18n: {
+    strategy: 'prefix_except_default',
+    defaultLocale: 'pt-BR',
+    locales: [
+      { code: 'pt-BR', language: 'pt-BR', file: 'pt-BR.json', name: 'Português' },
+      { code: 'en', language: 'en', file: 'en.json', name: 'English' },
+    ],
+    langDir: 'locales/',
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n_redirected',
+      redirectOn: 'root',
+      fallbackLocale: 'pt-BR',
+    },
+    baseUrl: 'https://rodolfodebonis.com.br',
+    bundle: {
+      optimizeTranslationDirective: false,
+    },
+  },
 
   turnstile: {
     siteKey:
@@ -84,7 +113,7 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: 'Rodolfo De Bonis — Software Engineer',
-      htmlAttrs: { lang: 'pt-BR' },
+      // <html lang> now managed by @nuxtjs/i18n via useLocaleHead.
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -146,6 +175,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     '/_nuxt/**': { static: true },
 
     '/': { swr: 600 },                        // 10 min — refresh latest posts
+    '/en': { swr: 600 },                      // EN home mirror
     '/blog': { swr: 300 },                    // 5 min — list page
     '/blog/**': { swr: 600 },                 // 10 min — article detail
     '/en/blog': { swr: 300 },

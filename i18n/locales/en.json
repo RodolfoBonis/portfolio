@@ -1,0 +1,26 @@
+{
+  "header": {
+    "links": {
+      "about": ".about()",
+      "stacks": ".stacks()",
+      "projects": ".projects()",
+      "blog": ".blog()",
+      "xp": ".xp()",
+      "contact": ".contact()"
+    },
+    "theme": {
+      "toLight": "Light mode",
+      "toDark": "Dark mode",
+      "labelLight": "Light Mode",
+      "labelDark": "Dark Mode"
+    },
+    "language": {
+      "switchTo": "Switch to Portuguese",
+      "label": "PT"
+    },
+    "menu": {
+      "open": "Menu",
+      "close": "Close"
+    }
+  }
+}
