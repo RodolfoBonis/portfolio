@@ -22,5 +22,74 @@
       "open": "Menu",
       "close": "Fechar"
     }
+  },
+  "hero": {
+    "available": "Disponível para projetos",
+    "subtitle": "Engenheiro de Software com {years}+ anos transformando ideias complexas em sistemas que",
+    "subtitleHighlight": "simplesmente funcionam",
+    "ctaTalk": "Vamos conversar",
+    "ctaProjects": "Ver projetos",
+    "stats": {
+      "years": "anos de xp",
+      "tech": "tecnologias",
+      "coffee": "café consumido"
+    }
+  },
+  "about": {
+    "section": "Sobre Mim",
+    "intro": "Conheça a pessoa por trás do código",
+    "bio": {
+      "p1Prefix": "Sou Rodolfo, moro em",
+      "p1Location": "Maceió - AL",
+      "p1Middle": "e tenho {age} anos. Com {years}+ anos de carreira, já passei por mobile (Flutter, Swift, Android), backend (Go, Python), frontend (Vue, Angular) e infra (Kubernetes, Terraform, CI/CD) — full stack de verdade, do app ao cluster.",
+      "p2Prefix": "Minha missão é simples:",
+      "p2Highlight": "minimizar ao máximo qualquer tarefa manual",
+      "p2Suffix": "para focar no que realmente importa. Um pipeline CI/CD bem afinado é tão satisfatório quanto um crítico de 20 em D&D.",
+      "p3Prefix": "Quando não estou orquestrando clusters no",
+      "p3Lab": "Rb Lab",
+      "p3Suffix": ", você me encontra liderando sessões épicas de D&D 5e ou clutchando rounds no R6 Siege."
+    },
+    "facts": {
+      "location": { "label": "Localização", "value": "Maceió, Brasil" },
+      "experience": { "label": "Experiência", "value": "{years}+ anos" },
+      "languages": { "label": "Linguagens", "value": "Go • Python • Dart • TS" },
+      "hobbies": { "label": "Hobbies", "value": "D&D 5e • R6 Siege" }
+    }
+  },
+  "stacks": {
+    "section": "Stacks & Ferramentas",
+    "intro": "Tecnologias que uso no dia-a-dia para construir, deployar e escalar",
+    "categories": {
+      "backend": "Backend & Linguagens",
+      "frontend": "Frontend & Mobile",
+      "devops": "DevOps & Infra",
+      "data": "Dados & Ferramentas"
+    }
+  },
+  "contact": {
+    "section": "Fale Comigo",
+    "intro": "Tem um projeto em mente, quer trocar ideia sobre arquitetura de software, ou só bater um papo sobre RPG?",
+    "introCta": "Me manda uma mensagem — respondo sempre!",
+    "form": {
+      "nameLabel": "nome",
+      "namePlaceholder": "Seu nome",
+      "emailLabel": "email",
+      "emailPlaceholder": "seu{'@'}email.com",
+      "subjectLabel": "assunto",
+      "subjectPlaceholder": "Sobre o que quer conversar?",
+      "messageLabel": "mensagem",
+      "messagePlaceholder": "Sua mensagem...",
+      "submit": "Enviar Mensagem"
+    },
+    "footer": {
+      "tagline": "Feito com ☕ e paixão por código"
+    }
+  },
+  "seo": {
+    "home": {
+      "title": "Rodolfo De Bonis — Software Engineer",
+      "description": "Engenheiro de Software com 8+ anos de experiência em Go, Flutter, Kubernetes e DevOps.",
+      "ogDescription": "Engenheiro de Software | DevOps | Mobile | D&D Master"
+    }
   }
 }

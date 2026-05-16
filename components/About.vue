@@ -4,10 +4,10 @@
     <div class="section-container">
       <div class="flex items-center gap-3 mb-4">
         <span class="mono text-[var(--accent)] text-sm">01.</span>
-        <h2 class="text-3xl md:text-4xl font-bold">Sobre Mim</h2>
+        <h2 class="text-3xl md:text-4xl font-bold">{{ t('about.section') }}</h2>
       </div>
       <p class="text-[var(--text-muted)] mb-16 max-w-2xl">
-        Conheça a pessoa por trás do código
+        {{ t('about.intro') }}
       </p>
 
       <div class="grid lg:grid-cols-5 gap-12">
@@ -39,22 +39,18 @@
         <div class="lg:col-span-3 space-y-8">
           <div class="space-y-4 text-[var(--text-secondary)] leading-relaxed">
             <p>
-              Sou Rodolfo, moro em <span class="text-[var(--text-primary)]">Maceió - AL</span>
-              e tenho {{ age }} anos. Com {{ yearsExp }}+ anos de carreira,
-              já passei por mobile (Flutter, Swift, Android), backend (Go, Python),
-              frontend (Vue, Angular) e infra (Kubernetes, Terraform, CI/CD) —
-              full stack de verdade, do app ao cluster.
+              {{ t('about.bio.p1Prefix') }}
+              <span class="text-[var(--text-primary)]">{{ t('about.bio.p1Location') }}</span>
+              {{ t('about.bio.p1Middle', { age, years: yearsExp }) }}
             </p>
             <p>
-              Minha missão é simples: <span class="text-[var(--accent)]">minimizar ao máximo qualquer tarefa manual</span>
-              para focar no que realmente importa. Um pipeline CI/CD bem afinado
-              é tão satisfatório quanto um crítico de 20 em D&D.
+              {{ t('about.bio.p2Prefix') }}
+              <span class="text-[var(--accent)]">{{ t('about.bio.p2Highlight') }}</span>
+              {{ t('about.bio.p2Suffix') }}
             </p>
             <p>
-              Quando não estou orquestrando clusters no
-              <span class="mono text-[var(--text-primary)]">Rb Lab</span>,
-              você me encontra liderando sessões épicas de D&D 5e ou
-              clutchando rounds no R6 Siege.
+              {{ t('about.bio.p3Prefix') }}
+              <span class="mono text-[var(--text-primary)]">{{ t('about.bio.p3Lab') }}</span>{{ t('about.bio.p3Suffix') }}
             </p>
           </div>
 
@@ -79,16 +75,20 @@
 </template>
 
 <script setup>
+const { t } = useI18n()
 const logoUrl = '/api/cdn/portfolio/me.jpeg'
 const age = new Date().getFullYear() - 1996
 const yearsExp = new Date().getFullYear() - 2017
 
-const facts = [
-  { icon: 'location_on', label: 'Localização', value: 'Maceió, Brasil' },
-  { icon: 'timer', label: 'Experiência', value: `${yearsExp}+ anos` },
-  { icon: 'code', label: 'Linguagens', value: 'Go • Python • Dart • TS' },
-  { icon: 'sports_esports', label: 'Hobbies', value: 'D&D 5e • R6 Siege' },
-]
+// Facts pull label + value from the active locale; icon is neutral.
+// Computed so the dependency on the i18n message bundle re-runs
+// when the user clicks the language switcher.
+const facts = computed(() => [
+  { icon: 'location_on', label: t('about.facts.location.label'), value: t('about.facts.location.value') },
+  { icon: 'timer', label: t('about.facts.experience.label'), value: t('about.facts.experience.value', { years: yearsExp }) },
+  { icon: 'code', label: t('about.facts.languages.label'), value: t('about.facts.languages.value') },
+  { icon: 'sports_esports', label: t('about.facts.hobbies.label'), value: t('about.facts.hobbies.value') },
+])
 
 const socials = [
   { name: 'GitHub', icon: 'code', url: 'https://github.com/RodolfoBonis' },
