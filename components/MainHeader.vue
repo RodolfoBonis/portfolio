@@ -90,6 +90,7 @@
 <script setup>
 const colorMode = useColorMode()
 const route = useRoute()
+const router = useRouter()
 const menuOpen = ref(false)
 const isDark = computed(() => colorMode.value === 'dark')
 
@@ -122,7 +123,7 @@ function toggleTheme() {
   colorMode.preference = isDark.value ? 'light' : 'dark'
 }
 
-function onLanguageSwitch() {
+async function onLanguageSwitch() {
   const next = locale.value === 'en' ? 'pt-BR' : 'en'
   // GTM hook so we can attribute future engagement deltas to language
   // preference. Wrap in client-only check so SSR doesn't blow up on
@@ -130,7 +131,22 @@ function onLanguageSwitch() {
   if (typeof window !== 'undefined' && Array.isArray(window.dataLayer)) {
     window.dataLayer.push({ event: 'language_change', language: next })
   }
-  setLocale(next)
+
+  const path = route.path
+  const isBlogPath = path === '/blog' || path.startsWith('/blog/') || path === '/en/blog' || path.startsWith('/en/blog/')
+
+  if (isBlogPath) {
+    const targetPath = next === 'en'
+      ? (path.startsWith('/en') ? path : `/en${path}`)
+      : path.replace(/^\/en/, '') || '/'
+
+    await setLocale(next)
+    await router.push(targetPath)
+    menuOpen.value = false
+    return
+  }
+
+  await setLocale(next)
   menuOpen.value = false
 }
 </script>
