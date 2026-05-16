@@ -80,26 +80,26 @@ export default defineEventHandler(async (event) => {
   recordTranslation(postsPT, 'pt')
   recordTranslation(postsEN, 'en')
 
+  const now = new Date().toISOString()
+  const homeAlternates = [
+    { hreflang: 'pt-BR', href: `${BASE}/` },
+    { hreflang: 'en', href: `${BASE}/en` },
+    { hreflang: 'x-default', href: `${BASE}/` },
+  ]
+  const blogAlternates = [
+    { hreflang: 'pt-BR', href: `${BASE}/blog` },
+    { hreflang: 'en', href: `${BASE}/en/blog` },
+    { hreflang: 'x-default', href: `${BASE}/blog` },
+  ]
   const staticEntries: Array<{ loc: string; lastmod?: string; alternates?: { hreflang: string; href: string }[] }> = [
-    { loc: `${BASE}/`, lastmod: new Date().toISOString() },
-    {
-      loc: `${BASE}/blog`,
-      lastmod: new Date().toISOString(),
-      alternates: [
-        { hreflang: 'pt-BR', href: `${BASE}/blog` },
-        { hreflang: 'en', href: `${BASE}/en/blog` },
-        { hreflang: 'x-default', href: `${BASE}/blog` },
-      ],
-    },
-    {
-      loc: `${BASE}/en/blog`,
-      lastmod: new Date().toISOString(),
-      alternates: [
-        { hreflang: 'pt-BR', href: `${BASE}/blog` },
-        { hreflang: 'en', href: `${BASE}/en/blog` },
-        { hreflang: 'x-default', href: `${BASE}/blog` },
-      ],
-    },
+    // Home root now has an EN mirror at /en thanks to @nuxtjs/i18n
+    // (prefix_except_default). Sitemap must announce both with
+    // bidirectional hreflang so the pair is treated as language
+    // variants instead of duplicate content.
+    { loc: `${BASE}/`, lastmod: now, alternates: homeAlternates },
+    { loc: `${BASE}/en`, lastmod: now, alternates: homeAlternates },
+    { loc: `${BASE}/blog`, lastmod: now, alternates: blogAlternates },
+    { loc: `${BASE}/en/blog`, lastmod: now, alternates: blogAlternates },
   ]
 
   const postEntries: Array<{ loc: string; lastmod: string; alternates: { hreflang: string; href: string }[] }> = []

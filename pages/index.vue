@@ -36,31 +36,43 @@ useSeoMeta({
   twitterCard: 'summary_large_image',
 })
 
-// JSON-LD structured data
+// JSON-LD Person — computed so the description + URL track the
+// active locale. Google's Knowledge Graph dedupes by URL, so each
+// language variant points at its own canonical (/ or /en) and
+// declares `inLanguage` explicitly.
+const personJsonLD = computed(() =>
+  JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Rodolfo De Bonis',
+    url:
+      locale.value === 'en'
+        ? 'https://rodolfodebonis.com.br/en'
+        : 'https://rodolfodebonis.com.br',
+    jobTitle: 'Software Engineer',
+    description: t('seo.home.description'),
+    inLanguage: locale.value,
+    worksFor: { '@type': 'Organization', name: 'Loft' },
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Maceió',
+      addressRegion: 'AL',
+      addressCountry: 'BR',
+    },
+    sameAs: [
+      'https://github.com/RodolfoBonis',
+      'https://www.linkedin.com/in/rodolfo-de-bonis/',
+      'https://x.com/RodolfoBonis',
+    ],
+    knowsAbout: ['Go', 'Flutter', 'Kubernetes', 'DevOps', 'Python', 'TypeScript'],
+  }),
+)
+
 useHead({
   script: [
     {
       type: 'application/ld+json',
-      innerHTML: JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'Person',
-        name: 'Rodolfo De Bonis',
-        url: 'https://rodolfodebonis.com.br',
-        jobTitle: 'Software Engineer',
-        worksFor: { '@type': 'Organization', name: 'Loft' },
-        address: {
-          '@type': 'PostalAddress',
-          addressLocality: 'Maceió',
-          addressRegion: 'AL',
-          addressCountry: 'BR',
-        },
-        sameAs: [
-          'https://github.com/RodolfoBonis',
-          'https://www.linkedin.com/in/rodolfo-de-bonis/',
-          'https://x.com/RodolfoBonis',
-        ],
-        knowsAbout: ['Go', 'Flutter', 'Kubernetes', 'DevOps', 'Python', 'TypeScript'],
-      }),
+      innerHTML: personJsonLD,
     },
   ],
 })
