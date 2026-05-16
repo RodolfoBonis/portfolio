@@ -4,10 +4,10 @@
     <div class="section-container">
       <div class="flex items-center gap-3 mb-4">
         <span class="mono text-[var(--accent)] text-sm">02.</span>
-        <h2 class="text-3xl md:text-4xl font-bold">Stacks & Ferramentas</h2>
+        <h2 class="text-3xl md:text-4xl font-bold">{{ t('stacks.section') }}</h2>
       </div>
       <p class="text-[var(--text-muted)] mb-16 max-w-2xl">
-        Tecnologias que uso no dia-a-dia para construir, deployar e escalar
+        {{ t('stacks.intro') }}
       </p>
 
       <!-- Categories -->
@@ -40,11 +40,14 @@
 </template>
 
 <script setup>
+const { t } = useI18n()
 const icon = (name) => `/icons/${name}.svg`
 
-const categories = [
+// Only the category heading is localised — stack names are
+// brand/product names and stay neutral across locales.
+const categories = computed(() => [
   {
-    name: 'Backend & Linguagens',
+    name: t('stacks.categories.backend'),
     icon: 'terminal',
     items: [
       { name: 'Go', icon: icon('go') },
@@ -54,7 +57,7 @@ const categories = [
     ],
   },
   {
-    name: 'Frontend & Mobile',
+    name: t('stacks.categories.frontend'),
     icon: 'devices',
     items: [
       { name: 'Flutter', icon: icon('flutter') },
@@ -67,7 +70,7 @@ const categories = [
     ],
   },
   {
-    name: 'DevOps & Infra',
+    name: t('stacks.categories.devops'),
     icon: 'cloud',
     items: [
       { name: 'K3s', icon: icon('kubernetes') },
@@ -80,7 +83,7 @@ const categories = [
     ],
   },
   {
-    name: 'Dados & Ferramentas',
+    name: t('stacks.categories.data'),
     icon: 'storage',
     items: [
       { name: 'PostgreSQL', icon: icon('postgresql') },
@@ -91,5 +94,5 @@ const categories = [
       { name: 'n8n', icon: icon('n8n') },
     ],
   },
-]
+])
 </script>

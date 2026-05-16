@@ -6,7 +6,10 @@
       <About />
       <Stacks />
       <Projects />
-      <BlogLatestPosts lang="pt-BR" :limit="3" />
+      <!-- Latest posts widget feeds off the active locale so a PT
+           visitor on /en still sees EN summaries via the same
+           composable as the /en/blog list page. -->
+      <BlogLatestPosts :lang="locale === 'en' ? 'en' : 'pt-BR'" :limit="3" />
       <Experience />
       <Contact />
     </main>
@@ -14,13 +17,21 @@
 </template>
 
 <script setup>
+const { t, locale } = useI18n()
+// useLocaleHead injects <html lang> + hreflang alternates per the
+// configured baseUrl. SEO fields below come from the active locale.
+useLocaleHead({ addSeoAttributes: true })
+
 useSeoMeta({
-  title: 'Rodolfo De Bonis — Software Engineer',
-  description: 'Engenheiro de Software com 8+ anos de experiência em Go, Flutter, Kubernetes e DevOps. Transformando ideias complexas em sistemas que simplesmente funcionam.',
-  ogTitle: 'Rodolfo De Bonis — Software Engineer',
-  ogDescription: 'Engenheiro de Software | DevOps | Mobile | D&D Master',
+  title: t('seo.home.title'),
+  description: t('seo.home.description'),
+  ogTitle: t('seo.home.title'),
+  ogDescription: t('seo.home.ogDescription'),
   ogImage: 'https://rodolfodebonis.com.br/api/cdn/portfolio/me.jpeg',
-  ogUrl: 'https://rodolfodebonis.com.br',
+  ogUrl:
+    locale.value === 'en'
+      ? 'https://rodolfodebonis.com.br/en'
+      : 'https://rodolfodebonis.com.br',
   ogType: 'website',
   twitterCard: 'summary_large_image',
 })

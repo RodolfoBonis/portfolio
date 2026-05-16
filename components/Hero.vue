@@ -12,7 +12,7 @@
         <!-- Left: Content -->
         <div class="space-y-8">
           <div class="animate-fade-up">
-            <span class="badge">Disponível para projetos</span>
+            <span class="badge">{{ t('hero.available') }}</span>
           </div>
 
           <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] animate-fade-up delay-100">
@@ -22,23 +22,23 @@
           </h1>
 
           <p class="text-lg md:text-xl text-[var(--text-secondary)] max-w-lg animate-fade-up delay-200">
-            Engenheiro de Software com {{ yearsExp }}+ anos transformando
-            ideias complexas em sistemas que <span class="text-[var(--text-primary)]">simplesmente funcionam</span>.
+            {{ t('hero.subtitle', { years: yearsExp }) }}
+            <span class="text-[var(--text-primary)]">{{ t('hero.subtitleHighlight') }}</span>.
           </p>
 
           <div class="flex flex-wrap gap-4 animate-fade-up delay-300">
             <a
-              href="#contact"
+              :href="`${homePrefix}#contact`"
               class="inline-flex items-center gap-2 bg-[var(--accent)] text-[var(--bg-primary)] px-6 py-3 rounded-lg font-medium hover:bg-[var(--accent-hover)] transition-colors"
             >
               <span class="material-icons text-lg">rocket_launch</span>
-              Vamos conversar
+              {{ t('hero.ctaTalk') }}
             </a>
             <a
-              href="#projects"
+              :href="`${homePrefix}#projects`"
               class="inline-flex items-center gap-2 border border-[var(--border)] text-[var(--text-primary)] px-6 py-3 rounded-lg font-medium hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
             >
-              Ver projetos
+              {{ t('hero.ctaProjects') }}
               <span class="material-icons text-lg">arrow_forward</span>
             </a>
           </div>
@@ -47,17 +47,17 @@
           <div class="flex gap-8 pt-4 animate-fade-up delay-400">
             <div>
               <div class="text-2xl font-bold text-[var(--text-primary)] mono">{{ yearsExp }}+</div>
-              <div class="text-xs text-[var(--text-muted)] mono">anos de xp</div>
+              <div class="text-xs text-[var(--text-muted)] mono">{{ t('hero.stats.years') }}</div>
             </div>
             <div class="w-px bg-[var(--border)]"></div>
             <div>
               <div class="text-2xl font-bold text-[var(--text-primary)] mono">24+</div>
-              <div class="text-xs text-[var(--text-muted)] mono">tecnologias</div>
+              <div class="text-xs text-[var(--text-muted)] mono">{{ t('hero.stats.tech') }}</div>
             </div>
             <div class="w-px bg-[var(--border)]"></div>
             <div>
               <div class="text-2xl font-bold text-[var(--text-primary)] mono">∞</div>
-              <div class="text-xs text-[var(--text-muted)] mono">café consumido</div>
+              <div class="text-xs text-[var(--text-muted)] mono">{{ t('hero.stats.coffee') }}</div>
             </div>
           </div>
         </div>
@@ -115,6 +115,18 @@
 </template>
 
 <script setup>
+// Anchor links inside Hero need the localised home prefix so EN
+// visitors land on /en/#contact rather than /#contact (which would
+// reset their language preference). On the home page the prefix is
+// empty so the bare hash works for in-page scroll.
+const { t, locale } = useI18n()
+const route = useRoute()
+const isHome = computed(() => route.path === '/' || route.path === '/en')
+const homePrefix = computed(() => {
+  if (isHome.value) return ''
+  return locale.value === 'en' ? '/en' : '/'
+})
+
 const yearsExp = new Date().getFullYear() - 2017
 
 const terminalLine = ref(null)
