@@ -66,6 +66,100 @@
       "data": "Dados & Ferramentas"
     }
   },
+  "projects": {
+    "section": "Projetos em Destaque",
+    "intro": "Alguns projetos que refletem meu trabalho e interesses",
+    "viewSource": "Código fonte",
+    "items": [
+      {
+        "id": "hermes",
+        "title": "Hermes",
+        "description": "Sistema de notificações unificado que gerencia Push, WhatsApp, Telegram e Slack com segmentação inteligente por tags e retry automático.",
+        "highlights": [
+          "Multi-tenant sem vazamento de dados entre clientes",
+          "Latência < 200ms para notificações push críticas",
+          "Monitoramento via Prometheus + Grafana"
+        ]
+      },
+      {
+        "id": "microdetect",
+        "title": "MicroDetect",
+        "description": "Sistema de visão computacional para classificação e contagem de leveduras. TCC com YOLOv8 para detecção, FastAPI como backend e Flutter para interface Desktop.",
+        "highlights": [
+          "Dataset de microscopia com 1.200+ imagens anotadas manualmente",
+          "Gráficos de contagem em tempo real via Flutter Desktop"
+        ]
+      },
+      {
+        "id": "portfolio",
+        "title": "Portfólio Pessoal",
+        "description": "Este portfólio! Construído com Nuxt 3 e Tailwind CSS. Design industrial com estética de terminal, deploy automatizado via GitHub Actions + ArgoCD.",
+        "highlights": [
+          "SSR com Nuxt 3 para SEO otimizado",
+          "Dark/Light mode com persistência",
+          "CI/CD automatizado end-to-end"
+        ]
+      }
+    ]
+  },
+  "experience": {
+    "section": "Experiência & Educação",
+    "intro": "Onde estive e o que construí pelo caminho",
+    "periodCurrent": "Atual",
+    "timeline": [
+      {
+        "id": "freelance",
+        "periodStart": "2020",
+        "title": "Consultor & Freelancer",
+        "description": "Consultoria em desenvolvimento de software e automações, focando em infraestrutura e soluções criativas.",
+        "achievements": [
+          "Setup de Home Lab completo (K3s + Traefik + Vault + External Secrets)",
+          "Automação residencial com Home Assistant via MQTT",
+          "Desenvolvimento de bots e moderação para Discord"
+        ]
+      },
+      {
+        "id": "loft",
+        "periodStart": "2019",
+        "title": "Engenheiro de Software — Vista / Loft",
+        "description": "Engenheiro de Software na Loft, onde assumi a migração completa do app mobile da Vista — reescrevendo do zero de Ionic para Flutter, sozinho. Desde então, venho atuando em projetos de alto impacto no produto.",
+        "achievements": [
+          "Reescrita completa do app mobile de Ionic → Flutter (solo)",
+          "Desenvolvimento de chat conversacional para busca do imóvel ideal",
+          "Implementação de busca semântica integrada ao sistema",
+          "Integrações entre múltiplos sistemas internos da empresa",
+          "Mentoria de desenvolvedores juniores e estagiários",
+          "Contribuição em arquitetura, code review e práticas de DevOps"
+        ]
+      },
+      {
+        "id": "innovate",
+        "periodStart": "2017",
+        "periodEnd": "2019",
+        "title": "Desenvolvedor Full Stack — Innovate",
+        "description": "Sistemas hospitalares com Java e gerenciamento de iluminação pública com Node.js/Angular/Flutter.",
+        "achievements": [
+          "Renderização de 1M+ postes em mapa interativo com clustering",
+          "Migração de Ionic para Flutter no app mobile",
+          "Backend com Node.js, Express e MongoDB"
+        ]
+      },
+      {
+        "id": "nobully",
+        "periodStart": "2017",
+        "periodEnd": "2018",
+        "title": "Desenvolvedor Full Stack — NoBully",
+        "description": "Sistema de prevenção ao bullying escolar com autenticação JWT, painel administrativo e notificações em tempo real."
+      },
+      {
+        "id": "uninassau",
+        "periodStart": "2016",
+        "periodEnd": "2018",
+        "title": "Tecnólogo em Análise e Desenvolvimento de Sistemas",
+        "description": "Uninassau — TCC: \"Game Endless Runner Multiplataforma\"."
+      }
+    ]
+  },
   "contact": {
     "section": "Fale Comigo",
     "intro": "Tem um projeto em mente, quer trocar ideia sobre arquitetura de software, ou só bater um papo sobre RPG?",

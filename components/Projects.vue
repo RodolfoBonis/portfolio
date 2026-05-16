@@ -4,10 +4,10 @@
     <div class="section-container">
       <div class="flex items-center gap-3 mb-4">
         <span class="mono text-[var(--accent)] text-sm">03.</span>
-        <h2 class="text-3xl md:text-4xl font-bold">Projetos em Destaque</h2>
+        <h2 class="text-3xl md:text-4xl font-bold">{{ t('projects.section') }}</h2>
       </div>
       <p class="text-[var(--text-muted)] mb-16 max-w-2xl">
-        Alguns projetos que refletem meu trabalho e interesses
+        {{ t('projects.intro') }}
       </p>
 
       <div class="space-y-8">
@@ -50,7 +50,7 @@
               </div>
 
               <!-- Highlights -->
-              <ul v-if="project.highlights" class="space-y-2 mb-6">
+              <ul v-if="project.highlights && project.highlights.length" class="space-y-2 mb-6">
                 <li
                   v-for="highlight in project.highlights"
                   :key="highlight"
@@ -69,7 +69,7 @@
                   class="inline-flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors mono"
                 >
                   <span class="material-icons text-base">code</span>
-                  Código fonte
+                  {{ t('projects.viewSource') }}
                   <span class="material-icons text-sm">open_in_new</span>
                 </a>
               </div>
@@ -82,47 +82,37 @@
 </template>
 
 <script setup>
-const projects = [
-  {
-    id: 'hermes',
-    title: 'Hermes',
-    description:
-      'Sistema de notificações unificado que gerencia Push, WhatsApp, Telegram e Slack com segmentação inteligente por tags e retry automático.',
-    image: '/api/cdn/portfolio/hermes.png',
-    tags: ['Go', 'Flutter', 'Kafka', 'RabbitMQ', 'K3s', 'Vault'],
-    highlights: [
-      'Multi-tenant sem vazamento de dados entre clientes',
-      'Latência < 200ms para notificações push críticas',
-      'Monitoramento via Prometheus + Grafana',
-    ],
-    githubUrl: 'https://github.com/RodolfoBonis/hermes',
-  },
-  {
-    id: 'microdetect',
-    title: 'MicroDetect',
-    description:
-      'Sistema de visão computacional para classificação e contagem de leveduras. TCC com YOLOv8 para detecção, FastAPI como backend e Flutter para interface Desktop.',
-    image: '/api/cdn/portfolio/microdetect.png',
-    tags: ['Python', 'YOLOv8', 'FastAPI', 'Flutter'],
-    highlights: [
-      'Dataset de microscopia com 1.200+ imagens anotadas manualmente',
-      'Gráficos de contagem em tempo real via Flutter Desktop',
-    ],
-    githubUrl: 'https://github.com/RodolfoBonis/microdetect',
-  },
-  {
-    id: 'portfolio',
-    title: 'Portfólio Pessoal',
-    description:
-      'Este portfólio! Construído com Nuxt 3 e Tailwind CSS. Design industrial com estética de terminal, deploy automatizado via GitHub Actions + ArgoCD.',
-    image: '/api/cdn/portfolio/portfolio-pessoal.png',
-    tags: ['Nuxt 3', 'Tailwind CSS', 'TypeScript', 'ArgoCD'],
-    highlights: [
-      'SSR com Nuxt 3 para SEO otimizado',
-      'Dark/Light mode com persistência',
-      'CI/CD automatizado end-to-end',
-    ],
-    githubUrl: 'https://github.com/RodolfoBonis/portfolio',
-  },
-]
+import { projectsMeta } from '~/data/projects'
+
+const { t, tm, locale } = useI18n()
+
+// projects merges the locale-specific copy (title, description,
+// highlights) with the locale-neutral meta (image, tags, githubUrl).
+// Iteration order follows the i18n array so the locale file controls
+// what shows up and in what order. Re-runs when locale flips so the
+// EN visitor gets EN copy without a route reload.
+//
+// `locale` is referenced inside the computation so Vue tracks the
+// dependency — without it, switching language wouldn't trigger a
+// re-render of the cards.
+const projects = computed(() => {
+  void locale.value
+  const localized = tm('projects.items') ?? []
+  const byId = new Map(projectsMeta.map((p) => [p.id, p]))
+  return localized
+    .map((item) => {
+      const meta = byId.get(item.id)
+      if (!meta) return null
+      return {
+        id: item.id,
+        title: item.title,
+        description: item.description,
+        highlights: item.highlights ?? [],
+        image: meta.image,
+        tags: meta.tags,
+        githubUrl: meta.githubUrl,
+      }
+    })
+    .filter(Boolean)
+})
 </script>

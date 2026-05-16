@@ -66,6 +66,100 @@
       "data": "Data & Tooling"
     }
   },
+  "projects": {
+    "section": "Featured Projects",
+    "intro": "A few projects that reflect my work and interests",
+    "viewSource": "Source code",
+    "items": [
+      {
+        "id": "hermes",
+        "title": "Hermes",
+        "description": "Unified notification system that handles Push, WhatsApp, Telegram and Slack with smart tag-based segmentation and automatic retry.",
+        "highlights": [
+          "Multi-tenant with zero cross-customer data leakage",
+          "< 200ms latency for critical push notifications",
+          "Monitoring via Prometheus + Grafana"
+        ]
+      },
+      {
+        "id": "microdetect",
+        "title": "MicroDetect",
+        "description": "Computer-vision system for yeast classification and counting. Capstone project with YOLOv8 for detection, FastAPI on the backend and Flutter on Desktop.",
+        "highlights": [
+          "Microscopy dataset with 1,200+ manually annotated images",
+          "Live counting charts via Flutter Desktop"
+        ]
+      },
+      {
+        "id": "portfolio",
+        "title": "Personal Portfolio",
+        "description": "This portfolio! Built with Nuxt 3 and Tailwind CSS. Industrial design with a terminal aesthetic, automated deploy via GitHub Actions + ArgoCD.",
+        "highlights": [
+          "SSR with Nuxt 3 for SEO",
+          "Dark/Light mode with persistence",
+          "End-to-end automated CI/CD"
+        ]
+      }
+    ]
+  },
+  "experience": {
+    "section": "Experience & Education",
+    "intro": "Where I've been and what I built along the way",
+    "periodCurrent": "Present",
+    "timeline": [
+      {
+        "id": "freelance",
+        "periodStart": "2020",
+        "title": "Consultant & Freelancer",
+        "description": "Software development and automation consulting, focused on infrastructure and creative solutions.",
+        "achievements": [
+          "Full Home Lab setup (K3s + Traefik + Vault + External Secrets)",
+          "Home automation with Home Assistant via MQTT",
+          "Discord bots + moderation tooling"
+        ]
+      },
+      {
+        "id": "loft",
+        "periodStart": "2019",
+        "title": "Software Engineer — Vista / Loft",
+        "description": "Software Engineer at Loft, where I owned the full mobile rewrite of the Vista app — Ionic to Flutter, solo. Since then I've been working on high-impact product initiatives.",
+        "achievements": [
+          "Full mobile rewrite from Ionic → Flutter (solo)",
+          "Conversational chat for finding the right property",
+          "Semantic search integrated into the system",
+          "Integrations across multiple internal systems",
+          "Mentorship for junior devs and interns",
+          "Contributions to architecture, code review and DevOps practices"
+        ]
+      },
+      {
+        "id": "innovate",
+        "periodStart": "2017",
+        "periodEnd": "2019",
+        "title": "Full-Stack Developer — Innovate",
+        "description": "Hospital systems in Java and public-lighting management in Node.js/Angular/Flutter.",
+        "achievements": [
+          "Rendering 1M+ poles on an interactive map with clustering",
+          "Migration from Ionic to Flutter on the mobile app",
+          "Backend with Node.js, Express and MongoDB"
+        ]
+      },
+      {
+        "id": "nobully",
+        "periodStart": "2017",
+        "periodEnd": "2018",
+        "title": "Full-Stack Developer — NoBully",
+        "description": "School-bullying prevention system with JWT auth, admin panel and real-time notifications."
+      },
+      {
+        "id": "uninassau",
+        "periodStart": "2016",
+        "periodEnd": "2018",
+        "title": "Associate's Degree in Systems Analysis & Development",
+        "description": "Uninassau — Capstone: \"Cross-platform Endless Runner Game\"."
+      }
+    ]
+  },
   "contact": {
     "section": "Get in Touch",
     "intro": "Got a project in mind, want to chat about software architecture, or just talk about tabletop RPG?",
