@@ -10,6 +10,12 @@
 <script setup lang="ts">
 import { useHead, useSeoMeta } from 'nuxt/app'
 
+// Opt out of @nuxtjs/i18n route generation. The blog already has its
+// own /blog (PT) + /en/blog (EN) pair via duplicated page files; we
+// don't want the module to add /en/blog/<slug> pointing back to this
+// one. Same trick on every other blog page below.
+defineI18nRoute({ locales: false })
+
 useSeoMeta({
   title: 'Blog — Rodolfo De Bonis',
   description:

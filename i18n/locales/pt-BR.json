@@ -1,0 +1,26 @@
+{
+  "header": {
+    "links": {
+      "about": ".sobre()",
+      "stacks": ".stacks()",
+      "projects": ".projetos()",
+      "blog": ".blog()",
+      "xp": ".xp()",
+      "contact": ".contato()"
+    },
+    "theme": {
+      "toLight": "Modo claro",
+      "toDark": "Modo escuro",
+      "labelLight": "Modo Claro",
+      "labelDark": "Modo Escuro"
+    },
+    "language": {
+      "switchTo": "Mudar para inglês",
+      "label": "EN"
+    },
+    "menu": {
+      "open": "Menu",
+      "close": "Fechar"
+    }
+  }
+}

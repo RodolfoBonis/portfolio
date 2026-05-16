@@ -18,9 +18,20 @@
         </li>
         <li>
           <button
+            type="button"
+            @click="onLanguageSwitch"
+            class="text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors mono text-sm"
+            :title="t('header.language.switchTo')"
+            :aria-label="t('header.language.switchTo')"
+          >
+            {{ t('header.language.label') }}
+          </button>
+        </li>
+        <li>
+          <button
             @click="toggleTheme"
             class="text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
-            :title="isDark ? 'Modo claro' : 'Modo escuro'"
+            :title="isDark ? t('header.theme.toLight') : t('header.theme.toDark')"
           >
             <span class="material-icons text-xl">{{ isDark ? 'light_mode' : 'dark_mode' }}</span>
           </button>
@@ -31,6 +42,7 @@
       <button
         @click="menuOpen = !menuOpen"
         class="md:hidden text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
+        :aria-label="menuOpen ? t('header.menu.close') : t('header.menu.open')"
       >
         <span class="material-icons text-2xl">{{ menuOpen ? 'close' : 'menu' }}</span>
       </button>
@@ -53,11 +65,21 @@
         </li>
         <li>
           <button
+            type="button"
+            @click="onLanguageSwitch"
+            class="flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors mono"
+          >
+            <span class="material-icons text-lg">language</span>
+            <span>{{ t('header.language.switchTo') }}</span>
+          </button>
+        </li>
+        <li>
+          <button
             @click="toggleTheme"
             class="flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
           >
             <span class="material-icons text-lg">{{ isDark ? 'light_mode' : 'dark_mode' }}</span>
-            <span>{{ isDark ? 'Modo Claro' : 'Modo Escuro' }}</span>
+            <span>{{ isDark ? t('header.theme.labelLight') : t('header.theme.labelDark') }}</span>
           </button>
         </li>
       </ul>
@@ -71,24 +93,44 @@ const route = useRoute()
 const menuOpen = ref(false)
 const isDark = computed(() => colorMode.value === 'dark')
 
-// On the home route the bare `#anchor` works (and avoids a no-op
-// navigation). Anywhere else (e.g. /blog/...) the anchor doesn't exist
-// on the current page so we have to navigate home first — Nuxt's
-// scrollBehavior then resolves the hash on arrival. Dynamic prefix
-// keeps both paths working without two link sets.
-const hrefPrefix = computed(() => (route.path === '/' ? '' : '/'))
-const hrefHome = computed(() => (route.path === '/' ? '#hero' : '/'))
+// useI18n drives both the translated link labels and the language
+// switcher. setLocale() persists the choice in the i18n_redirected
+// cookie + navigates to the equivalent URL in the new locale (handled
+// by @nuxtjs/i18n).
+const { t, locale, setLocale } = useI18n()
+
+// Anchor links: when on the localised home (/ or /en) we want bare
+// `#anchor`; from any other page we have to send the user back to the
+// localised root first so the section exists in the DOM. The leading
+// slash flips dynamically based on whether the current path is the
+// home or a deep page.
+const isHome = computed(() => route.path === '/' || route.path === '/en')
+const hrefPrefix = computed(() => (isHome.value ? '' : localeRoot.value))
+const localeRoot = computed(() => (locale.value === 'en' ? '/en' : '/'))
+const hrefHome = computed(() => (isHome.value ? '#hero' : localeRoot.value))
 
 const links = computed(() => [
-  { label: '.sobre()', href: `${hrefPrefix.value}#about` },
-  { label: '.stacks()', href: `${hrefPrefix.value}#stacks` },
-  { label: '.projetos()', href: `${hrefPrefix.value}#projects` },
-  { label: '.blog()', href: `${hrefPrefix.value}#blog` },
-  { label: '.xp()', href: `${hrefPrefix.value}#experience` },
-  { label: '.contato()', href: `${hrefPrefix.value}#contact` },
+  { label: t('header.links.about'), href: `${hrefPrefix.value}#about` },
+  { label: t('header.links.stacks'), href: `${hrefPrefix.value}#stacks` },
+  { label: t('header.links.projects'), href: `${hrefPrefix.value}#projects` },
+  { label: t('header.links.blog'), href: `${hrefPrefix.value}#blog` },
+  { label: t('header.links.xp'), href: `${hrefPrefix.value}#experience` },
+  { label: t('header.links.contact'), href: `${hrefPrefix.value}#contact` },
 ])
 
 function toggleTheme() {
   colorMode.preference = isDark.value ? 'light' : 'dark'
+}
+
+function onLanguageSwitch() {
+  const next = locale.value === 'en' ? 'pt-BR' : 'en'
+  // GTM hook so we can attribute future engagement deltas to language
+  // preference. Wrap in client-only check so SSR doesn't blow up on
+  // the missing `dataLayer`.
+  if (typeof window !== 'undefined' && Array.isArray(window.dataLayer)) {
+    window.dataLayer.push({ event: 'language_change', language: next })
+  }
+  setLocale(next)
+  menuOpen.value = false
 }
 </script>
