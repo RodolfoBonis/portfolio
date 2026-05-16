@@ -4,10 +4,10 @@
     <div class="section-container">
       <div class="flex items-center gap-3 mb-4">
         <span class="mono text-[var(--accent)] text-sm">04.</span>
-        <h2 class="text-3xl md:text-4xl font-bold">Experiência & Educação</h2>
+        <h2 class="text-3xl md:text-4xl font-bold">{{ t('experience.section') }}</h2>
       </div>
       <p class="text-[var(--text-muted)] mb-16 max-w-2xl">
-        Onde estive e o que construí pelo caminho
+        {{ t('experience.intro') }}
       </p>
 
       <div class="relative">
@@ -17,7 +17,7 @@
         <div class="space-y-2">
           <div
             v-for="(item, index) in timeline"
-            :key="index"
+            :key="item.id ?? index"
             class="relative pl-12 md:pl-16 group"
           >
             <!-- Dot -->
@@ -43,7 +43,7 @@
               </p>
 
               <!-- Key achievements -->
-              <ul v-if="item.achievements" class="mt-3 space-y-1">
+              <ul v-if="item.achievements && item.achievements.length" class="mt-3 space-y-1">
                 <li
                   v-for="achievement in item.achievements"
                   :key="achievement"
@@ -55,7 +55,7 @@
               </ul>
 
               <!-- Tags -->
-              <div v-if="item.tags" class="flex flex-wrap gap-2 mt-3">
+              <div v-if="item.tags && item.tags.length" class="flex flex-wrap gap-2 mt-3">
                 <span
                   v-for="tag in item.tags"
                   :key="tag"
@@ -73,56 +73,33 @@
 </template>
 
 <script setup>
-const timeline = [
-  {
-    period: '2020 – Atual',
-    title: 'Consultor & Freelancer',
-    current: true,
-    description: 'Consultoria em desenvolvimento de software e automações, focando em infraestrutura e soluções criativas.',
-    achievements: [
-      'Setup de Home Lab completo (K3s + Traefik + Vault + External Secrets)',
-      'Automação residencial com Home Assistant via MQTT',
-      'Desenvolvimento de bots e moderação para Discord',
-    ],
-    tags: ['K3s', 'Vault', 'Home Assistant', 'MQTT'],
-  },
-  {
-    period: '2019 – Atual',
-    title: 'Engenheiro de Software — Vista / Loft',
-    current: true,
-    description: 'Engenheiro de Software na Loft, onde assumi a migração completa do app mobile da Vista — reescrevendo do zero de Ionic para Flutter, sozinho. Desde então, venho atuando em projetos de alto impacto no produto.',
-    achievements: [
-      'Reescrita completa do app mobile de Ionic → Flutter (solo)',
-      'Desenvolvimento de chat conversacional para busca do imóvel ideal',
-      'Implementação de busca semântica integrada ao sistema',
-      'Integrações entre múltiplos sistemas internos da empresa',
-      'Mentoria de desenvolvedores juniores e estagiários',
-      'Contribuição em arquitetura, code review e práticas de DevOps',
-    ],
-    tags: ['Flutter', 'GraphQL', 'Search', 'AI', 'DevOps'],
-  },
-  {
-    period: '2017 – 2019',
-    title: 'Desenvolvedor Full Stack — Innovate',
-    description: 'Sistemas hospitalares com Java e gerenciamento de iluminação pública com Node.js/Angular/Flutter.',
-    achievements: [
-      'Renderização de 1M+ postes em mapa interativo com clustering',
-      'Migração de Ionic para Flutter no app mobile',
-      'Backend com Node.js, Express e MongoDB',
-    ],
-    tags: ['Node.js', 'Angular', 'Flutter', 'MongoDB'],
-  },
-  {
-    period: '2017 – 2018',
-    title: 'Desenvolvedor Full Stack — NoBully',
-    description: 'Sistema de prevenção ao bullying escolar com autenticação JWT, painel administrativo e notificações em tempo real.',
-    tags: ['JWT', 'WebSockets', 'OneSignal'],
-  },
-  {
-    period: '2016 – 2018',
-    title: 'Tecnólogo em Análise e Desenvolvimento de Sistemas',
-    description: 'Uninassau — TCC: "Game Endless Runner Multiplataforma".',
-    tags: ['ADS', 'TCC'],
-  },
-]
+import { experienceMeta } from '~/data/experience'
+
+const { t, tm, locale } = useI18n()
+
+// timeline rebuilds the period string from periodStart/periodEnd in
+// the locale ("2017") + the localised `periodCurrent` label
+// ("Atual" / "Present") so dates render natively per language. Tags
+// + `current` flag stay neutral via the data file merge — same
+// pattern Projects.vue uses.
+const timeline = computed(() => {
+  void locale.value
+  const currentLabel = t('experience.periodCurrent')
+  const localized = tm('experience.timeline') ?? []
+  const byId = new Map(experienceMeta.map((e) => [e.id, e]))
+  return localized
+    .map((item) => {
+      const meta = byId.get(item.id) ?? { id: item.id }
+      const periodEnd = meta.current ? currentLabel : item.periodEnd ?? currentLabel
+      return {
+        id: item.id,
+        period: `${item.periodStart} – ${periodEnd}`,
+        title: item.title,
+        description: item.description,
+        achievements: item.achievements ?? [],
+        current: !!meta.current,
+        tags: meta.tags ?? [],
+      }
+    })
+})
 </script>
