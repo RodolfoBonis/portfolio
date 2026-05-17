@@ -2,49 +2,47 @@
   <div>
     <MainHeader />
     <main class="min-h-screen">
-      <BlogList lang="pt-BR" />
+      <BlogList :lang="lang" />
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useHead, useSeoMeta } from 'nuxt/app'
 
-// Opt out of @nuxtjs/i18n route generation. The blog already has its
-// own /blog (PT) + /en/blog (EN) pair via duplicated page files; we
-// don't want the module to add /en/blog/<slug> pointing back to this
-// one. Same trick on every other blog page below.
-defineI18nRoute(false)
+// Single source of truth for the blog list. @nuxtjs/i18n generates
+// /en/blog automatically (prefix_except_default); locale below
+// decides which language the API call pulls.
+const { locale } = useI18n()
+const lang = computed<'pt-BR' | 'en'>(() => (locale.value === 'en' ? 'en' : 'pt-BR'))
 
 useSeoMeta({
   title: 'Blog — Rodolfo De Bonis',
-  description:
-    'Notas técnicas, postmortems e experimentos sobre Go, observabilidade, multi-tenancy e infraestrutura.',
+  description: () =>
+    locale.value === 'en'
+      ? 'Technical notes, postmortems and experiments on Go, observability, multi-tenancy and infrastructure.'
+      : 'Notas técnicas, postmortems e experimentos sobre Go, observabilidade, multi-tenancy e infraestrutura.',
   ogTitle: 'Blog — Rodolfo De Bonis',
-  ogDescription:
-    'Artigos técnicos sobre Go, sistemas distribuídos e DevOps.',
-  ogUrl: 'https://rodolfodebonis.com.br/blog',
+  ogDescription: () =>
+    locale.value === 'en'
+      ? 'Technical articles on Go, distributed systems and DevOps.'
+      : 'Artigos técnicos sobre Go, sistemas distribuídos e DevOps.',
+  ogUrl: () =>
+    locale.value === 'en'
+      ? 'https://rodolfodebonis.com.br/en/blog'
+      : 'https://rodolfodebonis.com.br/blog',
   ogType: 'website',
 })
 
+// useLocaleHead handles <html lang> + canonical + hreflang alternates
+// automatically based on @nuxtjs/i18n's baseUrl + the route's
+// localised paths. Replaces the manual link block we used to keep in
+// sync across the PT + EN copies of this page.
+useLocaleHead({ addSeoAttributes: true })
+
 useHead({
   link: [
-    { rel: 'canonical', href: 'https://rodolfodebonis.com.br/blog' },
-    {
-      rel: 'alternate',
-      hreflang: 'en',
-      href: 'https://rodolfodebonis.com.br/en/blog',
-    },
-    {
-      rel: 'alternate',
-      hreflang: 'pt-BR',
-      href: 'https://rodolfodebonis.com.br/blog',
-    },
-    {
-      rel: 'alternate',
-      hreflang: 'x-default',
-      href: 'https://rodolfodebonis.com.br/blog',
-    },
     {
       rel: 'alternate',
       type: 'application/rss+xml',
