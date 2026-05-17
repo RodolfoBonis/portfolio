@@ -97,8 +97,12 @@ const isDark = computed(() => colorMode.value === 'dark')
 // useI18n drives both the translated link labels and the language
 // switcher. setLocale() persists the choice in the i18n_redirected
 // cookie + navigates to the equivalent URL in the new locale (handled
-// by @nuxtjs/i18n).
+// by @nuxtjs/i18n). useSwitchLocalePath() resolves the target URL for
+// a given locale, respecting any dynamic route params published via
+// useSetI18nParams() — that's what lets the switcher hop slugs on a
+// blog post (`/blog/<pt-slug>` → `/en/blog/<en-slug>`).
 const { t, locale, setLocale } = useI18n()
+const switchLocalePath = useSwitchLocalePath()
 
 // Anchor links: when on the localised home (/ or /en) we want bare
 // `#anchor`; from any other page we have to send the user back to the
@@ -132,21 +136,19 @@ async function onLanguageSwitch() {
     window.dataLayer.push({ event: 'language_change', language: next })
   }
 
-  const path = route.path
-  const isBlogPath = path === '/blog' || path.startsWith('/blog/') || path === '/en/blog' || path.startsWith('/en/blog/')
-
-  if (isBlogPath) {
-    const targetPath = next === 'en'
-      ? (path.startsWith('/en') ? path : `/en${path}`)
-      : path.replace(/^\/en/, '') || '/'
-
+  // Defer to the module to resolve the target URL — it consults
+  // useSetI18nParams() so a blog post navigates to the *matching*
+  // translation's slug instead of reusing the current slug under
+  // the new locale prefix. Falls back to setLocale() (cookie-only)
+  // if the module can't resolve a target — happens for stray paths
+  // not in the router table.
+  const target = switchLocalePath(next)
+  if (target) {
+    await router.push(target)
     await setLocale(next)
-    await router.push(targetPath)
-    menuOpen.value = false
-    return
+  } else {
+    await setLocale(next)
   }
-
-  await setLocale(next)
   menuOpen.value = false
 }
 </script>
