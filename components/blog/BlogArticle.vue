@@ -113,7 +113,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useAsyncData, useHead, useSeoMeta } from 'nuxt/app'
 import {
   pickTranslation,
@@ -189,6 +189,35 @@ const altPath = computed(() => {
   )?.slug
   if (!otherSlug) return null
   return otherLang === 'en' ? `/en/blog/${otherSlug}` : `/blog/${otherSlug}`
+})
+
+// Feed translation slugs into @nuxtjs/i18n's dynamic route params so
+// the header language switcher (useSwitchLocalePath under setLocale)
+// navigates to the matching translation's URL — `/blog/<pt-slug>`
+// becomes `/en/blog/<en-slug>` instead of the same slug under /en.
+// Re-runs whenever the post data changes (initial load + reactive
+// updates). When the other-language translation doesn't exist, we
+// fall back to the post's own slug so the switcher gracefully
+// degrades to a 404 page instead of vanishing the navigation.
+const ptSlug = computed(
+  () =>
+    data.value?.post?.translations?.find((t) => t.lang === 'pt-BR')?.slug ??
+    props.slug,
+)
+const enSlug = computed(
+  () =>
+    data.value?.post?.translations?.find((t) => t.lang === 'en')?.slug ??
+    props.slug,
+)
+useSetI18nParams({
+  'pt-BR': { slug: ptSlug.value },
+  en: { slug: enSlug.value },
+})
+watch([ptSlug, enSlug], () => {
+  useSetI18nParams({
+    'pt-BR': { slug: ptSlug.value },
+    en: { slug: enSlug.value },
+  })
 })
 
 const formattedDate = computed(() => {

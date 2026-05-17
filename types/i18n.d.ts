@@ -11,6 +11,8 @@
 // needed when `vue-tsc` errors on them — the runtime auto-import
 // pipeline doesn't depend on this file.
 
+import type { Ref } from 'vue'
+
 declare global {
   // Matches @nuxtjs/i18n v9: pass `false` to opt-out the page from
   // localised route generation. The object form takes `paths` for
@@ -21,6 +23,28 @@ declare global {
   function defineI18nRoute(
     route: { locales?: string[]; paths?: Record<string, string> } | false,
   ): void
+
+  // Bare-minimum shape of the composables this codebase actually
+  // calls. Loose by design — the runtime types come from
+  // .nuxt/imports.d.ts; this block exists only because the project
+  // tsconfig excludes .nuxt/, so vue-tsc never sees the real types.
+  function useI18n(): {
+    t: (key: string, params?: Record<string, unknown>) => string
+    locale: Ref<string>
+    setLocale: (code: string) => Promise<void>
+  }
+
+  function useLocaleHead(options?: {
+    addSeoAttributes?: boolean
+    addDirAttribute?: boolean
+    identifierAttribute?: string
+  }): Record<string, unknown>
+
+  function useSetI18nParams(
+    params: Record<string, Record<string, string>>,
+  ): void
+
+  function useSwitchLocalePath(): (code: string) => string
 }
 
 export {}
