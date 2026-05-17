@@ -12,7 +12,15 @@
 // pipeline doesn't depend on this file.
 
 declare global {
-  function defineI18nRoute(route: { locales?: false | string[] } | false): void
+  // Matches @nuxtjs/i18n v9: pass `false` to opt-out the page from
+  // localised route generation. The object form takes `paths` for
+  // custom slugs per locale + `locales` (array of codes) to scope
+  // generation. `locales: false` is invalid and the module silently
+  // ignores the call — typing it that way previously masked a real
+  // bug where blog pages weren't actually opted out.
+  function defineI18nRoute(
+    route: { locales?: string[]; paths?: Record<string, string> } | false,
+  ): void
 }
 
 export {}

@@ -11,7 +11,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
-defineI18nRoute({ locales: false })
+defineI18nRoute(false)
 
 const route = useRoute()
 const slug = computed(() => String(route.params.slug ?? ''))
