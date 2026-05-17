@@ -209,16 +209,19 @@ const enSlug = computed(
     data.value?.post?.translations?.find((t) => t.lang === 'en')?.slug ??
     props.slug,
 )
-useSetI18nParams({
-  'pt-BR': { slug: ptSlug.value },
-  en: { slug: enSlug.value },
-})
-watch([ptSlug, enSlug], () => {
-  useSetI18nParams({
+// useSetI18nParams() is a *factory* — it returns the setter to call
+// with the params, not a setter itself. Calling it with the params
+// directly (a previous bug) registered nothing, so the switcher kept
+// reusing the current slug under the new locale prefix.
+const setI18nParams = useSetI18nParams()
+const applyParams = () => {
+  setI18nParams({
     'pt-BR': { slug: ptSlug.value },
     en: { slug: enSlug.value },
   })
-})
+}
+applyParams()
+watch([ptSlug, enSlug], applyParams)
 
 const formattedDate = computed(() => {
   const iso = data.value?.post?.published_at ?? data.value?.post?.created_at

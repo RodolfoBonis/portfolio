@@ -40,9 +40,14 @@ declare global {
     identifierAttribute?: string
   }): Record<string, unknown>
 
-  function useSetI18nParams(
+  // useSetI18nParams is a factory: it returns the setter. Typing it
+  // as a direct setter (previous mistake) masked the bug where
+  // BlogArticle.vue called it as if it set params directly — nothing
+  // got registered, so the switcher kept reusing the current slug
+  // under the new locale prefix.
+  function useSetI18nParams(): (
     params: Record<string, Record<string, string>>,
-  ): void
+  ) => void
 
   function useSwitchLocalePath(): (code: string) => string
 }
