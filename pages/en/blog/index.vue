@@ -10,7 +10,7 @@
 <script setup lang="ts">
 import { useHead, useSeoMeta } from 'nuxt/app'
 
-defineI18nRoute({ locales: false })
+defineI18nRoute(false)
 
 useSeoMeta({
   title: 'Blog — Rodolfo De Bonis',

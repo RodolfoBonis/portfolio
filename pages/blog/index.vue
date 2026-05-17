@@ -14,7 +14,7 @@ import { useHead, useSeoMeta } from 'nuxt/app'
 // own /blog (PT) + /en/blog (EN) pair via duplicated page files; we
 // don't want the module to add /en/blog/<slug> pointing back to this
 // one. Same trick on every other blog page below.
-defineI18nRoute({ locales: false })
+defineI18nRoute(false)
 
 useSeoMeta({
   title: 'Blog — Rodolfo De Bonis',

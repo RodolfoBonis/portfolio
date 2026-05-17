@@ -10,7 +10,7 @@
 <script setup lang="ts">
 import { useRoute, useSeoMeta, useHead } from 'nuxt/app'
 
-defineI18nRoute({ locales: false })
+defineI18nRoute(false)
 
 const route = useRoute()
 const slug = (route.params.slug as string) ?? ''
