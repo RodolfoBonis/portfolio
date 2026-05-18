@@ -14,7 +14,7 @@
         </p>
 
         <form
-          action="https://formspree.io/f/xrbkgpzo"
+          :action="formspreeAction"
           method="POST"
           class="space-y-5 text-left"
         >
@@ -76,7 +76,8 @@
               v-for="social in socials"
               :key="social.url"
               :href="social.url"
-              target="_blank"
+              :target="social.external ? '_blank' : null"
+              :rel="social.external ? 'noopener noreferrer' : null"
               class="text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
               :title="social.name"
             >
@@ -84,10 +85,10 @@
             </a>
           </div>
           <p class="text-sm text-[var(--text-muted)] mono">
-            <span class="text-[var(--accent)]">©</span> {{ new Date().getFullYear() }} Rodolfo De Bonis
+            <span class="text-[var(--accent)]">©</span> {{ new Date().getFullYear() }} {{ profile?.name ?? 'Rodolfo De Bonis' }}
           </p>
           <p class="text-xs text-[var(--text-muted)]/50 mt-1 mono">
-            {{ t('contact.footer.tagline') }}
+            {{ footerTagline }}
           </p>
         </div>
       </div>
@@ -96,12 +97,53 @@
 </template>
 
 <script setup>
-const { t } = useI18n()
+import { usePortfolio } from '~/composables/usePortfolio'
 
-const socials = [
-  { name: 'GitHub', icon: 'code', url: 'https://github.com/RodolfoBonis' },
-  { name: 'LinkedIn', icon: 'work', url: 'https://www.linkedin.com/in/rodolfo-de-bonis/' },
-  { name: 'X', icon: 'rocket_launch', url: 'https://x.com/RodolfoBonis' },
-  { name: 'Email', icon: 'email', url: 'mailto:dev@rodolfodebonis.com.br' },
-]
+const props = defineProps({
+  profile: { type: Object, default: null },
+})
+
+const { t, locale } = useI18n()
+
+const { data: fallbackProfile } = await useAsyncData(
+  'contact-profile-fallback',
+  () =>
+    props.profile
+      ? Promise.resolve(props.profile)
+      : usePortfolio().getProfile(locale.value === 'en' ? 'en' : 'pt-BR'),
+  { server: true },
+)
+
+const profile = computed(() => props.profile ?? fallbackProfile.value ?? null)
+
+// Formspree endpoint comes from the CMS now so the contact form can
+// be retargeted (e.g. project-specific funnels) without a redeploy.
+// Falls back to the historical endpoint when the profile lacks one.
+const formspreeAction = computed(
+  () => profile.value?.formspree_endpoint ?? 'https://formspree.io/f/xrbkgpzo',
+)
+
+const footerTagline = computed(
+  () => profile.value?.footer_tagline ?? t('contact.footer.tagline'),
+)
+
+const socials = computed(() => {
+  const out = []
+  const g = profile.value?.github_url
+  if (g) out.push({ name: 'GitHub', icon: 'code', url: g, external: true })
+  const l = profile.value?.linkedin_url
+  if (l) out.push({ name: 'LinkedIn', icon: 'work', url: l, external: true })
+  const x = profile.value?.twitter_url
+  if (x) out.push({ name: 'X', icon: 'rocket_launch', url: x, external: true })
+  const e = profile.value?.email
+  if (e) out.push({ name: 'Email', icon: 'email', url: `mailto:${e}`, external: false })
+  if (out.length === 0) {
+    return [
+      { name: 'GitHub', icon: 'code', url: 'https://github.com/RodolfoBonis', external: true },
+      { name: 'LinkedIn', icon: 'work', url: 'https://www.linkedin.com/in/rodolfo-de-bonis/', external: true },
+      { name: 'Email', icon: 'email', url: 'mailto:dev@rodolfodebonis.com.br', external: false },
+    ]
+  }
+  return out
+})
 </script>

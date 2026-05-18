@@ -32,18 +32,20 @@
               <!-- Period -->
               <span class="mono text-xs text-[var(--accent)]">{{ item.period }}</span>
 
-              <!-- Title -->
+              <!-- Title (+ company suffix when present) -->
               <h3 class="text-lg font-semibold text-[var(--text-primary)] mt-1">
-                {{ item.title }}
+                {{ item.title }}<span v-if="item.company" class="text-[var(--text-muted)]"> — {{ item.company }}</span>
               </h3>
 
-              <!-- Description -->
-              <p class="text-sm text-[var(--text-secondary)] mt-2 leading-relaxed max-w-2xl">
-                {{ item.description }}
-              </p>
+              <!-- Description (HTML pre-rendered from CMS markdown) -->
+              <div
+                v-if="item.description_html"
+                class="text-sm text-[var(--text-secondary)] mt-2 leading-relaxed max-w-2xl prose-exp"
+                v-html="item.description_html"
+              ></div>
 
               <!-- Key achievements -->
-              <ul v-if="item.achievements && item.achievements.length" class="mt-3 space-y-1">
+              <ul v-if="item.achievements?.length" class="mt-3 space-y-1">
                 <li
                   v-for="achievement in item.achievements"
                   :key="achievement"
@@ -54,10 +56,10 @@
                 </li>
               </ul>
 
-              <!-- Tags -->
-              <div v-if="item.tags && item.tags.length" class="flex flex-wrap gap-2 mt-3">
+              <!-- Tech tags -->
+              <div v-if="item.tech_tags?.length" class="flex flex-wrap gap-2 mt-3">
                 <span
-                  v-for="tag in item.tags"
+                  v-for="tag in item.tech_tags"
                   :key="tag"
                   class="px-2 py-0.5 text-[10px] mono rounded bg-[var(--accent-muted)] text-[var(--accent)]"
                 >
@@ -73,33 +75,58 @@
 </template>
 
 <script setup>
-import { experienceMeta } from '~/data/experience'
+import { usePortfolio } from '~/composables/usePortfolio'
 
-const { t, tm, rt, locale } = useI18n()
+const props = defineProps({
+  experiences: { type: Array, default: null },
+})
 
-// timeline rebuilds the period string from periodStart/periodEnd in
-// the locale ("2017") + the localised `periodCurrent` label
-// ("Atual" / "Present") so dates render natively per language. Tags
-// + `current` flag stay neutral via the data file merge — same
-// pattern Projects.vue uses.
+const { t, locale } = useI18n()
+
+const { data: fallback } = await useAsyncData(
+  'experiences-fallback',
+  () =>
+    props.experiences
+      ? Promise.resolve(props.experiences)
+      : usePortfolio().getExperiences(locale.value === 'en' ? 'en' : 'pt-BR'),
+  { server: true },
+)
+
+const list = computed(() => props.experiences ?? fallback.value ?? [])
+
+// timeline maps the API shape onto the design's "period" string
+// (always YYYY-YYYY with the localised "Atual"/"Present" word when
+// the experience is current). The bullet uses `current` directly.
 const timeline = computed(() => {
-  void locale.value
   const currentLabel = t('experience.periodCurrent')
-  const localized = tm('experience.timeline') ?? []
-  const byId = new Map(experienceMeta.map((e) => [e.id, e]))
-  return localized
-    .map((item) => {
-      const meta = byId.get(item.id) ?? { id: item.id }
-      const periodEnd = meta.current ? currentLabel : item.periodEnd ?? currentLabel
-      return {
-        id: item.id,
-        period: `${rt(item.periodStart)} – ${rt(periodEnd)}`,
-        title: rt(item.title),
-        description: rt(item.description),
-        achievements: (item.achievements ?? []).map((a) => rt(a)),
-        current: !!meta.current,
-        tags: meta.tags ?? [],
-      }
-    })
+  return list.value.map((item) => {
+    const startYear = (item.period_start ?? '').slice(0, 4)
+    const endYear = item.current
+      ? currentLabel
+      : (item.period_end ?? '').slice(0, 4) || currentLabel
+    return {
+      id: item.id,
+      period: `${startYear} – ${endYear}`,
+      title: item.title,
+      company: item.company,
+      description_html: item.description_html,
+      achievements: item.achievements ?? [],
+      tech_tags: item.tech_tags ?? [],
+      current: item.current,
+    }
+  })
 })
 </script>
+
+<style scoped>
+.prose-exp :deep(p) {
+  margin: 0 0 0.5rem;
+}
+.prose-exp :deep(p:last-child) {
+  margin-bottom: 0;
+}
+.prose-exp :deep(strong) {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+</style>

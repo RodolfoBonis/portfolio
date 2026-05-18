@@ -16,9 +16,9 @@
           </div>
 
           <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] animate-fade-up delay-100">
-            Rodolfo
+            {{ firstName }}
             <br />
-            <span class="text-[var(--accent)]">De Bonis</span>
+            <span class="text-[var(--accent)]">{{ lastName }}</span>
           </h1>
 
           <p class="text-lg md:text-xl text-[var(--text-secondary)] max-w-lg animate-fade-up delay-200">
@@ -82,19 +82,19 @@
               <div class="text-[var(--text-muted)] pl-2">
                 <div>{</div>
                 <div class="pl-4">
-                  <span class="text-[var(--accent)]">"nome"</span>: <span class="text-amber-400">"Rodolfo De Bonis"</span>,
+                  <span class="text-[var(--accent)]">"nome"</span>: <span class="text-amber-400">"{{ profile?.name ?? 'Rodolfo De Bonis' }}"</span>,
                 </div>
                 <div class="pl-4">
-                  <span class="text-[var(--accent)]">"role"</span>: <span class="text-amber-400">"Software Engineer"</span>,
+                  <span class="text-[var(--accent)]">"role"</span>: <span class="text-amber-400">"{{ profile?.headline ?? 'Software Engineer' }}"</span>,
                 </div>
                 <div class="pl-4">
-                  <span class="text-[var(--accent)]">"location"</span>: <span class="text-amber-400">"Maceió, AL 🇧🇷"</span>,
+                  <span class="text-[var(--accent)]">"location"</span>: <span class="text-amber-400">"{{ locationLine }}"</span>,
                 </div>
                 <div class="pl-4">
-                  <span class="text-[var(--accent)]">"stack"</span>: [<span class="text-amber-400">"Go"</span>, <span class="text-amber-400">"Flutter"</span>, <span class="text-amber-400">"K8s"</span>, <span class="text-amber-400">"Vue"</span>],
+                  <span class="text-[var(--accent)]">"stack"</span>: [<template v-for="(s, i) in stackPreview" :key="s"><span class="text-amber-400">"{{ s }}"</span><span v-if="i < stackPreview.length - 1">, </span></template>],
                 </div>
                 <div class="pl-4">
-                  <span class="text-[var(--accent)]">"hobby"</span>: <span class="text-amber-400">"D&amp;D 5e Master 🎲"</span>,
+                  <span class="text-[var(--accent)]">"hobby"</span>: <span class="text-amber-400">"{{ profile?.hobbies?.[0] ?? 'D&D 5e Master 🎲' }}"</span>,
                 </div>
                 <div class="pl-4">
                   <span class="text-[var(--accent)]">"available"</span>: <span class="text-emerald-400">true</span>
@@ -115,10 +115,15 @@
 </template>
 
 <script setup>
-// Anchor links inside Hero need the localised home prefix so EN
-// visitors land on /en/#contact rather than /#contact (which would
-// reset their language preference). On the home page the prefix is
-// empty so the bare hash works for in-page scroll.
+import { usePortfolio } from '~/composables/usePortfolio'
+
+const props = defineProps({
+  // Pre-fetched profile coming from pages/index.vue's root useAsyncData.
+  // Falls back to a fresh fetch when this component is dropped into a
+  // page that doesn't provide it (smoke / experiments).
+  profile: { type: Object, default: null },
+})
+
 const { t, locale } = useI18n()
 const route = useRoute()
 const isHome = computed(() => route.path === '/' || route.path === '/en')
@@ -127,7 +132,49 @@ const homePrefix = computed(() => {
   return locale.value === 'en' ? '/en' : '/'
 })
 
-const yearsExp = new Date().getFullYear() - 2017
+const { data: fallbackProfile } = await useAsyncData(
+  'hero-profile-fallback',
+  () =>
+    props.profile
+      ? Promise.resolve(props.profile)
+      : usePortfolio().getProfile(locale.value === 'en' ? 'en' : 'pt-BR'),
+  { server: true },
+)
+
+const profile = computed(() => props.profile ?? fallbackProfile.value ?? null)
+
+// Years of experience comes from the CMS now; legacy fallback keeps
+// the page intact if the API is unreachable on a cold render.
+const yearsExp = computed(
+  () => profile.value?.years_experience ?? new Date().getFullYear() - 2017,
+)
+
+// Split the name on the first space so the design's two-line title
+// keeps working with any name in the CMS. Single-word names render
+// the whole name on line one and leave the accent line empty.
+const firstName = computed(() => {
+  const name = profile.value?.name ?? 'Rodolfo'
+  const idx = name.indexOf(' ')
+  return idx === -1 ? name : name.slice(0, idx)
+})
+const lastName = computed(() => {
+  const name = profile.value?.name ?? 'De Bonis'
+  const idx = name.indexOf(' ')
+  return idx === -1 ? '' : name.slice(idx + 1)
+})
+
+const locationLine = computed(() => {
+  const city = profile.value?.location_city ?? 'Maceió'
+  const region = profile.value?.location_region ?? 'AL'
+  return `${city}, ${region} 🇧🇷`
+})
+
+// Terminal stack preview: first 4 languages from the profile so it
+// stays in sync with the bio without us hand-rolling an array here.
+const stackPreview = computed(() => {
+  const langs = profile.value?.languages ?? ['Go', 'Flutter', 'K8s', 'Vue']
+  return langs.slice(0, 4)
+})
 
 const terminalLine = ref(null)
 const commands = [
