@@ -54,6 +54,13 @@ export interface BlogPost {
   og_image_url?: string
   reading_time_minutes: number
   view_count: number
+  like_count: number
+  /**
+   * Reader-state field — present only when the request opted in via
+   * `X-Reader-State: true`. Initial SSR fetch leaves this `undefined`
+   * to keep the response cacheable; the client hydrates it on mount.
+   */
+  liked?: boolean
   featured: boolean
   created_at: string
   updated_at: string
@@ -123,6 +130,49 @@ export function useBlog() {
       }).catch(() => {
         /* silent */
       })
+    },
+
+    /**
+     * Toggle a like on the post. Same IP that already liked → -1 and
+     * `liked: false`; new IP → +1 and `liked: true`. Rate-limited
+     * 30/min/IP upstream so a burst of click-spam degrades to 429
+     * before the dedup table is touched.
+     */
+    async likePost(
+      slug: string,
+      lang: Lang = 'pt-BR',
+    ): Promise<{ liked: boolean; like_count: number }> {
+      return $fetch<{ liked: boolean; like_count: number }>(
+        `/api/blog/posts/by-slug/${slug}/like`,
+        {
+          method: 'POST',
+          query: { lang },
+        },
+      )
+    },
+
+    /**
+     * Hydrate the per-reader liked flag for an already-rendered post.
+     * Called once on mount — SSR omits the X-Reader-State header so
+     * the shared cache stays usable, then the client follows up with
+     * this dedicated authoritative fetch. Returns just the fields the
+     * UI needs; ignores the rest of the (already-rendered) post body.
+     */
+    async fetchReaderState(
+      slug: string,
+      lang: Lang = 'pt-BR',
+    ): Promise<{ liked: boolean; like_count: number }> {
+      const post = await $fetch<BlogPost>(
+        `/api/blog/posts/by-slug/${slug}`,
+        {
+          query: { lang },
+          headers: { 'X-Reader-State': 'true' },
+        },
+      )
+      return {
+        liked: post.liked === true,
+        like_count: post.like_count ?? 0,
+      }
     },
   }
 }

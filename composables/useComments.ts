@@ -28,6 +28,13 @@ export interface BlogComment {
   body_html: string
   status: CommentStatus
   flag_count?: number
+  like_count: number
+  /**
+   * Reader-state field — populated only when the request opted in via
+   * `X-Reader-State: true`. The thread fetch below always opts in
+   * (comments aren't SSR-cached), so this is reliable on the client.
+   */
+  liked?: boolean
   edited_at?: string | null
   created_at: string
   updated_at: string
@@ -58,10 +65,17 @@ const editTokenStorageKey = (id: string) => `blog:comment:${id}:edit_token`
 
 export function useComments() {
   return {
-    /** Fetch the comment tree for a published post (by slug + lang). */
+    /**
+     * Fetch the comment tree for a published post (by slug + lang).
+     * Always sends `X-Reader-State: true` so each node carries the
+     * per-IP `liked` flag — comments are never SSR-cached (proxy has
+     * `cache: false` for /api/blog/**), so opting in here costs
+     * nothing extra and saves a separate round-trip.
+     */
     async getByPostSlug(slug: string, lang: 'pt-BR' | 'en' = 'pt-BR'): Promise<BlogComment[]> {
       return $fetch<BlogComment[]>(`/api/blog/posts/${slug}/comments`, {
         query: { lang },
+        headers: { 'X-Reader-State': 'true' },
       })
     },
 
@@ -107,6 +121,18 @@ export function useComments() {
       return $fetch<{ flag_count: number; duplicate: boolean }>(`/api/blog/comments/${id}/flag`, {
         method: 'POST',
         body: input,
+      })
+    },
+
+    /**
+     * Toggle a like on a comment. Same IP that already liked → -1 and
+     * `liked: false`; new IP → +1 and `liked: true`. Rate-limited
+     * 30/min/IP upstream — UNIQUE on (comment_id, ip_hash) is the
+     * authoritative dedup.
+     */
+    async like(id: string): Promise<{ liked: boolean; like_count: number }> {
+      return $fetch<{ liked: boolean; like_count: number }>(`/api/blog/comments/${id}/like`, {
+        method: 'POST',
       })
     },
 

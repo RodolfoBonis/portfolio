@@ -49,7 +49,7 @@
         >
           {{ authorInitials }}
         </div>
-        <div class="flex flex-col text-sm">
+        <div class="flex flex-col text-sm flex-1">
           <span class="font-medium text-[var(--text-primary)]">{{ authorName }}</span>
           <span class="mono text-xs text-[var(--text-muted)]">
             {{ formattedDate }} · {{ data.reading_time_minutes }} min
@@ -58,6 +58,19 @@
             </template>
           </span>
         </div>
+        <button
+          type="button"
+          class="like-button"
+          :class="{ 'is-liked': liked }"
+          :aria-pressed="liked"
+          :aria-label="liked ? copy.unlike : copy.like"
+          :title="liked ? copy.unlike : copy.like"
+          :disabled="likeBusy"
+          @click="onLikeClick"
+        >
+          <i :class="liked ? 'mdi mdi-heart' : 'mdi mdi-heart-outline'"></i>
+          <span class="like-button__count">{{ likeCount }}</span>
+        </button>
       </div>
 
       <!-- Cover -->
@@ -113,7 +126,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useAsyncData, useHead, useSeoMeta } from 'nuxt/app'
 import {
   pickTranslation,
@@ -130,8 +143,18 @@ const props = defineProps<{
 
 const copy = computed(() =>
   props.lang === 'en'
-    ? { notFound: 'post not found', backToBlog: 'back to blog' }
-    : { notFound: 'post não encontrado', backToBlog: 'voltar para o blog' },
+    ? {
+        notFound: 'post not found',
+        backToBlog: 'back to blog',
+        like: 'Like this post',
+        unlike: 'Unlike this post',
+      }
+    : {
+        notFound: 'post não encontrado',
+        backToBlog: 'voltar para o blog',
+        like: 'Curtir post',
+        unlike: 'Descurtir post',
+      },
 )
 
 const { data, error } = await useAsyncData<{
@@ -332,8 +355,92 @@ useHead({
   },
 })
 
-// Best-effort view tracker (fire-and-forget).
-onMounted(() => {
-  useBlog().registerView(props.slug, props.lang)
+// Likes — render from the SSR payload, then hydrate the per-IP `liked`
+// flag on mount. The SSR response never sends X-Reader-State so the
+// shared cache stays usable; the authoritative flag arrives one
+// round-trip later via fetchReaderState.
+const likeCount = ref(data.value?.post?.like_count ?? 0)
+const liked = ref(false)
+const likeBusy = ref(false)
+// Keep the count in sync if the SSR payload swaps (route change between
+// posts without a full reload).
+watch(
+  () => data.value?.post?.like_count,
+  (next) => {
+    if (typeof next === 'number') likeCount.value = next
+  },
+)
+
+async function onLikeClick() {
+  if (likeBusy.value) return
+  likeBusy.value = true
+  // Optimistic — invert + adjust count so the heart fills instantly.
+  // Reconcile with the server response below; on error roll back.
+  const prevLiked = liked.value
+  const prevCount = likeCount.value
+  liked.value = !prevLiked
+  likeCount.value = Math.max(0, prevCount + (liked.value ? 1 : -1))
+  try {
+    const res = await useBlog().likePost(props.slug, props.lang)
+    liked.value = res.liked
+    likeCount.value = res.like_count
+  } catch {
+    liked.value = prevLiked
+    likeCount.value = prevCount
+  } finally {
+    likeBusy.value = false
+  }
+}
+
+// Best-effort view tracker (fire-and-forget) + authoritative liked flag.
+onMounted(async () => {
+  const blog = useBlog()
+  blog.registerView(props.slug, props.lang)
+  try {
+    const state = await blog.fetchReaderState(props.slug, props.lang)
+    liked.value = state.liked
+    likeCount.value = state.like_count
+  } catch {
+    // Reader-state hydration is best-effort: the UI stays at the SSR
+    // count + liked=false. The server is still the source of truth on
+    // click (POST returns the canonical state).
+  }
 })
 </script>
+
+<style scoped>
+.like-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+.like-button:hover:not(:disabled) {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.like-button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+.like-button.is-liked {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.like-button .mdi {
+  font-size: 1rem;
+  line-height: 1;
+}
+.like-button__count {
+  font-variant-numeric: tabular-nums;
+}
+</style>
