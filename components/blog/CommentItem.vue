@@ -55,7 +55,9 @@
         :disabled="likeBusy"
         @click="onLike"
       >
-        <i :class="liked ? 'mdi mdi-heart' : 'mdi mdi-heart-outline'"></i>
+        <span class="material-icons comment__like-icon">
+          {{ liked ? 'favorite' : 'favorite_border' }}
+        </span>
         <span v-if="likeCount > 0" class="comment__like-count">{{ likeCount }}</span>
       </button>
     </footer>
@@ -303,8 +305,8 @@ const t = {
   gap: 0.25rem;
   margin-left: auto;
 }
-.comment__action--like .mdi {
-  font-size: 0.95rem;
+.comment__like-icon {
+  font-size: 0.95rem !important;
   line-height: 1;
 }
 .comment__action--like.is-liked {

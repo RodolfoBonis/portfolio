@@ -56,7 +56,7 @@
         <template v-if="(post.like_count ?? 0) > 0">
           <span>·</span>
           <span class="flex items-center gap-1">
-            <i class="mdi mdi-heart-outline" style="font-size:12px;line-height:1"></i>
+            <span class="material-icons text-[12px]">favorite_border</span>
             {{ formatViews(post.like_count) }}
           </span>
         </template>
