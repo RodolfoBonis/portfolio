@@ -177,7 +177,10 @@ const stackPreview = computed(() => {
 })
 
 const terminalLine = ref(null)
-const commands = [
+// Terminal commands come from the CMS now. The fallback array keeps
+// the animation visible if the public profile fetch failed on a cold
+// render or the admin emptied the list — better than a blank panel.
+const fallbackCommands = [
   'kubectl get pods --all-namespaces',
   'go build -o server ./cmd/api',
   'docker compose up -d',
@@ -185,6 +188,10 @@ const commands = [
   'terraform apply -auto-approve',
   'flutter run --release',
 ]
+const commands = computed(() => {
+  const cms = profile.value?.terminal_commands
+  return cms && cms.length > 0 ? cms : fallbackCommands
+})
 
 let cmdIdx = 0
 let charIdx = 0
@@ -194,8 +201,8 @@ const delayBetween = 2500
 
 function typeEffect() {
   if (!terminalLine.value) return
-  if (charIdx < commands[cmdIdx].length) {
-    terminalLine.value.textContent += commands[cmdIdx].charAt(charIdx)
+  if (charIdx < commands.value[cmdIdx].length) {
+    terminalLine.value.textContent += commands.value[cmdIdx].charAt(charIdx)
     charIdx++
     setTimeout(typeEffect, typeSpeed)
   } else {
@@ -206,11 +213,11 @@ function typeEffect() {
 function eraseEffect() {
   if (!terminalLine.value) return
   if (charIdx > 0) {
-    terminalLine.value.textContent = commands[cmdIdx].substring(0, charIdx - 1)
+    terminalLine.value.textContent = commands.value[cmdIdx].substring(0, charIdx - 1)
     charIdx--
     setTimeout(eraseEffect, eraseSpeed)
   } else {
-    cmdIdx = (cmdIdx + 1) % commands.length
+    cmdIdx = (cmdIdx + 1) % commands.value.length
     setTimeout(typeEffect, 500)
   }
 }

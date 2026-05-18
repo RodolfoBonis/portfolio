@@ -27,6 +27,8 @@ export interface PortfolioProfile {
   location_city?: string
   location_region?: string
   location_country?: string
+  /** Shell-looking strings cycled in the Hero's terminal animation. */
+  terminal_commands?: string[]
   // Translated fields — flattened by the API for the requested lang.
   headline?: string
   subtitle?: string
