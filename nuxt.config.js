@@ -46,6 +46,21 @@ export default defineNuxtConfig({
     },
     build: {
       assetsInlineLimit: 0,
+      // Pin core deps to dedicated vendor chunks so they stay
+      // cacheable across releases — when the app code changes the
+      // browser keeps the cached vue/i18n/markdown bundles instead
+      // of re-downloading them. Each chunk gets its own content
+      // hash, paired with the `immutable` Cache-Control on
+      // /_nuxt/** added in PR1.
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor-vue': ['vue', 'vue-router'],
+            'vendor-i18n': ['vue-i18n', '@intlify/core-base'],
+            'vendor-md': ['markdown-it'],
+          },
+        },
+      },
     },
     define: {
       __VUE_PROD_DEVTOOLS__: 'false',

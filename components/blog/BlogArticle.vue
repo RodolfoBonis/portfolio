@@ -120,7 +120,12 @@
            moderated server-side. The slug used here is the same one
            that resolved this page so the API can disambiguate per-
            language comment threads on bilingual posts. -->
-      <BlogComments
+      <!-- LazyBlogComments: the section is below-the-fold on every
+           article (after content + share + related). Splitting it
+           into its own chunk + dynamic import keeps the post LCP
+           path lean and defers comment+turnstile JS until the
+           reader actually scrolls there. -->
+      <LazyBlogComments
         :post-slug="translation?.slug ?? slug"
         :lang="lang"
       />
