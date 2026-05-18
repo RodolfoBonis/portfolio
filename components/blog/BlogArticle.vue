@@ -68,7 +68,9 @@
           :disabled="likeBusy"
           @click="onLikeClick"
         >
-          <i :class="liked ? 'mdi mdi-heart' : 'mdi mdi-heart-outline'"></i>
+          <span class="material-icons like-button__icon">
+            {{ liked ? 'favorite' : 'favorite_border' }}
+          </span>
           <span class="like-button__count">{{ likeCount }}</span>
         </button>
       </div>
@@ -436,7 +438,7 @@ onMounted(async () => {
   color: var(--accent);
   border-color: var(--accent);
 }
-.like-button .mdi {
+.like-button__icon {
   font-size: 1rem;
   line-height: 1;
 }
