@@ -75,11 +75,15 @@
         </button>
       </div>
 
-      <!-- Cover -->
+      <!-- Cover (LCP element on the article route) -->
       <img
         v-if="data.post.cover_image_url"
         :src="data.post.cover_image_url"
         :alt="translation?.title ?? ''"
+        width="1600"
+        height="900"
+        fetchpriority="high"
+        decoding="async"
         class="w-full aspect-[16/9] object-cover rounded-2xl border border-[var(--border)] mb-12"
       />
 

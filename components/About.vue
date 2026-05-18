@@ -18,6 +18,11 @@
             <img
               :src="logoUrl"
               alt="Rodolfo De Bonis"
+              width="640"
+              height="640"
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
               class="relative w-full aspect-square object-cover rounded-2xl border border-[var(--border)]"
             />
           </div>

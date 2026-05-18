@@ -9,8 +9,11 @@
         v-if="post.cover_image_url"
         :src="post.cover_image_url"
         :alt="title"
-        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        width="800"
+        height="450"
         loading="lazy"
+        decoding="async"
+        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
       />
       <div
         v-else

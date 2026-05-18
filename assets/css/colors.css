@@ -14,7 +14,10 @@ html.dark {
 
   --text-primary: #fafafa;
   --text-secondary: #a1a1aa;
-  --text-muted: #71717a;
+  /* Lifted from #71717a so muted copy keeps a hierarchy step
+     below secondary but clears WCAG AA (≥4.5:1) against the
+     near-black canvas. Lighthouse flagged the old value. */
+  --text-muted: #9095a1;
 
   --accent: #10b981;
   --accent-hover: #34d399;
@@ -39,7 +42,9 @@ html.light {
 
   --text-primary: #09090b;
   --text-secondary: #52525b;
-  --text-muted: #a1a1aa;
+  /* Lifted from #a1a1aa so muted copy passes WCAG AA against
+     the near-white canvas — old contrast ratio was ~2.3:1. */
+  --text-muted: #6b7280;
 
   --accent: #059669;
   --accent-hover: #10b981;
