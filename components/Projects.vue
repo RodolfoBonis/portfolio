@@ -20,7 +20,8 @@
             <!-- Image -->
             <div class="md:col-span-2 relative overflow-hidden">
               <img
-                :src="project.image"
+                v-if="project.image_url"
+                :src="project.image_url"
                 :alt="project.title"
                 class="w-full h-full min-h-[200px] object-cover group-hover:scale-105 transition-transform duration-500"
               />
@@ -34,12 +35,17 @@
                 <h3 class="text-2xl font-bold text-[var(--text-primary)]">{{ project.title }}</h3>
               </div>
 
-              <p class="text-[var(--text-secondary)] mb-6 leading-relaxed">
-                {{ project.description }}
-              </p>
+              <!-- description_html arrives sanitised from the CMS
+                   (goldmark pipeline, no scripts / inline styles) so
+                   v-html is safe here. -->
+              <div
+                v-if="project.description_html"
+                class="text-[var(--text-secondary)] mb-6 leading-relaxed prose-project"
+                v-html="project.description_html"
+              ></div>
 
               <!-- Tags -->
-              <div class="flex flex-wrap gap-2 mb-6">
+              <div v-if="project.tags?.length" class="flex flex-wrap gap-2 mb-6">
                 <span
                   v-for="tag in project.tags"
                   :key="tag"
@@ -50,7 +56,7 @@
               </div>
 
               <!-- Highlights -->
-              <ul v-if="project.highlights && project.highlights.length" class="space-y-2 mb-6">
+              <ul v-if="project.highlights?.length" class="space-y-2 mb-6">
                 <li
                   v-for="highlight in project.highlights"
                   :key="highlight"
@@ -64,13 +70,25 @@
               <!-- Actions -->
               <div class="flex gap-4">
                 <a
-                  :href="project.githubUrl"
+                  v-if="project.github_url"
+                  :href="project.github_url"
                   target="_blank"
+                  rel="noopener noreferrer"
                   class="inline-flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors mono"
                 >
                   <span class="material-icons text-base">code</span>
                   {{ t('projects.viewSource') }}
                   <span class="material-icons text-sm">open_in_new</span>
+                </a>
+                <a
+                  v-if="project.live_url"
+                  :href="project.live_url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors mono"
+                >
+                  <span class="material-icons text-base">open_in_new</span>
+                  Live
                 </a>
               </div>
             </div>
@@ -82,38 +100,41 @@
 </template>
 
 <script setup>
-import { projectsMeta } from '~/data/projects'
+import { usePortfolio } from '~/composables/usePortfolio'
 
-const { t, tm, rt, locale } = useI18n()
-
-// projects merges the locale-specific copy (title, description,
-// highlights) with the locale-neutral meta (image, tags, githubUrl).
-// Iteration order follows the i18n array so the locale file controls
-// what shows up and in what order. Re-runs when locale flips so the
-// EN visitor gets EN copy without a route reload.
-//
-// `locale` is referenced inside the computation so Vue tracks the
-// dependency — without it, switching language wouldn't trigger a
-// re-render of the cards.
-const projects = computed(() => {
-  void locale.value
-  const localized = tm('projects.items') ?? []
-  const byId = new Map(projectsMeta.map((p) => [p.id, p]))
-  return localized
-    .map((item) => {
-      const itemId = rt(item.id)
-      const meta = byId.get(itemId)
-      if (!meta) return null
-      return {
-        id: itemId,
-        title: rt(item.title),
-        description: rt(item.description),
-        highlights: (item.highlights ?? []).map((h) => rt(h)),
-        image: meta.image,
-        tags: meta.tags,
-        githubUrl: meta.githubUrl,
-      }
-    })
-    .filter(Boolean)
+const props = defineProps({
+  // pages/index.vue can pre-fetch the array; falls back to a fresh
+  // call if dropped into a page that doesn't provide it.
+  projects: { type: Array, default: null },
 })
+
+const { t, locale } = useI18n()
+
+const { data: fallback } = await useAsyncData(
+  'projects-fallback',
+  () =>
+    props.projects
+      ? Promise.resolve(props.projects)
+      : usePortfolio().getProjects(locale.value === 'en' ? 'en' : 'pt-BR'),
+  { server: true },
+)
+
+const projects = computed(() => props.projects ?? fallback.value ?? [])
 </script>
+
+<style scoped>
+.prose-project :deep(p) {
+  margin: 0 0 0.75rem;
+}
+.prose-project :deep(p:last-child) {
+  margin-bottom: 0;
+}
+.prose-project :deep(strong) {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.prose-project :deep(a) {
+  color: var(--accent);
+  text-decoration: underline;
+}
+</style>

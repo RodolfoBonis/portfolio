@@ -241,5 +241,8 @@ export default defineNuxtConfig({
     // tenant-scoped headers and we want every revalidation to hit a
     // fresh upstream response).
     '/api/blog/**': { cache: false },
+    // Same contract for the portfolio CMS proxy — the upstream owns
+    // the Cache-Control and Nitro must not cache between revalidations.
+    '/api/portfolio/**': { cache: false },
   },
 })
