@@ -244,5 +244,7 @@ export default defineNuxtConfig({
     // Same contract for the portfolio CMS proxy — the upstream owns
     // the Cache-Control and Nitro must not cache between revalidations.
     '/api/portfolio/**': { cache: false },
+    // Preview entrypoints set/clear the auth cookie — never cache.
+    '/preview/**': { cache: false, headers: { 'cache-control': 'private, no-store' } },
   },
 })
