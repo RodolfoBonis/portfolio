@@ -75,23 +75,16 @@
         </button>
       </div>
 
-      <!-- Cover (LCP element on the article route). Picture lets us
-           ship an AVIF source first with WebP fallback; older
-           browsers skip the type they can't parse without download. -->
-      <NuxtPicture
+      <!-- Cover (LCP element on the article route). -->
+      <img
         v-if="data.post.cover_image_url"
         :src="data.post.cover_image_url"
         :alt="translation?.title ?? ''"
         width="1600"
         height="900"
-        sizes="(max-width: 768px) 100vw, 768px"
-        format="avif,webp"
-        quality="82"
-        :img-attrs="{
-          fetchpriority: 'high',
-          decoding: 'async',
-          class: 'w-full aspect-[16/9] object-cover rounded-2xl border border-[var(--border)] mb-12',
-        }"
+        fetchpriority="high"
+        decoding="async"
+        class="w-full aspect-[16/9] object-cover rounded-2xl border border-[var(--border)] mb-12"
       />
 
       <!-- Body (server-rendered HTML) -->

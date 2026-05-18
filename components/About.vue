@@ -15,16 +15,14 @@
         <div class="lg:col-span-2 space-y-6">
           <div class="relative group">
             <div class="absolute -inset-1 bg-gradient-to-r from-[var(--accent)] to-emerald-600 rounded-2xl opacity-20 blur group-hover:opacity-40 transition-opacity"></div>
-            <NuxtImg
+            <img
               :src="logoUrl"
               alt="Rodolfo De Bonis"
               width="640"
               height="640"
-              sizes="(max-width: 768px) 100vw, 40vw"
               loading="eager"
               fetchpriority="high"
-              format="avif,webp"
-              quality="80"
+              decoding="async"
               class="relative w-full aspect-square object-cover rounded-2xl border border-[var(--border)]"
             />
           </div>

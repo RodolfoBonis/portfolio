@@ -5,16 +5,14 @@
   >
     <!-- Cover -->
     <div class="aspect-[16/9] bg-[var(--bg-tertiary)] overflow-hidden">
-      <NuxtImg
+      <img
         v-if="post.cover_image_url"
         :src="post.cover_image_url"
         :alt="title"
         width="800"
         height="450"
-        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         loading="lazy"
-        format="avif,webp"
-        quality="78"
+        decoding="async"
         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
       />
       <div

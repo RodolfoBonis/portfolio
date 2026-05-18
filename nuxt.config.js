@@ -70,26 +70,11 @@ export default defineNuxtConfig({
 
   components: true,
 
-  modules: ['@nuxtjs/color-mode', '@vueuse/nuxt', '@nuxtjs/google-fonts', '@nuxtjs/turnstile', '@nuxtjs/i18n', '@nuxt/image'],
-
-  // @nuxt/image: AVIF first (smallest), WebP fallback, original as
-  // last resort. screens line up with the Tailwind breakpoints we
-  // already use elsewhere so the generated srcset matches the layout
-  // grid without ad-hoc tuning. Remote rb-cdn host is whitelisted so
-  // the ipx provider can fetch + transform covers/avatar.
-  image: {
-    format: ['avif', 'webp'],
-    quality: 80,
-    screens: {
-      xs: 320,
-      sm: 640,
-      md: 768,
-      lg: 1024,
-      xl: 1280,
-      xxl: 1536,
-    },
-    domains: ['rodolfodebonis.com.br', 'rb-cdn.rodolfodebonis.com.br'],
-  },
+  // @nuxt/image was removed: IPX/Sharp transformed PNGs in-process and
+  // exhausted the pod's memory, taking the site down. Re-add only with
+  // an off-process provider (rb-cdn native variants or Cloudflare
+  // Images), never the bundled IPX inside the Nitro container.
+  modules: ['@nuxtjs/color-mode', '@vueuse/nuxt', '@nuxtjs/google-fonts', '@nuxtjs/turnstile', '@nuxtjs/i18n'],
 
   // Bilingual portfolio. PT-BR keeps every existing URL (root, no
   // prefix); EN gets a /en mirror via prefix_except_default.
