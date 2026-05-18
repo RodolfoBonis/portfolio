@@ -3,6 +3,7 @@ import {
   getRouterParam,
   getQuery,
   getRequestHeaders,
+  getCookie,
   createError,
   setResponseHeader,
   setResponseStatus,
@@ -58,6 +59,14 @@ export default defineEventHandler(async (event) => {
   }
   if (incomingHeaders['x-forwarded-for']) {
     forward['X-Forwarded-For'] = incomingHeaders['x-forwarded-for']
+  }
+  // Forward the preview cookie as an upstream header so the public
+  // endpoints know to include drafts. The cookie itself is httpOnly
+  // — it never reaches the browser-side composables — but the
+  // server-side proxy is exactly the right place to read it.
+  const previewToken = getCookie(event, 'preview_token')
+  if (previewToken) {
+    forward['X-Preview-Token'] = previewToken
   }
 
   try {

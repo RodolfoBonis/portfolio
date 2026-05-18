@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__plugin_figma_figma__use_figma",
+      "mcp__plugin_figma_figma__get_screenshot",
+      "Bash(curl -sS -o /tmp/v4-03-create.png \"https://www.figma.com/api/mcp/asset/19fdac51-d1ba-442e-ab9f-7d3193da98a7\")",
+      "Bash(curl -sS -o /tmp/v4-04-edit.png \"https://www.figma.com/api/mcp/asset/bc40ed91-187f-4147-aeff-7a84637a1a57\")",
+      "mcp__plugin_figma_figma__whoami",
+      "mcp__plugin_figma_figma__create_new_file",
+      "Bash(curl *)",
+      "Bash(awk '/^\\\\.\\(glow-line|glass|terminal-cursor|section-container|badge\\)\\\\s*\\\\{/,/^\\\\}/' assets/css/main.css)"
+    ]
+  }
+}
