@@ -45,6 +45,19 @@
       >
         {{ flagged ? t.flagged : t.flag }}
       </button>
+      <button
+        type="button"
+        class="comment__action comment__action--like"
+        :class="{ 'is-liked': liked }"
+        :aria-pressed="liked"
+        :aria-label="liked ? t.unlike : t.like"
+        :title="liked ? t.unlike : t.like"
+        :disabled="likeBusy"
+        @click="onLike"
+      >
+        <i :class="liked ? 'mdi mdi-heart' : 'mdi mdi-heart-outline'"></i>
+        <span v-if="likeCount > 0" class="comment__like-count">{{ likeCount }}</span>
+      </button>
     </footer>
 
     <!-- Inline edit textarea — only visible to the original author
@@ -129,6 +142,12 @@ const saving = ref(false)
 const editError = ref('')
 const flagging = ref(false)
 const flagged = ref(false)
+// Like state is hydrated from the comment payload (the thread fetch
+// opts into X-Reader-State so each node already carries `liked`).
+// Click handler reconciles with the server's authoritative response.
+const liked = ref(props.comment.liked === true)
+const likeCount = ref(props.comment.like_count ?? 0)
+const likeBusy = ref(false)
 
 const canEdit = computed(() =>
   comments.canEdit(props.comment.id) && isWithinEditWindow(props.comment.created_at),
@@ -166,6 +185,25 @@ async function onFlag() {
   }
 }
 
+async function onLike() {
+  if (likeBusy.value) return
+  likeBusy.value = true
+  const prevLiked = liked.value
+  const prevCount = likeCount.value
+  liked.value = !prevLiked
+  likeCount.value = Math.max(0, prevCount + (liked.value ? 1 : -1))
+  try {
+    const res = await comments.like(props.comment.id)
+    liked.value = res.liked
+    likeCount.value = res.like_count
+  } catch {
+    liked.value = prevLiked
+    likeCount.value = prevCount
+  } finally {
+    likeBusy.value = false
+  }
+}
+
 function onReplySubmitted(c: BlogComment) {
   showReply.value = false
   emit('reply-added', c)
@@ -181,6 +219,8 @@ const t = {
     saving: 'Salvando…',
     flag: '🚩 Reportar',
     flagged: '✓ Reportado',
+    like: 'Curtir',
+    unlike: 'Descurtir',
     removed: '[comentário removido]',
     edited: 'editado',
   },
@@ -193,6 +233,8 @@ const t = {
     saving: 'Saving…',
     flag: '🚩 Report',
     flagged: '✓ Reported',
+    like: 'Like',
+    unlike: 'Unlike',
     removed: '[comment removed]',
     edited: 'edited',
   },
@@ -254,6 +296,23 @@ const t = {
 }
 .comment__action--danger:hover {
   color: #ef4444;
+}
+.comment__action--like {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+.comment__action--like .mdi {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+.comment__action--like.is-liked {
+  color: var(--accent);
+}
+.comment__like-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
 }
 .comment__edit {
   margin-top: 0.5rem;

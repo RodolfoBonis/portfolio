@@ -28,6 +28,8 @@ import { $fetch, FetchError } from 'ofetch'
  *   GET  /api/blog/posts/latest                 → /v1/public/posts/latest
  *   GET  /api/blog/posts/by-slug/:slug          → /v1/public/posts/by-slug/:slug
  *   POST /api/blog/posts/by-slug/:slug/view     → /v1/public/posts/by-slug/:slug/view
+ *   POST /api/blog/posts/by-slug/:slug/like     → /v1/public/posts/by-slug/:slug/like
+ *   POST /api/blog/comments/:id/like            → /v1/public/comments/:id/like
  *   GET  /api/blog/tags                         → /v1/public/tags
  *
  * Cache passthrough: relays the upstream Cache-Control + ETag so the
@@ -75,9 +77,16 @@ export default defineEventHandler(async (event) => {
   if (incomingHeaders['if-none-match']) {
     forward['If-None-Match'] = incomingHeaders['if-none-match']
   }
-  // Use the real client IP for view dedup keying upstream.
+  // Use the real client IP for view + like dedup keying upstream.
   if (incomingHeaders['x-forwarded-for']) {
     forward['X-Forwarded-For'] = incomingHeaders['x-forwarded-for']
+  }
+  // Forward the reader-state opt-in so BySlug and the comment thread
+  // can return per-reader `liked` flags. Upstream downgrades
+  // Cache-Control to private,no-store when this is present, so the
+  // shared cache never sees IP-specific responses.
+  if (incomingHeaders['x-reader-state']) {
+    forward['X-Reader-State'] = incomingHeaders['x-reader-state']
   }
 
   let body: Record<string, unknown> | undefined

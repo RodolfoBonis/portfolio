@@ -53,6 +53,13 @@
           <span class="material-icons text-[12px]">visibility</span>
           {{ formatViews(post.view_count) }}
         </span>
+        <template v-if="(post.like_count ?? 0) > 0">
+          <span>·</span>
+          <span class="flex items-center gap-1">
+            <i class="mdi mdi-heart-outline" style="font-size:12px;line-height:1"></i>
+            {{ formatViews(post.like_count) }}
+          </span>
+        </template>
       </div>
     </div>
   </NuxtLink>
