@@ -75,16 +75,23 @@
         </button>
       </div>
 
-      <!-- Cover (LCP element on the article route) -->
-      <img
+      <!-- Cover (LCP element on the article route). Picture lets us
+           ship an AVIF source first with WebP fallback; older
+           browsers skip the type they can't parse without download. -->
+      <NuxtPicture
         v-if="data.post.cover_image_url"
         :src="data.post.cover_image_url"
         :alt="translation?.title ?? ''"
         width="1600"
         height="900"
-        fetchpriority="high"
-        decoding="async"
-        class="w-full aspect-[16/9] object-cover rounded-2xl border border-[var(--border)] mb-12"
+        sizes="(max-width: 768px) 100vw, 768px"
+        format="avif,webp"
+        quality="82"
+        :img-attrs="{
+          fetchpriority: 'high',
+          decoding: 'async',
+          class: 'w-full aspect-[16/9] object-cover rounded-2xl border border-[var(--border)] mb-12',
+        }"
       />
 
       <!-- Body (server-rendered HTML) -->
@@ -280,7 +287,14 @@ useSeoMeta({
 useHead({
   htmlAttrs: { lang: props.lang === 'en' ? 'en' : 'pt-BR' },
   link: () => {
-    const links: Array<{ rel: string; hreflang?: string; href: string }> = [
+    const links: Array<{
+      rel: string
+      hreflang?: string
+      href: string
+      as?: 'image'
+      type?: string
+      fetchpriority?: 'high'
+    }> = [
       { rel: 'canonical', href: canonicalUrl.value },
       {
         rel: 'alternate',
@@ -288,6 +302,18 @@ useHead({
         href: canonicalUrl.value,
       },
     ]
+    // Preload the LCP image as soon as the HTML lands so the
+    // browser starts the fetch before discovering the <NuxtPicture>
+    // markup. Cuts hundreds of ms off LCP on slow connections.
+    const cover = data.value?.post?.cover_image_url
+    if (cover) {
+      links.push({
+        rel: 'preload',
+        as: 'image',
+        href: cover,
+        fetchpriority: 'high',
+      })
+    }
     if (altPath.value) {
       const alt = `https://rodolfodebonis.com.br${altPath.value}`
       links.push({
