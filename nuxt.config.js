@@ -143,7 +143,7 @@ export default defineNuxtConfig({
         { name: 'theme-color', content: '#09090b' },
         { property: 'og:title', content: 'Rodolfo De Bonis — Software Engineer' },
         { property: 'og:description', content: 'Engenheiro de Software | DevOps | Mobile | D&D Master' },
-        { property: 'og:image', content: 'https://rodolfodebonis.com.br/api/cdn/portfolio/me.jpeg' },
+        { property: 'og:image', content: 'https://assets.rodolfodebonis.com.br/me.jpeg' },
         { property: 'og:url', content: 'https://rodolfodebonis.com.br' },
         { property: 'og:type', content: 'website' },
         { name: 'twitter:card', content: 'summary_large_image' },
