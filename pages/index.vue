@@ -68,7 +68,7 @@ useSeoMeta({
     profile.value?.og_description || t('seo.home.ogDescription'),
   ogImage: () =>
     profile.value?.og_image_url ||
-    'https://rodolfodebonis.com.br/api/cdn/portfolio/me.jpeg',
+    'https://assets.rodolfodebonis.com.br/me.jpeg',
   ogUrl: () =>
     locale.value === 'en'
       ? 'https://rodolfodebonis.com.br/en'

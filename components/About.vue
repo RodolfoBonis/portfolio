@@ -95,7 +95,7 @@ const { data: fallbackProfile } = await useAsyncData(
 const profile = computed(() => props.profile ?? fallbackProfile.value ?? null)
 
 const avatarUrl = computed(
-  () => profile.value?.avatar_url ?? '/api/cdn/portfolio/me.jpeg',
+  () => profile.value?.avatar_url ?? 'https://assets.rodolfodebonis.com.br/me.jpeg',
 )
 const yearsExp = computed(
   () => profile.value?.years_experience ?? new Date().getFullYear() - 2017,
