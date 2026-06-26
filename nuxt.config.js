@@ -72,8 +72,8 @@ export default defineNuxtConfig({
 
   // @nuxt/image was removed: IPX/Sharp transformed PNGs in-process and
   // exhausted the pod's memory, taking the site down. Re-add only with
-  // an off-process provider (rb-cdn native variants or Cloudflare
-  // Images), never the bundled IPX inside the Nitro container.
+  // an off-process provider (the cdn edge or Cloudflare Images), never
+  // the bundled IPX inside the Nitro container.
   modules: ['@nuxtjs/color-mode', '@vueuse/nuxt', '@nuxtjs/google-fonts', '@nuxtjs/turnstile', '@nuxtjs/i18n'],
 
   // Bilingual portfolio. PT-BR keeps every existing URL (root, no
