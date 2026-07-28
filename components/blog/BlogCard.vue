@@ -6,8 +6,8 @@
     <!-- Cover -->
     <div class="aspect-[16/9] bg-[var(--bg-tertiary)] overflow-hidden">
       <img
-        v-if="post.cover_image_url"
-        :src="post.cover_image_url"
+        v-if="coverImageUrl"
+        :src="coverImageUrl"
         :alt="title"
         width="800"
         height="450"
@@ -70,7 +70,12 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { pickTranslation, type BlogPost, type Lang } from '~/composables/useBlog'
+import {
+  getCoverImageUrl,
+  pickTranslation,
+  type BlogPost,
+  type Lang,
+} from '~/composables/useBlog'
 
 const props = defineProps<{
   post: BlogPost
@@ -80,6 +85,11 @@ const props = defineProps<{
 const lang = computed<Lang>(() => props.lang ?? 'pt-BR')
 
 const translation = computed(() => pickTranslation(props.post, lang.value))
+
+// Per-language cover with post-level fallback (same rule as the article).
+const coverImageUrl = computed(() =>
+  getCoverImageUrl(props.post, translation.value),
+)
 
 const title = computed(() => translation.value?.title ?? '—')
 const excerpt = computed(() => translation.value?.excerpt ?? '')
