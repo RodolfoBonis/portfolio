@@ -17,6 +17,12 @@ export interface PostTranslation {
   title: string
   excerpt?: string
   content_md: string
+  /**
+   * Per-language cover. When empty the post-level `cover_image_url` is
+   * used instead — see {@link getCoverImageUrl}. Lets the pt/en art stay
+   * coherent (e.g. a title baked into the image).
+   */
+  cover_image_url?: string
   seo_title?: string
   seo_description?: string
   created_at?: string
@@ -189,6 +195,18 @@ export function pickTranslation(
   return (
     post.translations.find((t) => t.lang === lang) ?? post.translations[0]
   )
+}
+
+/**
+ * Resolve the cover image to render: the translation's own cover when it
+ * has one, otherwise the shared post-level cover (the fallback that keeps
+ * existing posts rendering unchanged).
+ */
+export function getCoverImageUrl(
+  post: BlogPost,
+  translation: PostTranslation | undefined,
+): string | undefined {
+  return translation?.cover_image_url || post.cover_image_url
 }
 
 /** Tag name in the requested language, falling back to the slug. */

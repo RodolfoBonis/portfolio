@@ -77,8 +77,8 @@
 
       <!-- Cover (LCP element on the article route). -->
       <img
-        v-if="data.post.cover_image_url"
-        :src="data.post.cover_image_url"
+        v-if="coverImageUrl"
+        :src="coverImageUrl"
         :alt="translation?.title ?? ''"
         width="1600"
         height="900"
@@ -140,6 +140,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useAsyncData, useHead, useSeoMeta } from 'nuxt/app'
 import {
+  getCoverImageUrl,
   pickTranslation,
   useBlog,
   type Lang,
@@ -185,6 +186,15 @@ const { data, error } = await useAsyncData<{
 
 const translation = computed<PostTranslation | undefined>(() =>
   data.value?.post ? pickTranslation(data.value.post, props.lang) : undefined,
+)
+
+// Resolved cover: the translation's own art when present, else the
+// post-level fallback. Drives the <img>, og:image, LCP preload and
+// JSON-LD so every surface stays consistent per language.
+const coverImageUrl = computed<string | undefined>(() =>
+  data.value?.post
+    ? getCoverImageUrl(data.value.post, translation.value)
+    : undefined,
 )
 
 // Author display: snapshotted at publish-time on the API side
@@ -276,7 +286,7 @@ useSeoMeta({
   ogTitle: () => translation.value?.title || '',
   ogDescription: () =>
     translation.value?.seo_description || translation.value?.excerpt || '',
-  ogImage: () => data.value?.post?.cover_image_url || undefined,
+  ogImage: () => coverImageUrl.value || undefined,
   ogUrl: () => canonicalUrl.value,
   ogType: 'article',
   twitterCard: 'summary_large_image',
@@ -303,7 +313,7 @@ useHead({
     // Preload the LCP image as soon as the HTML lands so the
     // browser starts the fetch before discovering the <NuxtPicture>
     // markup. Cuts hundreds of ms off LCP on slow connections.
-    const cover = data.value?.post?.cover_image_url
+    const cover = coverImageUrl.value
     if (cover) {
       links.push({
         rel: 'preload',
@@ -357,7 +367,7 @@ useHead({
           '@type': 'BlogPosting',
           headline: t.title,
           description: t.seo_description || t.excerpt || '',
-          image: post.cover_image_url || undefined,
+          image: coverImageUrl.value || undefined,
           datePublished: post.published_at,
           dateModified: post.updated_at,
           inLanguage: props.lang,
